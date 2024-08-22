@@ -2,7 +2,7 @@
   "name": "saams-ui",
   "productName": "saams-ui",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Smart Attendance and Access Management System",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
