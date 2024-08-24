@@ -2,10 +2,10 @@
   "name": "saams-db",
   "version": "1.0.0",
   "description": "Database layer for SAAMS.",
-  "main": "./build/index.js",
+  "main": "./lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc -p ./src/index.ts"
+    "build": "tsc"
   },
   "author": "Adithya Pokala",
   "license": "MIT",
