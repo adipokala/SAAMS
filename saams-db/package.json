@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "description": "Database layer for SAAMS.",
   "main": "./lib/index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node ./lib/index.js"
   },
   "author": "Adithya Pokala",
   "license": "MIT",
   "dependencies": {
-    "pg": "^8.12.0"
+    "pg": "^8.12.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3"
   },
   "devDependencies": {
     "typescript": "^5.5.4"
