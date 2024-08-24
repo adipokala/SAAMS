@@ -34,7 +34,7 @@ export default function LoginView() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
-      email: data.get('email'),
+      email: data.get('userName'),
       password: data.get('password'),
     });
   };
