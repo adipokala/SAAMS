@@ -59,26 +59,26 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-const setupDatabase = () => {
+const setupDatabase = async () => {
 
-  sequelize.sync({ force: true });
+  await sequelize.sync({ force: true });
 
-  UserPrivilege.create({
+  await UserPrivilege.create({
       privilegeName: "User Management",
       privilegeCode: "UP01"
   });
   
-  UserRole.create({
+  await UserRole.create({
       roleName: "Administrator",
       roleCode: "UR01"
   });
 
-  UserRolePrivilege.create({
+  await UserRolePrivilege.create({
       userRoleId: 1,
       userPrivilegeId: 1
   });
 
-  User.create({
+  await User.create({
       userName: "admin",
       password: "admin123",
       firstName: "Admin",
