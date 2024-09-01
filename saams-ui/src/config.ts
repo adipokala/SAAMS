@@ -1,8 +1,8 @@
 import { Sequelize } from "sequelize-typescript";
-import { User } from "./user"
-import { UserRole } from "./user-role";
-import { UserPrivilege } from "./user-privilege";
-import { UserRolePrivilege } from "./user-role-privilege";
+import { User } from "./model/user"
+import { UserRole } from "./model/user-role";
+import { UserPrivilege } from "./model/user-privilege";
+import { UserRolePrivilege } from "./model/user-role-privilege";
 
 const sequelize = new Sequelize({
     dialect: "postgres",
