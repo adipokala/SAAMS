@@ -1,5 +1,6 @@
-import { DataTypes, Model, Optional } from "sequelize";
-import { Table, Column, PrimaryKey, AutoIncrement } from 'sequelize-typescript';
+import { Optional } from "sequelize";
+import { Model, Table, Column, PrimaryKey, AutoIncrement, ForeignKey, DataType } from 'sequelize-typescript';
+import { UserRole } from "./user-role";
 
 interface UserAttributes {
     id: number;
@@ -7,6 +8,7 @@ interface UserAttributes {
     password: string;
     firstName: string;
     lastName: string;
+    userRoleId: number;
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -18,22 +20,26 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 export class User extends Model<UserAttributes, UserCreationAttributes> {
     @PrimaryKey
     @AutoIncrement
-    @Column(DataTypes.INTEGER.UNSIGNED)
+    @Column(DataType.INTEGER.UNSIGNED)
     public id!: number;
 
     @Column({
-        type: DataTypes.STRING(100),
+        type: DataType.STRING(100),
         allowNull: false,
         unique: true,
         })
     public userName!: string;
 
-    @Column(DataTypes.STRING(50))
+    @Column(DataType.STRING(50))
     public password!: string;
 
-    @Column(DataTypes.STRING(50))
+    @Column(DataType.STRING(50))
     public firstName!: string;
 
-    @Column(DataTypes.STRING(50))
+    @Column(DataType.STRING(50))
     public lastName!: string;
+
+    @ForeignKey(() => UserRole)
+    @Column(DataType.INTEGER.UNSIGNED)
+    public userRoleId!: number;
 }
