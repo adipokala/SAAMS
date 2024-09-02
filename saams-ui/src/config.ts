@@ -3,6 +3,8 @@ import { User } from "./model/user"
 import { UserRole } from "./model/user-role";
 import { UserPrivilege } from "./model/user-privilege";
 import { UserRolePrivilege } from "./model/user-role-privilege";
+import { UserShift } from "./model/user-shift";
+import { UserDepartment } from "./model/user-department";
 
 const sequelize = new Sequelize({
     dialect: "postgres",
@@ -11,7 +13,7 @@ const sequelize = new Sequelize({
     password: "saams12345",
     host: "localhost",
     port: 5432,
-    models: [User, UserRole, UserPrivilege, UserRolePrivilege]
+    models: [User, UserRole, UserPrivilege, UserRolePrivilege, UserShift, UserDepartment]
 });
 
 export default sequelize;
