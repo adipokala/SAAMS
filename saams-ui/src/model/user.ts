@@ -17,6 +17,8 @@ interface UserAttributes {
     password: string;
     firstName: string;
     lastName: string;
+    email: string;
+    phone: string;
     userRoleId: number;
 }
 
@@ -47,6 +49,12 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
 
     @Column(DataType.STRING(50))
     public lastName!: string;
+
+    @Column(DataType.STRING)
+    public email: string;
+
+    @Column(DataType.STRING)
+    public phone: string;
 
     @Column(DataType.ENUM(...Object.values(Sex)))
     public sex: Sex;
