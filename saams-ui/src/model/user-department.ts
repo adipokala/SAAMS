@@ -3,8 +3,8 @@ import { AllowNull, AutoIncrement, Column, DataType, Model, PrimaryKey, Table } 
 
 interface UserDepartmentAttributes {
     id: number;
-    departmentName: string;
-    departmentCode: string;
+    name: string;
+    code: string;
 }
 
 interface UserDepartmentCreationAttributes extends Optional<UserDepartmentAttributes, "id"> {}
@@ -21,9 +21,9 @@ export class UserDepartment extends Model<UserDepartmentAttributes, UserDepartme
 
     @AllowNull(false)
     @Column(DataType.STRING(50))
-    public departmentName: string;
+    public name: string;
 
     @AllowNull(false)
     @Column(DataType.STRING(5))
-    public departmentCode: string;
+    public code: string;
 }

@@ -3,8 +3,8 @@ import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from "seque
 
 interface UserPrivilegeAttributes {
     id: number;
-    privilegeName: string;
-    privilegeCode: string;
+    name: string;
+    code: string;
 }
 
 interface UserPrivilegeCreationAttributes extends Optional<UserPrivilegeAttributes, "id"> {}
@@ -23,11 +23,11 @@ export class UserPrivilege extends Model<UserPrivilegeAttributes, UserPrivilegeC
         type: DataType.STRING(30),
         unique: true
     })
-    public privilegeName!: string;
+    public name!: string;
 
     @Column({
         type: DataType.STRING(5),
         unique: true
     })
-    public privilegeCode!: string;
+    public code!: string;
 }

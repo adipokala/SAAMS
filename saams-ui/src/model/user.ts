@@ -3,6 +3,8 @@ import { Model, Table, Column, PrimaryKey, AutoIncrement, ForeignKey, DataType }
 import { UserRole } from "./user-role";
 import { UserShift } from "./user-shift";
 import { UserDepartment } from "./user-department";
+import { Company } from "./company";
+import { UserDesignation } from "./user-designation";
 
 enum Sex {
     MALE = "Male",
@@ -58,6 +60,14 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
     @ForeignKey(() => UserRole)
     @Column(DataType.INTEGER.UNSIGNED)
     public userRoleId!: number;
+
+    @ForeignKey(() => Company)
+    @Column(DataType.INTEGER.UNSIGNED)
+    public userCompanyId: number;
+
+    @ForeignKey(() => UserDesignation)
+    @Column(DataType.INTEGER.UNSIGNED)
+    public userDesignationId: number;
 
     @ForeignKey(() => UserDepartment)
     @Column(DataType.INTEGER.UNSIGNED)
