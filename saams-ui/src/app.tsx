@@ -12,7 +12,6 @@ function App() {
         if(userName == 'admin' && password == '123') {
             setIsAuthenticated(true);
         } else {
-            alert('Invaliid username or password');
             setLoginAttempted(true);
             setIsAuthenticated(false);
         }

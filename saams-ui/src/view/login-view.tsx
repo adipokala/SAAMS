@@ -11,6 +11,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {useState} from 'react';
+import { Snackbar } from '@mui/material';
 
 function Copyright(props: any) {
   return (
@@ -34,16 +35,6 @@ interface LoginViewProps {
 }
 
 export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('');
-
-  React.useEffect(() => {
-    if(loginAttempted) {
-      setUserName('');
-      setPassword('');
-    }
-  }, [loginAttempted]);
-
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -54,20 +45,10 @@ export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
 
     // call the onLogin function passed as a prop
     console.log('Entered handlesubmit');
-    onLogin(userName, password);
+    onLogin(data.get('userName').toString(), data.get('password').toString());
 
     //reset the input fields after login process
   };
-
-  const handleUserNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("UserName: ", e.target.value);
-    setUserName(e.target.value);
-    }
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log("Password: ", e.target.value);
-    setPassword(e.target.value);
-  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -113,8 +94,6 @@ export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
                 label="User Name"
                 name="userName"
                 autoFocus
-                value={userName}
-                onChange={handleUserNameChange}
               />
               <TextField
                 margin="normal"
@@ -124,8 +103,6 @@ export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
                 label="Password"
                 type="password"
                 id="password"
-                value={password}
-                onChange={handlePasswordChange}
               />
               <Button
                 type="submit"
@@ -135,6 +112,7 @@ export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
               >
                 Sign In
               </Button>
+              <Snackbar open={loginAttempted} autoHideDuration={3000} message="Invalid username or password. Try again." />
               <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
