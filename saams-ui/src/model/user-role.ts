@@ -4,8 +4,8 @@ import { UserPrivilege } from "./user-privilege";
 
 interface UserRoleAttributes {
     id: number;
-    roleName: string;
-    roleCode: string;
+    name: string;
+    code: string;
 }
 
 interface UserRoleCreationAttributes extends Optional<UserRoleAttributes, "id"> {}
@@ -24,11 +24,11 @@ export class UserRole extends Model<UserRoleAttributes, UserRoleCreationAttribut
         type: DataType.STRING(25),
         unique: true
     })
-    public roleName!: string;
+    public name!: string;
 
     @Column({
         type: DataType.STRING(5),
         unique: true
     })
-    public roleCode!: string
+    public code!: string
 }

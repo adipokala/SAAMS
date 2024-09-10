@@ -64,13 +64,13 @@ const setupDatabase = async () => {
   await sequelize.sync({ force: true });
 
   await UserPrivilege.create({
-      privilegeName: "User Management",
-      privilegeCode: "UP01"
+      name: "User Management",
+      code: "UP01"
   });
   
   await UserRole.create({
-      roleName: "Administrator",
-      roleCode: "UR01"
+      name: "Administrator",
+      code: "UR01"
   });
 
   await UserRolePrivilege.create({
@@ -84,7 +84,6 @@ const setupDatabase = async () => {
       firstName: "Admin",
       lastName: "Admin",
       userRoleId: 1
-
   });
 
 }
