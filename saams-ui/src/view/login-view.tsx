@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
@@ -12,6 +10,8 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import {useState} from 'react';
+import { Snackbar } from '@mui/material';
 
 function Copyright(props: any) {
   return (
@@ -29,7 +29,12 @@ function Copyright(props: any) {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function LoginView() {
+interface LoginViewProps {
+  onLogin: (userName: string, password: string) => void;
+  loginAttempted: boolean;
+}
+
+export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -37,6 +42,12 @@ export default function LoginView() {
       email: data.get('userName'),
       password: data.get('password'),
     });
+
+    // call the onLogin function passed as a prop
+    console.log('Entered handlesubmit');
+    onLogin(data.get('userName').toString(), data.get('password').toString());
+
+    //reset the input fields after login process
   };
 
   return (
@@ -101,6 +112,7 @@ export default function LoginView() {
               >
                 Sign In
               </Button>
+              <Snackbar open={loginAttempted} autoHideDuration={3000} message="Invalid username or password. Try again." />
               <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
