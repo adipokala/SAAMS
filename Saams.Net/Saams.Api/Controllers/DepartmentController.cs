@@ -1,48 +1,47 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Saams.Api.Models;
-using Saams.EF;
 using Saams.EF.UserManagement;
+using Saams.EF;
 
 namespace Saams.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DesignationController : ControllerBase
+    public class DepartmentController : ControllerBase
     {
-        private readonly ILogger<DesignationController> _logger;
+        private readonly ILogger<DepartmentController> _logger;
 
-        public DesignationController(ILogger<DesignationController> logger)
+        public DepartmentController(ILogger<DepartmentController> logger)
         {
             _logger = logger;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<DesignationModel>> Get()
+        public ActionResult<IEnumerable<DepartmentModel>> Get()
         {
-            List<DesignationModel> designationModels = new List<DesignationModel>();
+            List<DepartmentModel> departmentModels = new List<DepartmentModel>();
 
             using (var context = new SaamsContext())
             {
-                var designations = context.Designations;
-                foreach (var designation in designations)
+                var departments = context.Departments;
+                foreach (var department in departments)
                 {
-                    var model = new DesignationModel()
+                    var model = new DepartmentModel()
                     {
-                        Id = designation.Id,
-                        Name = designation.Name,
-                        Code = designation.Code,
+                        Id = department.Id,
+                        Name = department.Name,
+                        Code = department.Code,
                     };
-                    designationModels.Add(model);
+                    departmentModels.Add(model);
                 }
             }
 
-            return Ok(designationModels);
+            return Ok(departmentModels);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<DesignationModel> Get(int id)
+        public ActionResult<DepartmentModel> Get(int id)
         {
             if (id == 0)
             {
@@ -51,15 +50,15 @@ namespace Saams.Api.Controllers
 
             using (var context = new SaamsContext())
             {
-                var designation = context.Designations.First(d => d.Id == id);
-                if (designation != null)
+                var department = context.Departments.First(d => d.Id == id);
+                if (department != null)
                 {
                     return Ok(
-                        new DesignationModel()
+                        new DepartmentModel()
                         {
-                            Id = designation.Id,
-                            Code = designation.Code,
-                            Name = designation.Name,
+                            Id = department.Id,
+                            Code = department.Code,
+                            Name = department.Name,
                         });
                 }
             }
@@ -68,7 +67,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult<DesignationModel> Post([FromBody] DesignationModel model)
+        public ActionResult<DepartmentModel> Post([FromBody] DepartmentModel model)
         {
             if (model == null)
             {
@@ -77,23 +76,23 @@ namespace Saams.Api.Controllers
 
             using (var context = new SaamsContext())
             {
-                Designation designation = new Designation()
+                Department department = new Department()
                 {
                     Name = model.Name,
                     Code = model.Code,
                 };
 
-                context.Designations.Add(designation);
+                context.Departments.Add(department);
                 context.SaveChanges();
 
-                model.Id = designation.Id;
+                model.Id = department.Id;
             }
 
             return Ok(model);
         }
 
         [HttpPut]
-        public ActionResult Put([FromBody] DesignationModel model)
+        public ActionResult Put([FromBody] DepartmentModel model)
         {
             if (model == null)
             {
@@ -102,15 +101,15 @@ namespace Saams.Api.Controllers
 
             using (var context = new SaamsContext())
             {
-                var designation = context.Designations.First(d => d.Id == model.Id);
-                if (designation == null)
+                var department = context.Departments.First(d => d.Id == model.Id);
+                if (department == null)
                 {
                     return NotFound();
                 }
 
-                designation.Code = model.Code;
-                designation.Name = model.Name;
-                context.Designations.Update(designation);
+                department.Code = model.Code;
+                department.Name = model.Name;
+                context.Departments.Update(department);
                 context.SaveChanges();
             }
 
@@ -127,13 +126,13 @@ namespace Saams.Api.Controllers
 
             using (var context = new SaamsContext())
             {
-                var designation = context.Designations.First(x => x.Id == id);
-                if (designation == null)
+                var department = context.Departments.First(x => x.Id == id);
+                if (department == null)
                 {
                     return NotFound();
                 }
 
-                context.Designations.Remove(designation);
+                context.Departments.Remove(department);
                 context.SaveChanges();
             }
             return Ok();
