@@ -76,7 +76,7 @@ namespace Saams.Api.Controllers
 
             using (var context = new SaamsContext())
             {
-                Privilege privilege = new Privilege()
+                var privilege = new Privilege()
                 {
                     Name = model.Name,
                     Code = model.Code,

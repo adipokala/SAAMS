@@ -76,7 +76,7 @@ namespace Saams.Api.Controllers
 
             using (var context = new SaamsContext())
             {
-                Department department = new Department()
+                var department = new Department()
                 {
                     Name = model.Name,
                     Code = model.Code,
