@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saams.Api", "Saams.Api\Saams.Api.csproj", "{98253A79-382F-402B-BB09-87B7F63DD324}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Saams.EF", "Saams.EF\Saams.EF.csproj", "{0613044F-4C20-433D-9FC9-EA7C7E2CA86C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{98253A79-382F-402B-BB09-87B7F63DD324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98253A79-382F-402B-BB09-87B7F63DD324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98253A79-382F-402B-BB09-87B7F63DD324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98253A79-382F-402B-BB09-87B7F63DD324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0613044F-4C20-433D-9FC9-EA7C7E2CA86C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0613044F-4C20-433D-9FC9-EA7C7E2CA86C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0613044F-4C20-433D-9FC9-EA7C7E2CA86C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0613044F-4C20-433D-9FC9-EA7C7E2CA86C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DA5827BF-75D4-4C23-9A23-5B9E44B2EF59}
+	EndGlobalSection
+EndGlobal
