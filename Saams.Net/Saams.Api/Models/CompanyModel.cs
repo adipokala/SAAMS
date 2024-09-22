@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace Saams.Api.Models
+﻿namespace Saams.Api.Models
 {
     public class CompanyModel
     {
