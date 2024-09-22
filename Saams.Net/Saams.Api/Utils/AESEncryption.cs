@@ -21,7 +21,7 @@ namespace Saams.Api.Utils
             using (var aesAlg = Aes.Create())
             {
                 aesAlg.Key = AESEncryptionKey;
-                aesAlg.IV = new byte[32];
+                aesAlg.IV = new byte[16];
 
                 ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
@@ -58,7 +58,7 @@ namespace Saams.Api.Utils
             using (var aesAlg = Aes.Create())
             {
                 aesAlg.Key = AESEncryptionKey;
-                aesAlg.IV = new byte[32];
+                aesAlg.IV = new byte[16];
 
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
