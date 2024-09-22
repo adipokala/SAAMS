@@ -5,6 +5,7 @@ using Saams.EF.UserManagement;
 using Saams.EF;
 using System.ComponentModel.Design;
 using System.Numerics;
+using Saams.Api.Utils;
 
 namespace Saams.Api.Controllers
 {
@@ -106,7 +107,7 @@ namespace Saams.Api.Controllers
                 {
                     Id = model.Id,
                     UserName = model.UserName,
-                    Password = model.Password,
+                    Password = AESEncryption.Encrypt(model.Password),
                     FirstName = model.FirstName,
                     LastName = model.LastName,
                     Email = model.Email,
@@ -147,7 +148,7 @@ namespace Saams.Api.Controllers
                 }
 
                 user.UserName = model.UserName;
-                user.Password = model.Password;
+                user.Password = AESEncryption.Encrypt(model.Password);
                 user.FirstName = model.FirstName;
                 user.LastName = model.LastName;
                 user.Email = model.Email;

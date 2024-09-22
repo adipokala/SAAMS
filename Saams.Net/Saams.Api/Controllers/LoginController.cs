@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Saams.Api.Models;
+using Saams.Api.Utils;
 using Saams.EF;
 
 namespace Saams.Api.Controllers
@@ -40,7 +41,7 @@ namespace Saams.Api.Controllers
                     });
                 }
 
-                if (user.Password != model.Password)
+                if (user.Password != AESEncryption.Encrypt(model.Password))
                 {
                     return NotFound(new ResponseModel()
                     {
