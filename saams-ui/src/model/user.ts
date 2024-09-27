@@ -1,11 +1,7 @@
-// import { Optional } from "sequelize";
-// import { Model, Table, Column, PrimaryKey, AutoIncrement, ForeignKey, DataType } from 'sequelize-typescript';
-// import { UserRole } from "./user-role";
-// import { UserShift } from "./user-shift";
-// import { UserDepartment } from "./user-department";
-// import { Company } from "./company";
-// import { UserDesignation } from "./user-designation";
-
+interface UserLogin {
+    userName: string,
+    password: string
+}
 // enum Sex {
 //     MALE = "Male",
 //     FEMALE = "Female"

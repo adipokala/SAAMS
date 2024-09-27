@@ -9,6 +9,8 @@ function App() {
     const [loginAttempted, setLoginAttempted] = useState(false); // Track if a login attempt has been made
 
     const handleLogin = (userName: string, password: string) => {
+        console.log('EnteredhandleLogin');
+        window.electronAPI.loginUser('{userName: ' + userName + ', password: '+ password + '}');
         if(userName == 'admin' && password == '123') {
             setIsAuthenticated(true);
         } else {
