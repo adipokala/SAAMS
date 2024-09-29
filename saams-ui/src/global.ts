@@ -3,7 +3,8 @@ export {};
 declare global {
     interface Window {
         electronAPI: {
-            loginUser: (json: string) => void;
+            loginUser: (json: string) => void,
+            onGetIPC: () => void;
         }
     }
 }

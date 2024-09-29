@@ -1,10 +1,18 @@
-import React from 'react';
+import * as React from 'react';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 
-export default function DashboardView() {
+interface ButtonProps {
+  onGet: () => void;
+}
+export default function DashboardView({onGet}: ButtonProps) {
+  const handleButtonClick = (event: React.MouseEvent) =>  {
+    console.log('button clicked !');
+    onGet();
+  }
   return (
-    <div>
-      <h1>Welcome to the Dashboard</h1>
-      {/* Add more dashboard content here */}
-    </div>
+    <Stack spacing={2} direction="row">
+      <Button variant="contained" onClick={handleButtonClick}>get</Button>
+    </Stack>
   );
 }

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import LoginView from './view/login-view';
 import DashboardView from './view/Dashboard-view';
 import { useState } from 'react';
+import {net} from 'electron';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,10 +19,16 @@ function App() {
             setIsAuthenticated(false);
         }
     };
+
+    const handleOnGet = () => {
+        console.log('entered the handle get request');
+        window.electronAPI.onGetIPC();
+
+    }
     return (
         <>
         {isAuthenticated ? (
-            <DashboardView /> // Show the dashboard if authenticated
+            <DashboardView onGet={handleOnGet}/> // Show the dashboard if authenticated
         ) : (
             <LoginView onLogin={handleLogin} loginAttempted={loginAttempted} />
         )}
