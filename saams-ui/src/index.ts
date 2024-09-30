@@ -18,19 +18,39 @@ const handleLoginUser = async (json:string) => {
 const handleOnGetIPC = async () => {
   console.log('reached through IPC');
 
-  //make sure the entry exists
-  const request = net.request('https://localhost:7192/api/Department/1')
-  request.on('response', (response) => {
-      response.on('data', (chunk) => {
-          console.log(`${chunk}`)
-      })
-      response.on('end', () => {
-          console.log('no more data')
-      })
-  })
+  const id = await new Promise<dataResponse>((resolve, reject) => {
+    // Make sure the entry exists
+    const request = net.request('https://localhost:7192/api/Department/1');
 
-  request.end();
-}
+    request.on('response', (response) => {
+      let responseData = '';
+
+      response.on('data', (chunk) => {
+        responseData += chunk; // Collect all data chunks
+      });
+
+      response.on('end', () => {
+        try {
+          const data = JSON.parse(responseData);
+          console.log(`${data.id}`);
+          resolve(data); // Resolve the promise with the id
+        } catch (error) {
+          reject(error); // Reject if parsing fails
+        }
+        console.log('no more data');
+      });
+    });
+
+    request.on('error', (error) => {
+      reject(error); // Reject the promise if there's a request error
+    });
+
+    request.end();
+  });
+
+  console.log('before the return statement');
+  return id;
+};
 
 const createWindow = (): void => {
   // Create the browser window.

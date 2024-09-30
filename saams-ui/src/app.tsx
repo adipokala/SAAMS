@@ -20,10 +20,13 @@ function App() {
         }
     };
 
-    const handleOnGet = () => {
+    const handleOnGet = async () => {
         console.log('entered the handle get request');
-        window.electronAPI.onGetIPC();
+        const id = await window.electronAPI.onGetIPC();
+        console.log('came back !!')
+        console.log(id);
 
+        return id;
     }
     return (
         <>
