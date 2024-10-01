@@ -31,7 +31,7 @@ namespace Saams.Api.Controllers
 
             using (var context = new SaamsContext())
             {
-                var user = context.Users.First(x => x.UserName == model.UserName);
+                var user = context.Users.Where(x => x.UserName == model.UserName).FirstOrDefault();
                 if (user == null)
                 {
                     return NotFound(new ResponseModel()
