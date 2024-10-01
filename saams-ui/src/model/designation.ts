@@ -1,11 +1,11 @@
 // import { Optional } from "sequelize";
 // import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from "sequelize-typescript";
 
-// interface UserDesignationAttributes {
-//     id: number;
-//     name: string;
-//     code: string;
-// }
+interface Designation {
+    id: number;
+    name: string;
+    code: string;
+}
 
 // interface UserDesignationCreationAttributes extends Optional<UserDesignationAttributes, "id"> {}
 

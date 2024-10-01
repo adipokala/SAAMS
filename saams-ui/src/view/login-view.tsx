@@ -44,7 +44,6 @@ export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
     });
 
     // call the onLogin function passed as a prop
-    console.log('Entered handlesubmit');
     onLogin(data.get('userName').toString(), data.get('password').toString());
 
     //reset the input fields after login process

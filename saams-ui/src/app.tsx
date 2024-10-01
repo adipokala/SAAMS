@@ -12,16 +12,15 @@ function App() {
     const [loginAttempted, setLoginAttempted] = useState(false); // Track if a login attempt has been made
     const [currentView, setCurrentView] = useState<'login' | 'dashboard' | 'department'>('login');
 
-    const handleLogin = (userName: string, password: string) => {
-        console.log('EnteredhandleLogin');
-        window.electronAPI.loginUser('{userName: ' + userName + ', password: '+ password + '}');
-        if(userName == 'admin' && password == '123') {
+    const handleLogin = async (userName: string, password: string) => {
+        const resp = await window.electronAPI.loginUser('{ "userName": "' + userName + '", "password": "' + password + '" }');
+        // if(userName == 'admin' && password == '123') {
             setIsAuthenticated(true);
             setCurrentView('dashboard');
-        } else {
+        // } else {
             setLoginAttempted(true);
-            setIsAuthenticated(false);
-        }
+            // setIsAuthenticated(false);
+        // }
     };
 
     const handleOnGet = async () => {
@@ -68,6 +67,7 @@ function App() {
         </>
     );
 }
+
 const rootElement = document.getElementById('root');
 if (rootElement) {
     const root = createRoot(rootElement);

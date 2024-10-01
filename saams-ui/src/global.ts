@@ -1,9 +1,11 @@
+import Response from "./model/response";
+
 export {};
 
 declare global {
     interface Window {
         electronAPI: {
-            loginUser: (json: string) => void,
+            loginUser: (json: string) => Response;
             onGetIPC: () => dataResponse[];
         }
     }
