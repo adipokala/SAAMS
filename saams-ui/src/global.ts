@@ -4,7 +4,7 @@ declare global {
     interface Window {
         electronAPI: {
             loginUser: (json: string) => void,
-            onGetIPC: () => dataResponse;
+            onGetIPC: () => dataResponse[];
         }
     }
 

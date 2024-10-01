@@ -22,24 +22,27 @@ const rows = [
 ];
 
 interface ButtonProps {
-  onGet: () => Promise<dataResponse>;
+  onGet: () => Promise<dataResponse[]>;
 }
 export default function DashboardView({onGet}: ButtonProps) {
-  const [rows, setRows] = React.useState<dataResponse[]>([
-    createData(0, "dummy code", "dummy name")
-  ]);
-  let inputJson : dataResponse;
+  const [rows, setRows] = React.useState<dataResponse[]>([]);
+  let inputJson : dataResponse[];
   const handleButtonClick = async (event: React.MouseEvent) =>  {
     console.log('button clicked !');
     inputJson = await onGet();
-    console.log(inputJson.id);
-    console.log(inputJson.code);
-    console.log(inputJson.name);
-    setRows((prevRows) => [...prevRows, createData(inputJson.id, inputJson.code, inputJson.name)]);
+    console.log(inputJson);
+    const updatedRows = [
+      ...rows,
+      ...inputJson.filter(
+        (newEntry) => !rows.some((existingEntry) => existingEntry.id === newEntry.id)
+      ),
+    ];
+
+    setRows(updatedRows);
   }
   return (
-    <Stack spacing={2} direction="row">
-      <Button variant="contained" onClick={handleButtonClick}>get</Button>
+    <Stack spacing={2} direction="column">
+      <Button variant="contained" onClick={handleButtonClick} style={{maxWidth: '60px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}}>get</Button>
       <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>

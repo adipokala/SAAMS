@@ -18,9 +18,9 @@ const handleLoginUser = async (json:string) => {
 const handleOnGetIPC = async () => {
   console.log('reached through IPC');
 
-  const id = await new Promise<dataResponse>((resolve, reject) => {
+  const id = await new Promise<dataResponse[]>((resolve, reject) => {
     // Make sure the entry exists
-    const request = net.request('https://localhost:7192/api/Department/1');
+    const request = net.request('https://localhost:7192/api/Department');
 
     request.on('response', (response) => {
       let responseData = '';
