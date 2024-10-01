@@ -4,7 +4,8 @@ import LoginView from './view/login-view';
 import DashboardView from './view/Dashboard-view';
 import DepartmentView from './view/Department-view';
 import { useState } from 'react';
-import {net} from 'electron';
+import Button from '@mui/material/Button';
+import { Box } from '@mui/material';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -35,8 +36,27 @@ function App() {
     const handleSwitchView = () => {
         setCurrentView('department')
     }
+
+    const handleLogout = () => {
+        setIsAuthenticated(false);
+        setCurrentView('login');
+    }
     return (
         <>
+        {isAuthenticated && (
+            <Box
+                sx={{
+                position: 'fixed',
+                top: 10,
+                right: 10,
+                zIndex: 1000, // Ensure the button stays on top of other elements
+                }}
+            >
+                <Button variant="contained" color="error" onClick={handleLogout}>
+                Logout
+                </Button>
+            </Box>
+            )}
         {isAuthenticated ? (
             currentView == 'dashboard' ? (<DashboardView onSwitchView={handleSwitchView}/>
             ) : (
