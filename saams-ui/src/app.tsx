@@ -14,13 +14,13 @@ function App() {
 
     const handleLogin = async (userName: string, password: string) => {
         const resp = await window.electronAPI.loginUser('{ "userName": "' + userName + '", "password": "' + password + '" }');
-        // if(userName == 'admin' && password == '123') {
+        if(resp.status) {
             setIsAuthenticated(true);
             setCurrentView('dashboard');
-        // } else {
+        } else {
             setLoginAttempted(true);
-            // setIsAuthenticated(false);
-        // }
+            setIsAuthenticated(false);
+        }
     };
 
     const handleOnGet = async () => {
