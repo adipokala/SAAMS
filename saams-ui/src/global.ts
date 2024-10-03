@@ -1,18 +1,13 @@
-import Response from "./model/response";
+import { Department } from "./model/department";
+import { UserLoginResponse } from "./model/user";
 
 export {};
 
 declare global {
     interface Window {
         electronAPI: {
-            loginUser: (json: string) => Response;
-            onGetIPC: () => dataResponse[];
+            loginUser: (json: string) => UserLoginResponse;
+            getDepartments: () => Department[];
         }
-    }
-
-    interface dataResponse {
-      id: number,
-      name: string,
-      code: string
     }
 }

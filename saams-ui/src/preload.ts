@@ -5,5 +5,5 @@ import { contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
-    onGetIPC: () => ipcRenderer.invoke('request:get')
+    getDepartments: () => ipcRenderer.invoke('request:getDepartments')
 });

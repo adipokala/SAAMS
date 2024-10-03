@@ -8,6 +8,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { Department } from '../model/department';
 
 function createData(
   id: number,
@@ -17,15 +18,20 @@ function createData(
   return { id, code, name };
 }
 
-interface ButtonProps {
-  onGet: () => Promise<dataResponse[]>;
+const handleOnGet = async () => {
+  const id = await window.electronAPI.getDepartments();
+  console.log(id);
+
+  return id;
 }
-export default function DepartmentView({onGet}: ButtonProps) {
-  const [rows, setRows] = React.useState<dataResponse[]>([]);
-  let inputJson : dataResponse[];
+
+export default function DepartmentView() {
+  const [rows, setRows] = React.useState<Department[]>([]);
+
+  let inputJson : Department[];
+
   const handleButtonClick = async (event: React.MouseEvent) =>  {
-    console.log('button clicked !');
-    inputJson = await onGet();
+    inputJson = await handleOnGet();
     console.log(inputJson);
     const updatedRows = [
       ...rows,
@@ -36,6 +42,7 @@ export default function DepartmentView({onGet}: ButtonProps) {
 
     setRows(updatedRows);
   }
+
   return (
     <Stack spacing={2} direction="column">
       <Button variant="contained" onClick={handleButtonClick} style={{maxWidth: '60px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}}>get</Button>
@@ -55,10 +62,10 @@ export default function DepartmentView({onGet}: ButtonProps) {
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {row.name}
+                {row.id}
               </TableCell>
-              <TableCell align="right">{row.id}</TableCell>
               <TableCell align="right">{row.code}</TableCell>
+              <TableCell align="right">{row.name}</TableCell>
             </TableRow>
           ))}
         </TableBody>

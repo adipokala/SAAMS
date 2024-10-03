@@ -1,11 +1,11 @@
 // import { Optional } from "sequelize";
 // import { AllowNull, AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from "sequelize-typescript";
 
-// interface UserDepartmentAttributes {
-//     id: number;
-//     name: string;
-//     code: string;
-// }
+export interface Department {
+    id: number;
+    name: string;
+    code: string;
+}
 
 // interface UserDepartmentCreationAttributes extends Optional<UserDepartmentAttributes, "id"> {}
 

@@ -23,15 +23,6 @@ function App() {
         }
     };
 
-    const handleOnGet = async () => {
-        console.log('entered the handle get request');
-        const id = await window.electronAPI.onGetIPC();
-        console.log('came back !!')
-        console.log(id);
-
-        return id;
-    }
-
     const handleSwitchView = () => {
         setCurrentView('department')
     }
@@ -59,7 +50,7 @@ function App() {
         {isAuthenticated ? (
             currentView == 'dashboard' ? (<DashboardView onSwitchView={handleSwitchView}/>
             ) : (
-                currentView == 'department' && (<DepartmentView onGet={handleOnGet}/>)
+                currentView == 'department' && (<DepartmentView />)
             )
         ) : (
             <LoginView onLogin={handleLogin} loginAttempted={loginAttempted} />
