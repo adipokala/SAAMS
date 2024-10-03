@@ -1,4 +1,6 @@
-interface UserLogin {
+import Response from "./response";
+
+export interface UserLogin {
     userName: string,
     password: string
 }
@@ -7,16 +9,23 @@ interface UserLogin {
 //     FEMALE = "Female"
 // }
 
-// interface UserAttributes {
-//     id: number;
-//     userName: string;
-//     password: string;
-//     firstName: string;
-//     lastName: string;
-//     email: string;
-//     phone: string;
-//     userRoleId: number;
-// }
+export interface User {
+    id: number;
+    userName: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    sex: string;
+    email: string;
+    phone: string;
+    roleId: number;
+    companyId: number;
+    designationId: number;
+    departmentId: number;
+    shiftId: number;
+}
+
+export interface UserLoginResponse extends User, Response { }
 
 // interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 
@@ -81,3 +90,6 @@ interface UserLogin {
 //     @Column(DataType.INTEGER.UNSIGNED)
 //     public userShiftId: number;
 // }
+
+// export default UserLogin;
+// export default User;

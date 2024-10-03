@@ -18,7 +18,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult<ResponseModel> Post([FromBody] LoginModel model)
+        public ActionResult<UserResponseModel> Post([FromBody] LoginModel model)
         {
             if (model == null)
             {
@@ -49,13 +49,30 @@ namespace Saams.Api.Controllers
                         Status = false,
                     });
                 }
-            }
 
-            return Ok(new ResponseModel()
-            {
-                Message = "Login successful",
-                Status = true,
-            });
+                return Ok(new UserResponseModel()
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Email = user.Email,
+                    Phone = user.Phone,
+                    DateOfBirth = user.DateOfBirth,
+                    DateOfJoining = user.DateOfJoining,
+                    Sex = user.Sex.ToString(),
+                    RoleId = user.RoleId,
+                    CompanyId = user.CompanyId,
+                    DepartmentId = user.DepartmentId,
+                    DesignationId = user.DesignationId,
+                    ShiftId = user.ShiftId,
+                    Password = string.Empty,
+                    CreatedAt = user.CreatedAt,
+                    UpdatedAt = user?.UpdatedAt,
+                    Message = "Login successful",
+                    Status = true,
+                });
+            }
         }
     }
 }

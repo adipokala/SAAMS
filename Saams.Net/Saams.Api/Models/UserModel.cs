@@ -1,6 +1,6 @@
 ﻿namespace Saams.Api.Models
 {
-    public class UserModel
+    public class UserModel : BaseModel
     {
         public int Id { get; set; }
 
@@ -31,5 +31,12 @@
         public required int DepartmentId { get; set; }
 
         public required int ShiftId { get; set; }
+    }
+
+    public class UserResponseModel : UserModel
+    {
+        public required string Message { get; set; }
+
+        public bool Status { get; set; }
     }
 }

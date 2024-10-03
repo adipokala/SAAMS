@@ -1,10 +1,10 @@
 import { net } from "electron";
-import Response from "../model/response";
+import { UserLogin, UserLoginResponse } from "../model/user";
 
 const loginUser = async (json: string) => {
     let user: UserLogin = JSON.parse(json);
 
-    const future = new Promise<Response>((resolve, reject) => {
+    const future = new Promise<UserLoginResponse>((resolve, reject) => {
         const request = net.request({
             method: 'POST',
             protocol: 'https:',
