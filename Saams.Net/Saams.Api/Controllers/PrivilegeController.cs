@@ -18,7 +18,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<PrivilegeModel>> Get()
+        public ActionResult<PrivilegeResponseModel> Get()
         {
             List<PrivilegeModel> privilegeModels = new List<PrivilegeModel>();
 
@@ -37,33 +37,50 @@ namespace Saams.Api.Controllers
                 }
             }
 
-            return Ok(privilegeModels);
+            return Ok(new PrivilegeResponseModel()
+            {
+                Privileges = privilegeModels,
+                Message = "Success",
+                Status = true
+            });
         }
 
         [HttpGet("{id}")]
-        public ActionResult<PrivilegeModel> Get(int id)
+        public ActionResult<PrivilegeResponseModel> Get(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new PrivilegeResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var privilege = context.Privileges.First(d => d.Id == id);
+                var privilege = context.Privileges.FirstOrDefault(d => d.Id == id);
                 if (privilege != null)
                 {
-                    return Ok(
-                        new PrivilegeModel()
+                    return Ok(new PrivilegeResponseModel()
+                    {
+                        Privilege = new PrivilegeModel()
                         {
                             Id = privilege.Id,
                             Code = privilege.Code,
                             Name = privilege.Name,
-                        });
+                        },
+                        Message = "Success",
+                        Status = true
+                    });
                 }
             }
 
-            return NotFound();
+            return NotFound(new PrivilegeResponseModel()
+            {
+                Message = "Privilege not found",
+                Status = false
+            });
         }
 
         [HttpPost]
@@ -71,7 +88,11 @@ namespace Saams.Api.Controllers
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new PrivilegeResponseModel()
+                {
+                    Message = "Privilege model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
@@ -88,23 +109,36 @@ namespace Saams.Api.Controllers
                 model.Id = privilege.Id;
             }
 
-            return Ok(model);
+            return Ok(new PrivilegeResponseModel()
+            {
+                Privilege = model,
+                Message = "Privilege created successfully",
+                Status = true
+            });
         }
 
         [HttpPut]
-        public ActionResult Put([FromBody] PrivilegeModel model)
+        public ActionResult<PrivilegeResponseModel> Put([FromBody] PrivilegeModel model)
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new PrivilegeResponseModel()
+                {
+                    Message = "Privilege model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var privilege = context.Privileges.First(d => d.Id == model.Id);
+                var privilege = context.Privileges.FirstOrDefault(d => d.Id == model.Id);
                 if (privilege == null)
                 {
-                    return NotFound();
+                    return NotFound(new PrivilegeResponseModel()
+                    {
+                        Message = "Privilege not found",
+                        Status = false
+                    });
                 }
 
                 privilege.Code = model.Code;
@@ -113,29 +147,46 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
             }
 
-            return Ok();
+            return Ok(new PrivilegeResponseModel()
+            {
+                Privilege = model,
+                Message = "Privilege updated successfully",
+                Status = true
+            });
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult<PrivilegeResponseModel> Delete(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new PrivilegeResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var privilege = context.Privileges.First(x => x.Id == id);
+                var privilege = context.Privileges.FirstOrDefault(x => x.Id == id);
                 if (privilege == null)
                 {
-                    return NotFound();
+                    return NotFound(new PrivilegeResponseModel()
+                    {
+                        Message = "Privilege not found",
+                        Status = false
+                    });
                 }
 
                 context.Privileges.Remove(privilege);
                 context.SaveChanges();
             }
-            return Ok();
+            return Ok(new PrivilegeResponseModel()
+            { 
+                Message = "Privilege deleted successfully",
+                Status = true
+            });
         }
     }
 }

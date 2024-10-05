@@ -24,4 +24,11 @@
 
         public TimeSpan OverTimeAllowance { get; set; }
     }
+
+    public class ShiftResponseModel : ResponseModel
+    {
+        public ShiftModel? Shift { get; set; }
+
+        public List<ShiftModel>? Shifts { get; set; }
+    }
 }

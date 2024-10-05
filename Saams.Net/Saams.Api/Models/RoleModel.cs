@@ -1,11 +1,16 @@
 ﻿namespace Saams.Api.Models
 {
-    public class RoleModel
+    public class RoleModel : BaseModel
     {
-        public int Id { get; set; }
-
         public required string Name { get; set; }
 
         public required string Code { get; set; }
+    }
+
+    public class RoleResponseModel : ResponseModel
+    {
+        public RoleModel? Role { get; set; }
+
+        public List<RoleModel>? Roles { get; set; }
     }
 }

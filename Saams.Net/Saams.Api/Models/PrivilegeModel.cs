@@ -1,11 +1,16 @@
 ﻿namespace Saams.Api.Models
 {
-    public class PrivilegeModel
+    public class PrivilegeModel : BaseModel
     {
-        public int Id { get; set; }
-
         public required string Name { get; set; }
 
         public required string Code { get; set; }
+    }
+
+    public class PrivilegeResponseModel : ResponseModel
+    {
+        public PrivilegeModel? Privilege { get; set; }
+
+        public List<PrivilegeModel>? Privileges { get; set; }
     }
 }

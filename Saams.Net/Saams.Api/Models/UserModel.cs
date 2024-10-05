@@ -2,8 +2,6 @@
 {
     public class UserModel : BaseModel
     {
-        public int Id { get; set; }
-
         public required string UserName { get; set; }
 
         public required string Password { get; set; }
@@ -33,10 +31,10 @@
         public required int ShiftId { get; set; }
     }
 
-    public class UserResponseModel : UserModel
+    public class UserResponseModel : ResponseModel
     {
-        public required string Message { get; set; }
+        public UserModel? User { get; set; }
 
-        public bool Status { get; set; }
+        public List<UserModel>? Users { get; set; }
     }
 }

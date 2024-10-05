@@ -18,7 +18,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<DepartmentModel>> Get()
+        public ActionResult<DepartmentResponseModel> Get()
         {
             List<DepartmentModel> departmentModels = new List<DepartmentModel>();
 
@@ -37,41 +37,62 @@ namespace Saams.Api.Controllers
                 }
             }
 
-            return Ok(departmentModels);
+            return Ok(new DepartmentResponseModel()
+            {
+                Departments = departmentModels,
+                Message = "Success",
+                Status = true
+            });
         }
 
         [HttpGet("{id}")]
-        public ActionResult<DepartmentModel> Get(int id)
+        public ActionResult<DepartmentResponseModel> Get(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new DepartmentResponseModel()
+                {
+                    Message = "Department model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var department = context.Departments.First(d => d.Id == id);
+                var department = context.Departments.FirstOrDefault(d => d.Id == id);
                 if (department != null)
                 {
-                    return Ok(
-                        new DepartmentModel()
+                    return Ok(new DepartmentResponseModel()
+                    { 
+                        Department = new DepartmentModel()
                         {
                             Id = department.Id,
                             Code = department.Code,
                             Name = department.Name,
-                        });
+                        },
+                        Message = "Success",
+                        Status = true
+                    });
                 }
             }
 
-            return NotFound();
+            return NotFound(new DepartmentResponseModel()
+            {
+                Message = "Department not found",
+                Status = false
+            });
         }
 
         [HttpPost]
-        public ActionResult<DepartmentModel> Post([FromBody] DepartmentModel model)
+        public ActionResult<DepartmentResponseModel> Post([FromBody] DepartmentModel model)
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new DepartmentResponseModel() 
+                { 
+                    Message = "Department model required", 
+                    Status = false 
+                });
             }
 
             using (var context = new SaamsContext())
@@ -88,23 +109,32 @@ namespace Saams.Api.Controllers
                 model.Id = department.Id;
             }
 
-            return Ok(model);
+            return Ok(new DepartmentResponseModel()
+            {
+                Department = model,
+                Message = "Department created successfully",
+                Status = true
+            });
         }
 
         [HttpPut]
-        public ActionResult Put([FromBody] DepartmentModel model)
+        public ActionResult<DepartmentResponseModel> Put([FromBody] DepartmentModel model)
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new DepartmentResponseModel() { Message = "Department model required", Status = false });
             }
 
             using (var context = new SaamsContext())
             {
-                var department = context.Departments.First(d => d.Id == model.Id);
+                var department = context.Departments.FirstOrDefault(d => d.Id == model.Id);
                 if (department == null)
                 {
-                    return NotFound();
+                    return NotFound(new DepartmentResponseModel()
+                    {
+                        Message = "Department not found",
+                        Status = false,
+                    });
                 }
 
                 department.Code = model.Code;
@@ -113,29 +143,46 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
             }
 
-            return Ok();
+            return Ok(new DepartmentResponseModel()
+            {
+                Department = model,
+                Message = "Department updated successfully",
+                Status = true
+            });
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult<DepartmentResponseModel> Delete(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new DepartmentResponseModel()
+                { 
+                    Message = "Invalid ID",
+                    Status = false,
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var department = context.Departments.First(x => x.Id == id);
+                var department = context.Departments.FirstOrDefault(x => x.Id == id);
                 if (department == null)
                 {
-                    return NotFound();
+                    return NotFound(new DepartmentResponseModel()
+                    {
+                        Message = "Department not found",
+                        Status = false,
+                    });
                 }
 
                 context.Departments.Remove(department);
                 context.SaveChanges();
             }
-            return Ok();
+            return Ok(new DepartmentResponseModel()
+            {
+                Message = "Department successfully deleted",
+                Status = true,
+            });
         }
     }
 }

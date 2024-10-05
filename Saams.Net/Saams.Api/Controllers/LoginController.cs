@@ -22,7 +22,7 @@ namespace Saams.Api.Controllers
         {
             if (model == null)
             {
-                return BadRequest(new ResponseModel()
+                return BadRequest(new UserResponseModel()
                 {
                     Message = "No body",
                     Status = false,
@@ -34,7 +34,7 @@ namespace Saams.Api.Controllers
                 var user = context.Users.Where(x => x.UserName == model.UserName).FirstOrDefault();
                 if (user == null)
                 {
-                    return NotFound(new ResponseModel()
+                    return NotFound(new UserResponseModel()
                     {
                         Message = "Login failed",
                         Status = false,
@@ -43,7 +43,7 @@ namespace Saams.Api.Controllers
 
                 if (user.Password != AESEncryption.Encrypt(model.Password))
                 {
-                    return NotFound(new ResponseModel()
+                    return NotFound(new UserResponseModel()
                     {
                         Message = "Login failed",
                         Status = false,
@@ -51,24 +51,27 @@ namespace Saams.Api.Controllers
                 }
 
                 return Ok(new UserResponseModel()
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Email = user.Email,
-                    Phone = user.Phone,
-                    DateOfBirth = user.DateOfBirth,
-                    DateOfJoining = user.DateOfJoining,
-                    Sex = user.Sex.ToString(),
-                    RoleId = user.RoleId,
-                    CompanyId = user.CompanyId,
-                    DepartmentId = user.DepartmentId,
-                    DesignationId = user.DesignationId,
-                    ShiftId = user.ShiftId,
-                    Password = string.Empty,
-                    CreatedAt = user.CreatedAt,
-                    UpdatedAt = user?.UpdatedAt,
+                { 
+                    User = new UserModel()
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        Phone = user.Phone,
+                        DateOfBirth = user.DateOfBirth,
+                        DateOfJoining = user.DateOfJoining,
+                        Sex = user.Sex.ToString(),
+                        RoleId = user.RoleId,
+                        CompanyId = user.CompanyId,
+                        DepartmentId = user.DepartmentId,
+                        DesignationId = user.DesignationId,
+                        ShiftId = user.ShiftId,
+                        Password = string.Empty,
+                        CreatedAt = user.CreatedAt,
+                        UpdatedAt = user.UpdatedAt,
+                    },
                     Message = "Login successful",
                     Status = true,
                 });

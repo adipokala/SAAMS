@@ -18,7 +18,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<RolePrivilegeModel>> Get()
+        public ActionResult<RolePrivilegeResponseModel> Get()
         {
             List<RolePrivilegeModel> rolePrivilegeModels = new List<RolePrivilegeModel>();
 
@@ -37,33 +37,50 @@ namespace Saams.Api.Controllers
                 }
             }
 
-            return Ok(rolePrivilegeModels);
+            return Ok(new RolePrivilegeResponseModel()
+            {
+                RolePrivileges = rolePrivilegeModels,
+                Message = "Success",
+                Status = true
+            });
         }
 
         [HttpGet("{id}")]
-        public ActionResult<RolePrivilegeModel> Get(int id)
+        public ActionResult<RolePrivilegeResponseModel> Get(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new RolePrivilegeResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var rolePrivilege = context.RolePrivileges.First(d => d.Id == id);
+                var rolePrivilege = context.RolePrivileges.FirstOrDefault(d => d.Id == id);
                 if (rolePrivilege != null)
                 {
-                    return Ok(
-                        new RolePrivilegeModel()
+                    return Ok(new RolePrivilegeResponseModel()
+                    {
+                        RolePrivilege = new RolePrivilegeModel()
                         {
                             Id = rolePrivilege.Id,
                             RoleId = rolePrivilege.RoleId,
                             PrivilegeId = rolePrivilege.PrivilegeId,
-                        });
+                        },
+                        Message = "Success",
+                        Status = true
+                    });
                 }
             }
 
-            return NotFound();
+            return NotFound(new RolePrivilegeResponseModel()
+            {
+                Message = "Role Privilege not found",
+                Status = false
+            });
         }
 
         [HttpPost]
@@ -71,7 +88,11 @@ namespace Saams.Api.Controllers
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new RolePrivilegeResponseModel()
+                {
+                    Message = "Role Privilege model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
@@ -88,23 +109,36 @@ namespace Saams.Api.Controllers
                 model.Id = rolePrivilege.Id;
             }
 
-            return Ok(model);
+            return Ok(new RolePrivilegeResponseModel()
+            {
+                RolePrivilege = model,
+                Message = "Role Privilege created successfully",
+                Status = true
+            });
         }
 
         [HttpPut]
-        public ActionResult Put([FromBody] RolePrivilegeModel model)
+        public ActionResult<RolePrivilegeResponseModel> Put([FromBody] RolePrivilegeModel model)
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new RolePrivilegeResponseModel()
+                {
+                    Message = "Role Privilege model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var rolePrivilege = context.RolePrivileges.First(d => d.Id == model.Id);
+                var rolePrivilege = context.RolePrivileges.FirstOrDefault(d => d.Id == model.Id);
                 if (rolePrivilege == null)
                 {
-                    return NotFound();
+                    return NotFound(new RolePrivilegeResponseModel()
+                    {
+                        Message = "Role Privilege not found",
+                        Status = false
+                    });
                 }
 
                 rolePrivilege.PrivilegeId = model.PrivilegeId;
@@ -113,29 +147,47 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
             }
 
-            return Ok();
+            return Ok(new RolePrivilegeResponseModel()
+            {
+                RolePrivilege = model,
+                Message = "Role Privilege updated successfully",
+                Status = true
+            });
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult<RolePrivilegeResponseModel> Delete(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new RolePrivilegeResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var rolePrivilege = context.RolePrivileges.First(x => x.Id == id);
+                var rolePrivilege = context.RolePrivileges.FirstOrDefault(x => x.Id == id);
                 if (rolePrivilege == null)
                 {
-                    return NotFound();
+                    return NotFound(new RolePrivilegeResponseModel()
+                    {
+                        Message = "Role Privilege not found",
+                        Status = false
+                    });
                 }
 
                 context.RolePrivileges.Remove(rolePrivilege);
                 context.SaveChanges();
             }
-            return Ok();
+
+            return Ok(new RolePrivilegeResponseModel()
+            {
+                Message = "Role Privilege deleted successfully",
+                Status = true
+            });
         }
     }
 }
