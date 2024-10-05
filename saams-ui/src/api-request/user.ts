@@ -2,7 +2,7 @@ import { net } from "electron";
 import { API_CONFIG, API_ENDPOINTS } from "../config";
 import { UserLogin, UserLoginResponse } from "../model/user";
 
-const loginUser = async (json: string) => {
+export const loginUser = async (json: string) => {
     let user: UserLogin = JSON.parse(json);
 
     const future = new Promise<UserLoginResponse>((resolve, reject) => {
@@ -45,5 +45,3 @@ const loginUser = async (json: string) => {
 
     return future;
 }
-
-export default loginUser;
