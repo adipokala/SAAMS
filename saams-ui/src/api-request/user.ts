@@ -1,4 +1,5 @@
 import { net } from "electron";
+import { API_CONFIG, API_ENDPOINTS } from "../config";
 import { UserLogin, UserLoginResponse } from "../model/user";
 
 const loginUser = async (json: string) => {
@@ -8,9 +9,9 @@ const loginUser = async (json: string) => {
         const request = net.request({
             method: 'POST',
             protocol: 'https:',
-            hostname: 'localhost',
+            hostname: API_CONFIG.hostname,
             port: 7192,
-            path:'/api/login',
+            path: API_ENDPOINTS.loginEP,
             headers: {
                 'Content-Type': 'application/json'
             },

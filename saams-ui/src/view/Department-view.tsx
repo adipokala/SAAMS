@@ -8,7 +8,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Department } from '../model/department';
+import { Department, DepartmentResponse } from '../model/department';
 
 function createData(
   id: number,
@@ -28,14 +28,13 @@ const handleOnGet = async () => {
 export default function DepartmentView() {
   const [rows, setRows] = React.useState<Department[]>([]);
 
-  let inputJson : Department[];
-
   const handleButtonClick = async (event: React.MouseEvent) =>  {
-    inputJson = await handleOnGet();
-    console.log(inputJson);
+    const response = await handleOnGet();
+    console.log(response);
+    const input = response.departments;
     const updatedRows = [
       ...rows,
-      ...inputJson.filter(
+      ...input.filter(
         (newEntry) => !rows.some((existingEntry) => existingEntry.id === newEntry.id)
       ),
     ];
