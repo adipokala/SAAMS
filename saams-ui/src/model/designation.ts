@@ -1,27 +1,12 @@
-// import { Optional } from "sequelize";
-// import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { Base } from "./base";
+import Response from "./response";
 
-interface Designation {
-    id: number;
+export interface Designation extends Base {
     name: string;
     code: string;
 }
 
-// interface UserDesignationCreationAttributes extends Optional<UserDesignationAttributes, "id"> {}
-
-// @Table({
-//     tableName: "UserDesignations",
-//     timestamps: true
-// })
-// export class UserDesignation extends Model<UserDesignationAttributes, UserDesignationCreationAttributes> {
-//     @PrimaryKey
-//     @AutoIncrement
-//     @Column(DataType.INTEGER.UNSIGNED)
-//     public id: number;
-
-//     @Column(DataType.STRING)
-//     public name: string;
-
-//     @Column(DataType.STRING)
-//     public code: string;
-// }
+export interface DesignationResponse extends Response {
+    designation: Designation;
+    designations: Designation[];
+}

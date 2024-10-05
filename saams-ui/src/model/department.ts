@@ -1,7 +1,7 @@
+import { Base } from "./base";
 import Response from "./response";
 
-export interface Department {
-    id: number;
+export interface Department extends Base {
     name: string;
     code: string;
 }
