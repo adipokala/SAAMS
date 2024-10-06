@@ -18,7 +18,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<CompanyModel>> Get()
+        public ActionResult<CompanyResponseModel> Get()
         {
             List<CompanyModel> models = new List<CompanyModel>();
 
@@ -42,7 +42,12 @@ namespace Saams.Api.Controllers
                     });
                 }
             }
-            return Ok(models);
+            return Ok(new CompanyResponseModel()
+            {
+                Companies = models,
+                Message = "Success",
+                Status = true
+            });
         }
 
         [HttpGet("{id}")]
@@ -50,31 +55,44 @@ namespace Saams.Api.Controllers
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new CompanyResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var company = context.Companies.First(x => x.Id == id);
+                var company = context.Companies.FirstOrDefault(x => x.Id == id);
                 if (company != null)
                 {
-                    return Ok(new CompanyModel()
+                    return Ok(new CompanyResponseModel()
                     {
-                        Id = company.Id,
-                        Name = company.Name,
-                        Code = company.Code,
-                        Address = company.Address,
-                        City = company.City,
-                        State = company.State,
-                        Pincode = company.Pincode,
-                        Email = company.Email,
-                        Phone = company.Phone,
-                        Fax = company.Fax,
+                        Company = new CompanyModel()
+                        {
+                            Id = company.Id,
+                            Name = company.Name,
+                            Code = company.Code,
+                            Address = company.Address,
+                            City = company.City,
+                            State = company.State,
+                            Pincode = company.Pincode,
+                            Email = company.Email,
+                            Phone = company.Phone,
+                            Fax = company.Fax,
+                        },
+                        Message = "Success",
+                        Status = true
                     });
                 }
             }
 
-            return NotFound();
+            return NotFound(new CompanyResponseModel()
+            {
+                Message = "Company not found",
+                Status = false
+            });
         }
 
         [HttpPost]
@@ -82,7 +100,11 @@ namespace Saams.Api.Controllers
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new CompanyResponseModel()
+                {
+                    Message = "Company model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
@@ -106,7 +128,12 @@ namespace Saams.Api.Controllers
                 model.Id = company.Id;
             }
 
-            return Ok(model);
+            return Ok(new CompanyResponseModel()
+            {
+                Company = model,
+                Message = "Company created successfully",
+                Status = true
+            });
         }
 
         [HttpPut]
@@ -114,15 +141,23 @@ namespace Saams.Api.Controllers
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new CompanyResponseModel()
+                {
+                    Message = "Company model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var company = context.Companies.First(x => x.Id == model.Id);
+                var company = context.Companies.FirstOrDefault(x => x.Id == model.Id);
                 if (company == null)
                 {
-                    return NotFound();
+                    return NotFound(new CompanyResponseModel()
+                    {
+                        Message = "Company not found",
+                        Status = false
+                    });
                 }
 
                 company.Name = model.Name;
@@ -138,7 +173,12 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
             }
 
-            return Ok();
+            return Ok(new CompanyResponseModel()
+            {
+                Company = model,
+                Message = "Company updated successfully",
+                Status = true
+            });
         }
 
         [HttpDelete("{id}")]
@@ -146,22 +186,34 @@ namespace Saams.Api.Controllers
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new CompanyResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var company = context.Companies.First(x => x.Id == id);
+                var company = context.Companies.FirstOrDefault(x => x.Id == id);
                 if (company == null)
                 {
-                    return NotFound();
+                    return NotFound(new CompanyResponseModel()
+                    {
+                        Message = "Company not found",
+                        Status = false
+                    });
                 }
 
                 context.Companies.Remove(company);
                 context.SaveChanges();
             }
 
-            return Ok();
+            return Ok(new CompanyResponseModel()
+            {
+                Message = "Company deleted successfully",
+                Status = true
+            });
         }
     }
 }

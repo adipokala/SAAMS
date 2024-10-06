@@ -1,6 +1,6 @@
 ﻿namespace Saams.Api.Models
 {
-    public class ResponseModel
+    public abstract class ResponseModel
     {
         public required string Message { get; set; }
 

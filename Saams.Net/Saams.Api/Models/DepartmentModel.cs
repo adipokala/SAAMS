@@ -1,11 +1,16 @@
 ﻿namespace Saams.Api.Models
 {
-    public class DepartmentModel
+    public class DepartmentModel : BaseModel
     {
-        public int Id { get; set; }
-
         public required string Name { get; set; }
 
         public required string Code { get; set; }
+    }
+
+    public class DepartmentResponseModel : ResponseModel
+    {
+        public DepartmentModel? Department { get; set; }
+
+        public List<DepartmentModel>? Departments { get; set; }
     }
 }

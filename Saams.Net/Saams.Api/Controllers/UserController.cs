@@ -21,7 +21,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<UserModel>> Get()
+        public ActionResult<UserResponseModel> Get()
         {
             List<UserModel> userModels = new List<UserModel>();
 
@@ -52,24 +52,34 @@ namespace Saams.Api.Controllers
                 }
             }
 
-            return Ok(userModels);
+            return Ok(new UserResponseModel()
+            {
+                Users = userModels,
+                Message = "Success",
+                Status = true,
+            });
         }
 
         [HttpGet("{id}")]
-        public ActionResult<UserModel> Get(int id)
+        public ActionResult<UserResponseModel> Get(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new UserResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false,
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var user = context.Users.First(d => d.Id == id);
+                var user = context.Users.FirstOrDefault(d => d.Id == id);
                 if (user != null)
                 {
-                    return Ok(
-                        new UserModel()
+                    return Ok(new UserResponseModel()
+                    { 
+                        User = new UserModel()
                         {
                             Id = user.Id,
                             UserName = user.UserName,
@@ -86,19 +96,30 @@ namespace Saams.Api.Controllers
                             DesignationId = user.DesignationId,
                             DepartmentId = user.DepartmentId,
                             ShiftId = user.ShiftId,
-                        });
+                        },
+                        Message = "Success",
+                        Status = true,
+                    });
                 }
             }
 
-            return NotFound();
+            return NotFound(new UserResponseModel()
+            { 
+                Message = "User not found",
+                Status = false
+            });
         }
 
         [HttpPost]
-        public ActionResult<UserModel> Post([FromBody] UserModel model)
+        public ActionResult<UserResponseModel> Post([FromBody] UserModel model)
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new UserResponseModel()
+                {
+                    Message = "User model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
@@ -128,23 +149,36 @@ namespace Saams.Api.Controllers
                 model.Id = user.Id;
             }
 
-            return Ok(model);
+            return Ok(new UserResponseModel()
+            { 
+                User = model,
+                Message = "Created successfully",
+                Status = true
+            });
         }
 
         [HttpPut]
-        public ActionResult Put([FromBody] UserModel model)
+        public ActionResult<UserResponseModel> Put([FromBody] UserModel model)
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new UserResponseModel()
+                {
+                    Message = "User model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var user = context.Users.First(d => d.Id == model.Id);
+                var user = context.Users.FirstOrDefault(d => d.Id == model.Id);
                 if (user == null)
                 {
-                    return NotFound();
+                    return NotFound(new UserResponseModel()
+                    { 
+                        Message = "User not found",
+                        Status = false
+                    });
                 }
 
                 user.UserName = model.UserName;
@@ -165,29 +199,46 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
             }
 
-            return Ok();
+            return Ok(new UserResponseModel()
+            {
+                User = model,
+                Message = "User updated successfully",
+                Status = true
+            });
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult<UserResponseModel> Delete(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new UserResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false,
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var user = context.Users.First(x => x.Id == id);
+                var user = context.Users.FirstOrDefault(x => x.Id == id);
                 if (user == null)
                 {
-                    return NotFound();
+                    return NotFound(new UserResponseModel()
+                    {
+                        Message = "User not found",
+                        Status = false,
+                    });
                 }
 
                 context.Users.Remove(user);
                 context.SaveChanges();
             }
-            return Ok();
+            return Ok(new UserResponseModel()
+            {
+                Message = "User deleted successfully",
+                Status = true,
+            });
         }
     }
 }

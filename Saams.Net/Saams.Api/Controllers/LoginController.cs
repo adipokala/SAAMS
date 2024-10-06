@@ -18,11 +18,11 @@ namespace Saams.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult<ResponseModel> Post([FromBody] LoginModel model)
+        public ActionResult<UserResponseModel> Post([FromBody] LoginModel model)
         {
             if (model == null)
             {
-                return BadRequest(new ResponseModel()
+                return BadRequest(new UserResponseModel()
                 {
                     Message = "No body",
                     Status = false,
@@ -31,10 +31,10 @@ namespace Saams.Api.Controllers
 
             using (var context = new SaamsContext())
             {
-                var user = context.Users.First(x => x.UserName == model.UserName);
+                var user = context.Users.Where(x => x.UserName == model.UserName).FirstOrDefault();
                 if (user == null)
                 {
-                    return NotFound(new ResponseModel()
+                    return NotFound(new UserResponseModel()
                     {
                         Message = "Login failed",
                         Status = false,
@@ -43,19 +43,39 @@ namespace Saams.Api.Controllers
 
                 if (user.Password != AESEncryption.Encrypt(model.Password))
                 {
-                    return NotFound(new ResponseModel()
+                    return NotFound(new UserResponseModel()
                     {
                         Message = "Login failed",
                         Status = false,
                     });
                 }
-            }
 
-            return Ok(new ResponseModel()
-            {
-                Message = "Login successful",
-                Status = true,
-            });
+                return Ok(new UserResponseModel()
+                { 
+                    User = new UserModel()
+                    {
+                        Id = user.Id,
+                        UserName = user.UserName,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        Email = user.Email,
+                        Phone = user.Phone,
+                        DateOfBirth = user.DateOfBirth,
+                        DateOfJoining = user.DateOfJoining,
+                        Sex = user.Sex.ToString(),
+                        RoleId = user.RoleId,
+                        CompanyId = user.CompanyId,
+                        DepartmentId = user.DepartmentId,
+                        DesignationId = user.DesignationId,
+                        ShiftId = user.ShiftId,
+                        Password = string.Empty,
+                        CreatedAt = user.CreatedAt,
+                        UpdatedAt = user.UpdatedAt,
+                    },
+                    Message = "Login successful",
+                    Status = true,
+                });
+            }
         }
     }
 }

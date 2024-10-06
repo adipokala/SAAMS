@@ -1,10 +1,15 @@
 import React from 'react';
+import Button from '@mui/material/Button';
 
-export default function DashboardView() {
+interface DashboardViewProps {
+  onSwitchView: () => void;
+}
+
+export default function DashboardView({ onSwitchView }: DashboardViewProps) {
   return (
     <div>
-      <h1>Welcome to the Dashboard</h1>
-      {/* Add more dashboard content here */}
+      <h1>Dashboard View</h1>
+      <Button variant="contained" onClick={onSwitchView}>Department</Button>
     </div>
   );
 }

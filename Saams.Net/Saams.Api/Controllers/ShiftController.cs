@@ -18,7 +18,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<ShiftModel>> Get()
+        public ActionResult<ShiftResponseModel> Get()
         {
             List<ShiftModel> shiftModels = new List<ShiftModel>();
 
@@ -45,24 +45,34 @@ namespace Saams.Api.Controllers
                 }
             }
 
-            return Ok(shiftModels);
+            return Ok(new ShiftResponseModel()
+            {
+                Shifts = shiftModels,
+                Message = "Success",
+                Status = true
+            });
         }
 
         [HttpGet("{id}")]
-        public ActionResult<ShiftModel> Get(int id)
+        public ActionResult<ShiftResponseModel> Get(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new ShiftResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var shift = context.Shifts.First(d => d.Id == id);
+                var shift = context.Shifts.FirstOrDefault(d => d.Id == id);
                 if (shift != null)
                 {
-                    return Ok(
-                        new ShiftModel()
+                    return Ok(new ShiftResponseModel()
+                    {
+                        Shift = new ShiftModel()
                         {
                             Id = shift.Id,
                             Code = shift.Code,
@@ -75,19 +85,30 @@ namespace Saams.Api.Controllers
                             ExitTime = shift.ExitTime,
                             GraceExitTime = shift.GraceExitTime,
                             OverTimeAllowance = shift.OverTimeAllowance,
-                        });
+                        },
+                        Message = "Success",
+                        Status = true
+                    });
                 }
             }
 
-            return NotFound();
+            return NotFound(new ShiftResponseModel()
+            {
+                Message = "Shift not found",
+                Status = false
+            });
         }
 
         [HttpPost]
-        public ActionResult<ShiftModel> Post([FromBody] ShiftModel model)
+        public ActionResult<ShiftResponseModel> Post([FromBody] ShiftModel model)
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new ShiftResponseModel()
+                {
+                    Message = "Shift model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
@@ -112,23 +133,36 @@ namespace Saams.Api.Controllers
                 model.Id = shift.Id;
             }
 
-            return Ok(model);
+            return Ok(new ShiftResponseModel()
+            { 
+                Shift = model,
+                Message = "Shift createed successfully",
+                Status = true
+            });
         }
 
         [HttpPut]
-        public ActionResult Put([FromBody] ShiftModel model)
+        public ActionResult<ShiftResponseModel> Put([FromBody] ShiftModel model)
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new ShiftResponseModel()
+                {
+                    Message = "Shift model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var shift = context.Shifts.First(d => d.Id == model.Id);
+                var shift = context.Shifts.FirstOrDefault(d => d.Id == model.Id);
                 if (shift == null)
                 {
-                    return NotFound();
+                    return NotFound(new ShiftResponseModel()
+                    {
+                        Message = "Shift not found",
+                        Status = false
+                    });
                 }
 
                 shift.Code = model.Code;
@@ -145,7 +179,12 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
             }
 
-            return Ok();
+            return Ok(new ShiftResponseModel()
+            {
+                Shift = model,
+                Message = "Shift updated successfully",
+                Status = false
+            });
         }
 
         [HttpDelete("{id}")]
@@ -153,21 +192,33 @@ namespace Saams.Api.Controllers
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new ShiftResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var shift = context.Shifts.First(x => x.Id == id);
+                var shift = context.Shifts.FirstOrDefault(x => x.Id == id);
                 if (shift == null)
                 {
-                    return NotFound();
+                    return NotFound(new ShiftResponseModel()
+                    {
+                        Message = "Shift not found",
+                        Status = false
+                    });
                 }
 
                 context.Shifts.Remove(shift);
                 context.SaveChanges();
             }
-            return Ok();
+            return Ok(new ShiftResponseModel()
+            {
+                Message = "Shift deleted successfully",
+                Status = true
+            });
         }
     }
 }

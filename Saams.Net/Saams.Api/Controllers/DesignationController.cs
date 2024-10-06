@@ -19,7 +19,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<DesignationModel>> Get()
+        public ActionResult<DesignationResponseModel> Get()
         {
             List<DesignationModel> designationModels = new List<DesignationModel>();
 
@@ -38,7 +38,12 @@ namespace Saams.Api.Controllers
                 }
             }
 
-            return Ok(designationModels);
+            return Ok(new DesignationResponseModel()
+            { 
+                Designations = designationModels,
+                Message = "Success",
+                Status = true
+            });
         }
 
         [HttpGet("{id}")]
@@ -46,25 +51,37 @@ namespace Saams.Api.Controllers
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new DesignationResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false,
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var designation = context.Designations.First(d => d.Id == id);
+                var designation = context.Designations.FirstOrDefault(d => d.Id == id);
                 if (designation != null)
                 {
-                    return Ok(
-                        new DesignationModel()
+                    return Ok(new DesignationResponseModel()
+                    {
+                        Designation = new DesignationModel()
                         {
                             Id = designation.Id,
                             Code = designation.Code,
                             Name = designation.Name,
-                        });
+                        },
+                        Message = "Success",
+                        Status = true
+                    });
                 }
             }
 
-            return NotFound();
+            return NotFound(new DesignationResponseModel()
+            {
+                Message = "Designation not found",
+                Status = false
+            });
         }
 
         [HttpPost]
@@ -72,7 +89,11 @@ namespace Saams.Api.Controllers
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new DesignationResponseModel()
+                {
+                    Message = "Designation model required",
+                    Status = false,
+                });
             }
 
             using (var context = new SaamsContext())
@@ -89,7 +110,12 @@ namespace Saams.Api.Controllers
                 model.Id = designation.Id;
             }
 
-            return Ok(model);
+            return Ok(new DesignationResponseModel()
+            {
+                Designation = model,
+                Message = "Designation created successfully",
+                Status = false
+            });
         }
 
         [HttpPut]
@@ -97,15 +123,23 @@ namespace Saams.Api.Controllers
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new DesignationResponseModel()
+                {
+                    Message = "Designation model required",
+                    Status = false,
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var designation = context.Designations.First(d => d.Id == model.Id);
+                var designation = context.Designations.FirstOrDefault(d => d.Id == model.Id);
                 if (designation == null)
                 {
-                    return NotFound();
+                    return NotFound(new DesignationResponseModel()
+                    {
+                        Message = "Designation not found",
+                        Status = false
+                    });
                 }
 
                 designation.Code = model.Code;
@@ -114,29 +148,47 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
             }
 
-            return Ok();
+            return Ok(new DesignationResponseModel() 
+            {
+                Designation = model,
+                Message = "Designation updated successfully", 
+                Status = false 
+            });
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult<DesignationResponseModel> Delete(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new DesignationResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false,
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var designation = context.Designations.First(x => x.Id == id);
+                var designation = context.Designations.FirstOrDefault(x => x.Id == id);
                 if (designation == null)
                 {
-                    return NotFound();
+                    return NotFound(new DesignationResponseModel()
+                    {
+                        Message = "Designation not found",
+                        Status = false
+                    });
                 }
 
                 context.Designations.Remove(designation);
                 context.SaveChanges();
             }
-            return Ok();
+
+            return Ok(new DesignationResponseModel()
+            {
+                Message = "Designation deleted successfully",
+                Status = true
+            });
         }
     }
 }

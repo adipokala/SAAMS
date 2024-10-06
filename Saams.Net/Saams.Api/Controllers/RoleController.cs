@@ -18,7 +18,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<RoleModel>> Get()
+        public ActionResult<RoleResponseModel> Get()
         {
             List<RoleModel> models = new List<RoleModel>();
 
@@ -36,33 +36,50 @@ namespace Saams.Api.Controllers
                 }
             }
 
-            return Ok(models);
+            return Ok(new RoleResponseModel()
+            {
+                Roles = models,
+                Message = "Success",
+                Status = true
+            });
         }
 
         [HttpGet("{id}")]
-        public ActionResult<RoleModel> Get(int id)
+        public ActionResult<RoleResponseModel> Get(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new RoleResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var role = context.Roles.First(d => d.Id == id);
+                var role = context.Roles.FirstOrDefault(d => d.Id == id);
                 if (role != null)
                 {
-                    return Ok(
-                        new RoleModel()
+                    return Ok(new RoleResponseModel()
+                    {
+                        Role = new RoleModel()
                         {
                             Id = role.Id,
                             Code = role.Code,
                             Name = role.Name,
-                        });
+                        },
+                        Message = "Success",
+                        Status = true
+                    });
                 }
             }
 
-            return NotFound();
+            return NotFound(new RoleResponseModel()
+            {
+                Message = "Role not found",
+                Status = false
+            });
         }
 
         [HttpPost]
@@ -70,7 +87,11 @@ namespace Saams.Api.Controllers
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new RoleResponseModel()
+                {
+                    Message = "Role model required",
+                    Status = false
+                });
             }
 
             using(var context = new SaamsContext())
@@ -87,23 +108,36 @@ namespace Saams.Api.Controllers
                 model.Id = role.Id;
             }
 
-            return Ok(model);
+            return Ok(new RoleResponseModel()
+            { 
+                Role = model,
+                Message = "Role created successfully",
+                Status = true
+            });
         }
 
         [HttpPut]
-        public ActionResult Put([FromBody] RoleModel model)
+        public ActionResult<RoleResponseModel> Put([FromBody] RoleModel model)
         {
             if (model == null)
             {
-                return BadRequest();
+                return BadRequest(new RoleResponseModel()
+                {
+                    Message = "Role model required",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var role = context.Roles.First(d => d.Id == model.Id);
+                var role = context.Roles.FirstOrDefault(d => d.Id == model.Id);
                 if (role == null)
                 {
-                    return NotFound();
+                    return NotFound(new RoleResponseModel()
+                    {
+                        Message = "Role not found",
+                        Status = false
+                    });
                 }
 
                 role.Code = model.Code;
@@ -112,29 +146,46 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
             }
 
-            return Ok();
+            return Ok(new RoleResponseModel()
+            {
+                Role = model,
+                Message = "Role updated successfully",
+                Status = true
+            });
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(int id)
+        public ActionResult<RoleResponseModel> Delete(int id)
         {
             if (id == 0)
             {
-                return BadRequest();
+                return BadRequest(new RoleResponseModel()
+                {
+                    Message = "Invalid ID",
+                    Status = false
+                });
             }
 
             using (var context = new SaamsContext())
             {
-                var role = context.Roles.First(x => x.Id == id);
+                var role = context.Roles.FirstOrDefault(x => x.Id == id);
                 if (role == null)
                 {
-                    return NotFound();
+                    return NotFound(new RoleResponseModel()
+                    {
+                        Message = "Role not found",
+                        Status = false
+                    });
                 }
 
                 context.Roles.Remove(role);
                 context.SaveChanges();
             }
-            return Ok();
+            return Ok(new RoleResponseModel()
+            {
+                Message = "Role deleted successfully",
+                Status = true
+            });
         }
     }
 }
