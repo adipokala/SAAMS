@@ -9,5 +9,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getDepartments: () => ipcRenderer.invoke('request:getDepartments'),
     createDepartment: (department: Department) => ipcRenderer.invoke('request:createDepartment', department),
     updateDepartment: (department: Department) => ipcRenderer.invoke('request:updateDepartment', department),
-    deleteDepartment: (department: Department) => ipcRenderer.invoke('request:deleteDepartment', department),
+    deleteDepartment: (id: number) => ipcRenderer.invoke('request:deleteDepartment', id),
 });

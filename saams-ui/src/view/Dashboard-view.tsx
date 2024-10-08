@@ -21,17 +21,11 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import DepartmentView from "./Department-view";
 
 interface DashboardViewProps {
   userNameForDashboard: string;
 }
-
-const handleOnGet = async () => {
-  const id = await window.electronAPI.getDepartments();
-  console.log(id);
-
-  return id;
-};
 
 const drawerWidth = 240;
 
@@ -57,27 +51,30 @@ const darkTheme = createTheme({
 });
 
 export default function DashboardView({ userNameForDashboard }: DashboardViewProps) {
-  const [rows, setRows] = React.useState<Department[]>([]);
-  
 
-  const handleButtonClick = async (event: React.MouseEvent) => {
-    const response = await handleOnGet();
-    console.log(response);
-    const input = response.departments;
-    const updatedRows = [
-      ...rows,
-      ...input.filter(
-        (newEntry) =>
-          !rows.some((existingEntry) => existingEntry.id === newEntry.id)
-      ),
-    ];
-
-    setRows(updatedRows);
-    
-  };
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
+      {/* Top bar */}
+      <AppBar
+        position="fixed"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          backgroundColor: "#2f3136",
+        }}
+      >
+        <Toolbar>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ color: darkTheme.palette.text.primary }}
+          >
+            Welcome to {userNameForDashboard}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
       <Box sx={{ display: "flex" }}>
         <Drawer
           sx={{
@@ -100,7 +97,7 @@ export default function DashboardView({ userNameForDashboard }: DashboardViewPro
                   <ListItemText
                     primary={text}
                     sx={{ color: darkTheme.palette.text.primary }}
-                    onClick={handleButtonClick}
+                    // onClick={handleButtonClick}
                   />
                 </ListItemButton>
               ))}
@@ -118,55 +115,10 @@ export default function DashboardView({ userNameForDashboard }: DashboardViewPro
             height: "100vh",
           }}
         >
-          {/* Top bar */}
-          <AppBar
-            position="fixed"
-            sx={{
-              zIndex: (theme) => theme.zIndex.drawer + 1,
-              backgroundColor: "#2f3136",
-            }}
-          >
-            <Toolbar>
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{ color: darkTheme.palette.text.primary }}
-              >
-                Welcome to {userNameForDashboard}
-              </Typography>
-            </Toolbar>
-          </AppBar>
-
+        
           {/* Content below AppBar */}
           <Toolbar />
-          <Grid container spacing={2} direction="column">
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell align="right">Code</TableCell>
-                    <TableCell align="right">Name</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                    >
-                      <TableCell component="th" scope="row">
-                        {row.id}
-                      </TableCell>
-                      <TableCell align="right">{row.code}</TableCell>
-                      <TableCell align="right">{row.name}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </Grid>
+          <DepartmentView />
         </Box>
       </Box>
     </ThemeProvider>

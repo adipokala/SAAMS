@@ -8,6 +8,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { Refresh, Add, Delete, Update } from '@mui/icons-material';
 import { Department, DepartmentResponse } from '../model/department';
 
 function createData(
@@ -27,8 +28,9 @@ const handleOnGet = async () => {
 
 export default function DepartmentView() {
   const [rows, setRows] = React.useState<Department[]>([]);
+  const [initialLoad, setInitialLoad] = React.useState<boolean>(true);
 
-  const handleButtonClick = async (event: React.MouseEvent) =>  {
+  const handleRefreshButtonClick = async () =>  {
     const response = await handleOnGet();
     console.log(response);
     const input = response.departments;
@@ -42,9 +44,33 @@ export default function DepartmentView() {
     setRows(updatedRows);
   }
 
+  const handleAddButtonClick = async () => {
+
+  }
+
+  const handleUpdateButtonClick = async () => {
+    
+  }
+
+  const handleDeleteButtonClick = async () => {
+    
+  }
+
+  React.useEffect(() => {
+    if (initialLoad) {
+      handleRefreshButtonClick();
+      setInitialLoad(false);
+    }
+  });
+
   return (
     <Stack spacing={2} direction="column">
-      <Button variant="contained" onClick={handleButtonClick} style={{maxWidth: '60px', maxHeight: '30px', minWidth: '30px', minHeight: '30px'}}>get</Button>
+      <Stack spacing={2} direction="row">
+        <Button variant="contained" onClick={handleRefreshButtonClick}>Refresh <Refresh /></Button>
+        <Button variant="contained" onClick={handleAddButtonClick}>Add <Add /></Button>
+        <Button variant="contained" onClick={handleUpdateButtonClick}>Modify <Update /></Button>
+        <Button variant="contained" onClick={handleDeleteButtonClick}>Delete <Delete /></Button>
+      </Stack>
       <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>

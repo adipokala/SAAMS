@@ -8,5 +8,7 @@ export const API_CONFIG = {
 
 export const API_ENDPOINTS = {
     loginEP: '/api/login',
+    company: '/api/company',
     department: '/api/department',
+    designation: '/api/designation',
 }

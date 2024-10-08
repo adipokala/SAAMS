@@ -19,7 +19,7 @@ function App() {
         if(resp.status) {
             setIsAuthenticated(true);
             setCurrentView('dashboard');
-            setUserNameForDashboard(userName);
+            setUserNameForDashboard(resp.user.firstName);
             console.log(userNameForDashboard);
         } else {
             setLoginAttempted(true);

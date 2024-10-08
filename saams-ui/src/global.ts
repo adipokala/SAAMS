@@ -9,6 +9,8 @@ declare global {
             loginUser: (json: string) => UserLoginResponse;
             getDepartments: () => DepartmentResponse;
             createDepartment: (department: Department) => DepartmentResponse;
+            updateDepartment: (department: Department) => DepartmentResponse;
+            deleteDepartment: (id: number) => DepartmentResponse;
         }
     }
 }
