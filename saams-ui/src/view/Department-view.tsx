@@ -8,16 +8,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Refresh, Add, Delete, Update } from '@mui/icons-material';
 import { Department, DepartmentResponse } from '../model/department';
-
-function createData(
-  id: number,
-  code: string,
-  name: string,
-) {
-  return { id, code, name };
-}
 
 const handleOnGet = async () => {
   const id = await window.electronAPI.getDepartments();
@@ -29,6 +22,12 @@ const handleOnGet = async () => {
 export default function DepartmentView() {
   const [rows, setRows] = React.useState<Department[]>([]);
   const [initialLoad, setInitialLoad] = React.useState<boolean>(true);
+
+  const columns: GridColDef<(typeof rows)[number]>[] = [
+    { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'name', headerName: 'Name', width: 150 },
+    { field: 'code', headerName: 'Code', width: 110},
+  ];
 
   const handleRefreshButtonClick = async () =>  {
     const response = await handleOnGet();
@@ -71,7 +70,21 @@ export default function DepartmentView() {
         <Button variant="contained" onClick={handleUpdateButtonClick}>Modify <Update /></Button>
         <Button variant="contained" onClick={handleDeleteButtonClick}>Delete <Delete /></Button>
       </Stack>
-      <TableContainer component={Paper}>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
+        }}
+        pageSizeOptions={[5]}
+        checkboxSelection
+        disableRowSelectionOnClick
+      />
+      {/* <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
@@ -95,7 +108,7 @@ export default function DepartmentView() {
           ))}
         </TableBody>
       </Table>
-    </TableContainer>
+    </TableContainer> */}
 
     </Stack>
   );
