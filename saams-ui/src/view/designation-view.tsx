@@ -2,8 +2,15 @@ import * as React from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 import { Refresh, Add, Delete, Update } from '@mui/icons-material';
 import { Designation, DesignationResponse } from '../model/designation';
+import { STRINGS } from '../constants';
 
 const handleOnGet = async () => {
   const id = await window.electronAPI.getDesignations();
@@ -15,6 +22,8 @@ const handleOnGet = async () => {
 export default function DesignationView() {
   const [rows, setRows] = React.useState<Designation[]>([]);
   const [initialLoad, setInitialLoad] = React.useState<boolean>(true);
+  const [addModal, setAddModal] = React.useState<boolean>(false);
+  const [updateModal, setUpdateModal] = React.useState<boolean>(false);
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
@@ -36,16 +45,21 @@ export default function DesignationView() {
     setRows(updatedRows);
   }
 
-  const handleAddButtonClick = async () => {
-
+  const handleAddButtonClick = () => {
+    setAddModal(true);
   }
 
   const handleUpdateButtonClick = async () => {
-    
+    setUpdateModal(true);
   }
 
   const handleDeleteButtonClick = async () => {
     
+  }
+
+  const handleClose = () => {
+    setAddModal(false);
+    setUpdateModal(false);
   }
 
   React.useEffect(() => {
@@ -77,6 +91,109 @@ export default function DesignationView() {
         checkboxSelection
         disableRowSelectionOnClick
       />
+
+      {/* Add Modal */}
+      <Dialog
+        open={addModal}
+        onClose={handleClose}
+        PaperProps={{
+          component: 'form',
+          onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries((formData as any).entries());
+            let designation: Designation;
+            designation.name = formJson.name;
+            designation.code = formJson.code;
+            const resp = await window.electronAPI.createDesignation(designation);
+            if (resp) {
+              handleRefreshButtonClick();
+            }
+            handleClose();
+          },
+        }}
+      >
+        <DialogTitle>Add Designation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Fill in designation name and code.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            name="name"
+            label="Designation Name"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+          <TextField
+            required
+            margin="dense"
+            id="code"
+            name="code"
+            label="Designation Code"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
+          <Button type="submit">{ STRINGS.add }</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Update Modal */}
+      <Dialog
+        open={updateModal}
+        onClose={handleClose}
+        PaperProps={{
+          component: 'form',
+          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries((formData as any).entries());
+            const email = formJson.email;
+            console.log(email);
+            handleClose();
+          },
+        }}
+      >
+        <DialogTitle>Update Designation</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Update designation name or code.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            name="name"
+            label="Designation Name"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+          <TextField
+            required
+            margin="dense"
+            id="code"
+            name="code"
+            label="Designation Code"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
+          <Button type="submit">{ STRINGS.update }</Button>
+        </DialogActions>
+      </Dialog>
     </Stack>
   );
 }
