@@ -22,6 +22,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import DepartmentView from "./Department-view";
+import DesignationView from "./designation-view";
 
 interface DashboardViewProps {
   userNameForDashboard: string;
@@ -50,7 +51,27 @@ const darkTheme = createTheme({
   },
 });
 
+const menuItems: string[] = [ 'Home', 'Designation', 'Department', ]
+
+const switchView = (key: string): React.JSX.Element => {
+  switch (key) {
+    case 'Home':
+      
+      break;
+
+    case 'Designation':
+      return <DesignationView />;
+
+    case 'Department':
+      return <DepartmentView />;
+  
+    default:
+      break;
+  }
+}
+
 export default function DashboardView({ userNameForDashboard }: DashboardViewProps) {
+  const [item, setItem] = React.useState<string>('Home');
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -92,12 +113,12 @@ export default function DashboardView({ userNameForDashboard }: DashboardViewPro
           <Toolbar />
           <Box sx={{ overflow: "auto" }}>
             <List>
-              {["Department"].map((text, index) => (
+              { menuItems.map((text, index) => (
                 <ListItemButton>
                   <ListItemText
                     primary={text}
                     sx={{ color: darkTheme.palette.text.primary }}
-                    // onClick={handleButtonClick}
+                    onClick={() => setItem(menuItems[index])}
                   />
                 </ListItemButton>
               ))}
@@ -118,7 +139,7 @@ export default function DashboardView({ userNameForDashboard }: DashboardViewPro
         
           {/* Content below AppBar */}
           <Toolbar />
-          <DepartmentView />
+          { switchView(item) }
         </Box>
       </Box>
     </ThemeProvider>

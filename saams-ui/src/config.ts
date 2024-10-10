@@ -11,4 +11,9 @@ export const API_ENDPOINTS = {
     company: '/api/company',
     department: '/api/department',
     designation: '/api/designation',
+    privilege: '/api/privilege',
+    role: '/api/role',
+    roleprivilege: '/api/roleprivilege',
+    shift: '/api/shift',
+    user: '/api/user',
 }
