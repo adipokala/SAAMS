@@ -13,10 +13,12 @@ import { Designation, DesignationResponse } from '../model/designation';
 import { STRINGS } from '../constants';
 
 const handleOnGet = async () => {
-  const id = await window.electronAPI.getDesignations();
-  console.log(id);
+  const resp = await window.electronAPI.getDesignations();
+  if (resp) {
+    console.log(resp);
+  }
 
-  return id;
+  return resp;
 }
 
 export default function DesignationView() {
@@ -24,6 +26,8 @@ export default function DesignationView() {
   const [initialLoad, setInitialLoad] = React.useState<boolean>(true);
   const [addModal, setAddModal] = React.useState<boolean>(false);
   const [updateModal, setUpdateModal] = React.useState<boolean>(false);
+
+  let selectedRows: Designation[];
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
@@ -90,6 +94,11 @@ export default function DesignationView() {
         pageSizeOptions={[5]}
         checkboxSelection
         disableRowSelectionOnClick
+        onRowSelectionModelChange={(ids) => {
+          const selectedIds = new Set(ids);
+          selectedRows = rows.filter((row) => selectedIds.has(row.id));
+          console.log(selectedRows);
+        }}
       />
 
       {/* Add Modal */}
@@ -102,9 +111,10 @@ export default function DesignationView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
-            let designation: Designation;
-            designation.name = formJson.name;
-            designation.code = formJson.code;
+            let designation: Designation = {
+              name: formJson.name,
+              code: formJson.code,
+            };
             const resp = await window.electronAPI.createDesignation(designation);
             if (resp) {
               handleRefreshButtonClick();

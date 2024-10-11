@@ -62,6 +62,7 @@ export const createDesignation = async (designation: Designation) => {
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
+                    console.log(data);
                     resolve(data); // Resolve the promise with the id
                 } catch (error) {
                     reject(error); // Reject if parsing fails
@@ -71,11 +72,11 @@ export const createDesignation = async (designation: Designation) => {
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
-
-            request.write(JSON.stringify(designation));
-        
-            request.end();
         });
+
+        request.write(JSON.stringify(designation));
+    
+        request.end();
     });
 
     return future;
