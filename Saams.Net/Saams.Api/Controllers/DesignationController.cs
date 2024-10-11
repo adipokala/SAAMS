@@ -114,7 +114,7 @@ namespace Saams.Api.Controllers
             {
                 Designation = model,
                 Message = "Designation created successfully",
-                Status = false
+                Status = true
             });
         }
 
