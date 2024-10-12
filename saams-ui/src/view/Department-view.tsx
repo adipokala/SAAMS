@@ -1,16 +1,16 @@
 import * as React from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Refresh, Add, Delete, Update } from '@mui/icons-material';
+import { Refresh, Add, Delete, Update, FilePresent } from '@mui/icons-material';
 import { Department, DepartmentResponse } from '../model/department';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { TextField } from '@mui/material';
+import { STRINGS } from '../constants';
 
 const handleOnGet = async () => {
   const id = await window.electronAPI.getDepartments();
@@ -19,9 +19,24 @@ const handleOnGet = async () => {
   return id;
 }
 
+function staticDepartments() {
+  // This variable will act like a static variable within the function's closure
+  let selectedRows: Department[];
+  
+  return function(departments: Department[], get: boolean) {
+    if(!get)
+      selectedRows = departments;
+    return selectedRows;
+  };
+}
+
 export default function DepartmentView() {
   const [rows, setRows] = React.useState<Department[]>([]);
   const [initialLoad, setInitialLoad] = React.useState<boolean>(true);
+  const [addModal, setAddModal] = React.useState<boolean>(false);
+  const [updateModal, setUpdateModal] = React.useState<boolean>(false);
+
+  const selectedRows = staticDepartments();
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
@@ -43,16 +58,21 @@ export default function DepartmentView() {
     setRows(updatedRows);
   }
 
-  const handleAddButtonClick = async () => {
-
+  const handleAddButtonClick = () => {
+    setAddModal(true);
   }
 
-  const handleUpdateButtonClick = async () => {
-    
+  const handleUpdateButtonClick = () => {
+    setUpdateModal(true);
   }
 
   const handleDeleteButtonClick = async () => {
     
+  }
+
+  const handleClose = () => {
+    setAddModal(false);
+    setUpdateModal(false);
   }
 
   React.useEffect(() => {
@@ -83,33 +103,125 @@ export default function DepartmentView() {
         pageSizeOptions={[5]}
         checkboxSelection
         disableRowSelectionOnClick
+        onRowSelectionModelChange={(ids) => {
+          const selectedIds = new Set(ids);
+          selectedRows(rows.filter((row) => selectedIds.has(row.id)), false);
+          console.log(selectedRows(rows.filter((row) => selectedIds.has(row.id)), false));
+        }}
       />
-      {/* <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell align="right">Code</TableCell>
-            <TableCell align="right">Name</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow
-              key={row.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.id}
-              </TableCell>
-              <TableCell align="right">{row.code}</TableCell>
-              <TableCell align="right">{row.name}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer> */}
 
+      <Dialog 
+        open={addModal}
+        onClose={handleClose}
+        PaperProps={{
+          component: 'form',
+          onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries((formData as any).entries());
+            let department: Department = {
+              name: formJson.name,
+              code: formJson.code
+            };
+            const resp = await window.electronAPI.createDepartment(department);
+            if (resp) {
+              handleRefreshButtonClick();
+            }
+            handleClose();
+          }
+        }}
+      >
+        <DialogTitle> Add Department </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Fill in Department name and code.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            name="name"
+            label="Department Name"
+            type="text"
+            fullWidth
+            variant="standard"
+            />
+          <TextField
+            required
+            margin="dense"
+            id="code"
+            name="code"
+            label="Department Code"
+            type="text"
+            fullWidth
+            variant="standard"
+            />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
+          <Button type="submit">{ STRINGS.add }</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Update Modal */}
+      <Dialog
+        open={updateModal}
+        onClose={handleClose}
+        PaperProps={{
+          component: 'form',
+          onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries((formData as any).entries());
+            console.log(selectedRows(null, true)[0].id);
+            let department: Department = {
+              id: selectedRows(null, true)[0].id,
+              name: formJson.name,
+              code: formJson.code,
+            };
+            console.log(department.id)
+            const resp = await window.electronAPI.updateDepartment(department);
+            if(resp) {
+              handleRefreshButtonClick();
+            }
+            handleClose();
+          },
+        }}
+      >
+        <DialogTitle> Update department </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Fill in department name and code
+          </DialogContentText>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            name="name"
+            label="Department name"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="code"
+            name="code"
+            label="Department code"
+            type="text"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
+          <Button type="submit">{ STRINGS.update }</Button>
+        </DialogActions>
+      </Dialog>
     </Stack>
   );
 }

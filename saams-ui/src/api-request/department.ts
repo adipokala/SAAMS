@@ -108,10 +108,10 @@ export const updateDepartment = async (department: Department) => {
                 reject(error); // Reject the promise if there's a request error
             });
 
-            request.write(JSON.stringify(department));
-        
-            request.end();
         });
+        request.write(JSON.stringify(department));
+        
+        request.end();
     });
 
     return future;
