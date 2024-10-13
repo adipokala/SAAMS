@@ -34,22 +34,8 @@ function App() {
     }
     return (
         <>
-        {isAuthenticated && (
-            <Box
-                sx={{
-                position: 'fixed',
-                top: 10,
-                right: 10,
-                zIndex: 1000, // Ensure the button stays on top of other elements
-                }}
-            >
-                <Button variant="contained" color="error" onClick={handleLogout}>
-                Logout
-                </Button>
-            </Box>
-            )}
         {isAuthenticated ? (
-            currentView == 'dashboard' ? (<DashboardView userNameForDashboard={userNameForDashboard}/>
+            currentView == 'dashboard' ? (<DashboardView userNameForDashboard={userNameForDashboard} handleLogout={handleLogout} />
             ) : (
                 1
             )

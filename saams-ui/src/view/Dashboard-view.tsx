@@ -11,20 +11,18 @@ import {
   CssBaseline,
   ThemeProvider,
   createTheme,
+  Button,
 } from "@mui/material";
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
 import ListItemButton from "@mui/material/ListItemButton";
-import { Department, DepartmentResponse } from "../model/department";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
 import DepartmentView from "./Department-view";
 import DesignationView from "./designation-view";
+import HomeView from "./home-view";
+import { Logout } from "@mui/icons-material";
 
 interface DashboardViewProps {
+  handleLogout: any;
   userNameForDashboard: string;
 }
 
@@ -56,8 +54,7 @@ const menuItems: string[] = [ 'Home', 'Designation', 'Department', ]
 const switchView = (key: string): React.JSX.Element => {
   switch (key) {
     case 'Home':
-      
-      break;
+      return <HomeView />;
 
     case 'Designation':
       return <DesignationView />;
@@ -66,12 +63,17 @@ const switchView = (key: string): React.JSX.Element => {
       return <DepartmentView />;
   
     default:
-      break;
+      return <HomeView />;
   }
 }
 
-export default function DashboardView({ userNameForDashboard }: DashboardViewProps) {
+export default function DashboardView({ userNameForDashboard, handleLogout }: DashboardViewProps) {
   const [item, setItem] = React.useState<string>('Home');
+  const [open, setOpen] = React.useState<boolean>(true);
+
+  const toggleMenuOpen = () => {
+    setOpen(!open);
+  }
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -85,21 +87,33 @@ export default function DashboardView({ userNameForDashboard }: DashboardViewPro
         }}
       >
         <Toolbar>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+            onClick={toggleMenuOpen}
+          >
+            <MenuIcon />
+          </IconButton>
+
           <Typography
             variant="h6"
-            noWrap
             component="div"
-            sx={{ color: darkTheme.palette.text.primary }}
+            sx={{ flexGrow: 1 }}
           >
             Welcome to {userNameForDashboard}
           </Typography>
+
+          <Button color="inherit" onClick={handleLogout}>Logout <Logout /></Button>
         </Toolbar>
       </AppBar>
 
       <Box sx={{ display: "flex" }}>
         <Drawer
           sx={{
-            width: drawerWidth,
+            visibility: open ? "visible" : "collapse",
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
