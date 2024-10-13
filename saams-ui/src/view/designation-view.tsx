@@ -8,15 +8,14 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Refresh, Add, Delete, Update } from '@mui/icons-material';
+import { Refresh, Add, Delete, Update, Error, Warning } from '@mui/icons-material';
 import { Designation, DesignationResponse } from '../model/designation';
 import { STRINGS } from '../constants';
 
+let selectedRows: Designation[] = [];
+
 const handleOnGet = async () => {
   const resp = await window.electronAPI.getDesignations();
-  if (resp) {
-    console.log(resp);
-  }
 
   return resp;
 }
@@ -26,8 +25,9 @@ export default function DesignationView() {
   const [initialLoad, setInitialLoad] = React.useState<boolean>(true);
   const [addModal, setAddModal] = React.useState<boolean>(false);
   const [updateModal, setUpdateModal] = React.useState<boolean>(false);
-
-  let selectedRows: Designation[];
+  const [messageModal, setMessageModal] = React.useState<boolean>(false);
+  const [messageTitle, setMessageTitle] = React.useState<string>("");
+  const [messageContent, setMessageContent] = React.useState<string>("");
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
@@ -37,33 +37,54 @@ export default function DesignationView() {
 
   const handleRefreshButtonClick = async () =>  {
     const response = await handleOnGet();
-    console.log(response);
-    const input = response.designations;
-    const updatedRows = [
-      ...rows,
-      ...input.filter(
-        (newEntry) => !rows.some((existingEntry) => existingEntry.id === newEntry.id)
-      ),
-    ];
-
-    setRows(updatedRows);
+    if (!response.status) {
+      setMessageTitle("Error");
+      setMessageContent("Error fetching data");
+      setMessageModal(true);
+    }
+    setRows(response.designations);
   }
 
   const handleAddButtonClick = () => {
     setAddModal(true);
   }
 
-  const handleUpdateButtonClick = async () => {
-    setUpdateModal(true);
+  const handleUpdateButtonClick = () => {
+    if (selectedRows.length > 1) {
+      setMessageTitle("Update Designation");
+      setMessageContent("Select only one item to edit.");
+      setMessageModal(true);
+    } else if (selectedRows.length == 0) {
+      setMessageTitle("Update Designation");
+      setMessageContent("Select an item to edit.");
+      setMessageModal(true);
+    } else {
+      setUpdateModal(true);
+    }
   }
 
   const handleDeleteButtonClick = async () => {
-    
+    if (selectedRows.length == 0) {
+      setMessageTitle("Delete Designation");
+      setMessageContent("Select an item to delete.");
+      setMessageModal(true);
+    } else {
+      selectedRows.forEach(async (element) => {
+        const resp = await window.electronAPI.deleteDesignation(element.id);
+        if (!resp) {
+          setMessageTitle("Delete Designation");
+          setMessageContent(`Failed to delete item with ID ${element.id}`);
+          setMessageModal(true);
+        }
+      });
+      handleRefreshButtonClick();
+    }
   }
 
   const handleClose = () => {
     setAddModal(false);
     setUpdateModal(false);
+    setMessageModal(false);
   }
 
   React.useEffect(() => {
@@ -117,7 +138,14 @@ export default function DesignationView() {
             };
             const resp = await window.electronAPI.createDesignation(designation);
             if (resp) {
+              setMessageTitle("Success");
+              setMessageContent(resp.message);
+              setMessageModal(true);
               handleRefreshButtonClick();
+            } else {
+              setMessageTitle("Error");
+              setMessageContent(resp.message);
+              setMessageModal(true);
             }
             handleClose();
           },
@@ -162,12 +190,26 @@ export default function DesignationView() {
         onClose={handleClose}
         PaperProps={{
           component: 'form',
-          onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
+          onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
-            const email = formJson.email;
-            console.log(email);
+            let designation: Designation = {
+              id: selectedRows[0].id,
+              name: formJson.name,
+              code: formJson.code,
+            };
+            const resp = await window.electronAPI.updateDesignation(designation);
+            if(resp) {
+              setMessageTitle("Success");
+              setMessageContent(resp.message);
+              setMessageModal(true);
+              handleRefreshButtonClick();
+            } else {
+              setMessageTitle("Error");
+              setMessageContent(resp.message);
+              setMessageModal(true);
+            }
             handleClose();
           },
         }}
@@ -187,6 +229,7 @@ export default function DesignationView() {
             type="text"
             fullWidth
             variant="standard"
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].name}
           />
           <TextField
             required
@@ -197,11 +240,32 @@ export default function DesignationView() {
             type="text"
             fullWidth
             variant="standard"
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].code}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
           <Button type="submit">{ STRINGS.update }</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Message Dialog */}
+      <Dialog
+        open={messageModal}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          { messageTitle }
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            { messageContent }
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>{ STRINGS.ok }</Button>
         </DialogActions>
       </Dialog>
     </Stack>

@@ -112,11 +112,11 @@ export const updateDesignation = async (designation: Designation) => {
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
-
-            request.write(JSON.stringify(designation));
-        
-            request.end();
         });
+
+        request.write(JSON.stringify(designation));
+    
+        request.end();
     });
 
     return future;
@@ -151,9 +151,9 @@ export const deleteDesignation = async (id: number) => {
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
-
-            request.end();
         });
+
+        request.end();
     });
 
     return future;

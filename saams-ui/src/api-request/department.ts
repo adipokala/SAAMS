@@ -107,8 +107,8 @@ export const updateDepartment = async (department: Department) => {
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
-
         });
+
         request.write(JSON.stringify(department));
         
         request.end();
@@ -146,9 +146,9 @@ export const deleteDepartment = async (id: number) => {
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
-
-            request.end();
         });
+
+        request.end();
     });
 
     return future;
