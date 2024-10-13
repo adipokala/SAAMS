@@ -20,7 +20,7 @@ UI Library is Material UI - https://mui.com/material-ui/getting-started/
     - Saams.EF: Contains Entity Framework project (database communication)
 
 ## Build API
-Install Visual Studio 2022 with APS.NET Core selected during installation
+Install Visual Studio 2022 with ASP.NET Core selected during installation
 
 Initializing DB (create all tables)
 - Make sure you have a database and user created in Postgres (find credentials in the code)
