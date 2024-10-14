@@ -4,6 +4,8 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { Department } from "./model/department";
 import { Designation } from "./model/designation";
+import { Privilege } from "./model/privilege";
+import { Role } from "./model/role";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
@@ -17,4 +19,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createDesignation: (designation: Designation) => ipcRenderer.invoke('request:createDesignation', designation),
     updateDesignation: (designation: Designation) => ipcRenderer.invoke('request:updateDesignation', designation),
     deleteDesignation: (id: number) => ipcRenderer.invoke('request:deleteDesignation', id),
+    // Privilege
+    getPrivileges: () => ipcRenderer.invoke('request:getPrivileges'),
+    createPrivilege: (privilege: Privilege) => ipcRenderer.invoke('request:createPrivilege', privilege),
+    updatePrivilege: (privilege: Privilege) => ipcRenderer.invoke('request:updatePrivilege', privilege),
+    deletePrivilege: (id: number) => ipcRenderer.invoke('request:deletePrivilege', id),
+    // Role
+    getRoles: () => ipcRenderer.invoke('request:getRoles'),
+    createRole: (role: Role) => ipcRenderer.invoke('request:createRole', role),
+    updateRole: (role: Role) => ipcRenderer.invoke('request:updateRole', role),
+    deleteRole: (id: number) => ipcRenderer.invoke('request:deleteRole', id),
 });
