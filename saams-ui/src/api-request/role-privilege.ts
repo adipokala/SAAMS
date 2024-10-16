@@ -1,60 +1,16 @@
 import { net } from "electron";
+import { RolePrivilege, RolePrivilegeResponse } from "../model/role-privilege";
 import { API_CONFIG, API_ENDPOINTS } from "../config";
-import { User, UserLogin, UserResponse } from "../model/user";
 
-export const loginUser = async (json: string) => {
-    let user: UserLogin = JSON.parse(json);
-
-    const future = new Promise<UserResponse>((resolve, reject) => {
-        const request = net.request({
-            method: 'POST',
-            protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: 7192,
-            path: API_ENDPOINTS.loginEP,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-        });
-    
-        let responseData = '';
-    
-        request.on('response', (response) => {
-            response.on('data', (chunk) => {
-                responseData += chunk;
-            });
-
-            response.on("end", () => {
-                try {
-                    const response = JSON.parse(responseData);
-                    resolve(response);
-                } catch (error) {
-                    reject(error);
-                }
-            })
-        });
-
-        request.on("error", (error) => {
-            reject(error);
-        })
-    
-        request.write(JSON.stringify(user));
-    
-        request.end();
-    });    
-
-    return future;
-}
-
-export const getUsers = async () => {
-    const future = await new Promise<UserResponse>((resolve, reject) => {
+export const getRolePrivileges = async () => {
+    const future = await new Promise<RolePrivilegeResponse>((resolve, reject) => {
         // Make sure the entry exists
         const request = net.request({
             method: 'GET',
             protocol: 'https:',
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
-            path: API_ENDPOINTS.user,
+            path: API_ENDPOINTS.roleprivilege,
             headers: API_CONFIG.headers,
         });
     
@@ -85,14 +41,14 @@ export const getUsers = async () => {
         return future;
 }
 
-export const createUser = async (user: User) => {
-    const future = await new Promise<UserResponse>((resolve, reject) => {
+export const createRolePrivilege = async (rolePrivilege: RolePrivilege) => {
+    const future = await new Promise<RolePrivilegeResponse>((resolve, reject) => {
         const request = net.request({
             method: 'POST',
             protocol: 'https:',
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
-            path: API_ENDPOINTS.user,
+            path: API_ENDPOINTS.roleprivilege,
             headers: API_CONFIG.headers,
         });
 
@@ -118,7 +74,7 @@ export const createUser = async (user: User) => {
             });
         });
 
-        request.write(JSON.stringify(user));
+        request.write(JSON.stringify(rolePrivilege));
     
         request.end();
     });
@@ -126,14 +82,14 @@ export const createUser = async (user: User) => {
     return future;
 }
 
-export const updateUser = async (user: User) => {
-    const future = await new Promise<UserResponse>((resolve, reject) => {
+export const updateRolePrivilege = async (rolePrivilege: RolePrivilege) => {
+    const future = await new Promise<RolePrivilegeResponse>((resolve, reject) => {
         const request = net.request({
             method: 'PUT',
             protocol: 'https:',
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
-            path: API_ENDPOINTS.user,
+            path: API_ENDPOINTS.roleprivilege,
             headers: API_CONFIG.headers,
         });
 
@@ -158,7 +114,7 @@ export const updateUser = async (user: User) => {
             });
         });
 
-        request.write(JSON.stringify(user));
+        request.write(JSON.stringify(rolePrivilege));
     
         request.end();
     });
@@ -166,14 +122,14 @@ export const updateUser = async (user: User) => {
     return future;
 }
 
-export const deleteUser = async (id: number) => {
-    const future = await new Promise<UserResponse>((resolve, reject) => {
+export const deleteRolePrivilege = async (id: number) => {
+    const future = await new Promise<RolePrivilegeResponse>((resolve, reject) => {
         const request = net.request({
             method: 'DELETE',
             protocol: 'https:',
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
-            path: API_ENDPOINTS.user + `/${id}`,
+            path: API_ENDPOINTS.roleprivilege + `/${id}`,
         });
 
         request.on('response', (response) => {

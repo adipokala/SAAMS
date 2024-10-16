@@ -21,7 +21,7 @@ export interface User {
     shiftId: number;
 }
 
-export interface UserLoginResponse extends Response {
+export interface UserResponse extends Response {
     user: User;
     users: User[];
 }
