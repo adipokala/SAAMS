@@ -2,14 +2,15 @@ import { Department, DepartmentResponse } from "./model/department";
 import { Designation, DesignationResponse } from "./model/designation";
 import { PrivilegeResponse, Privilege } from "./model/privilege";
 import { Role, RoleResponse } from "./model/role";
-import { UserLoginResponse } from "./model/user";
+import { ShiftResponse, Shift } from "./model/shift";
+import { UserResponse } from "./model/user";
 
 export {};
 
 declare global {
     interface Window {
         electronAPI: {
-            loginUser: (json: string) => UserLoginResponse;
+            loginUser: (json: string) => UserResponse;
             // Department
             getDepartments: () => DepartmentResponse;
             createDepartment: (department: Department) => DepartmentResponse;
@@ -30,6 +31,11 @@ declare global {
             createRole: (role: Role) => RoleResponse;
             updateRole: (role: Role) => RoleResponse;
             deleteRole: (id: number) => RoleResponse;
+            // Shift
+            getShifts: () => ShiftResponse;
+            createShift: (shift: Shift) => ShiftResponse;
+            updateShift: (shift: Shift) => ShiftResponse;
+            deleteShift: (id: number) => ShiftResponse;
         }
     }
 }
