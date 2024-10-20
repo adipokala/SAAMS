@@ -136,7 +136,7 @@ namespace Saams.Api.Controllers
             return Ok(new ShiftResponseModel()
             { 
                 Shift = model,
-                Message = "Shift createed successfully",
+                Message = "Shift created successfully",
                 Status = true
             });
         }
