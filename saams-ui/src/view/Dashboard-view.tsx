@@ -22,6 +22,7 @@ import HomeView from "./home-view";
 import { Logout } from "@mui/icons-material";
 import ShiftView from "./shift-view";
 import RoleView from "./role-view";
+import UserView from "./user-view";
 
 interface DashboardViewProps {
   handleLogout: any;
@@ -51,9 +52,11 @@ const darkTheme = createTheme({
   },
 });
 
-const menuItems: string[] = [ 'Home', 'Designation', 'Department', 'Role', 'Shift', ]
+const menuItems: string[] = [ 'Home', 'Designation', 'Department', 'Role', 'Shift', 'User' ]
 
 const switchView = (key: string): React.JSX.Element => {
+  console.log("Clicked on: " + key);
+
   switch (key) {
     case 'Home':
       return <HomeView />;
@@ -69,6 +72,9 @@ const switchView = (key: string): React.JSX.Element => {
 
     case 'Role':
       return <RoleView />;
+
+    case 'User':
+      return <UserView />;
   
     default:
       return <HomeView />;

@@ -7,6 +7,7 @@ import { Designation } from "./model/designation";
 import { Privilege } from "./model/privilege";
 import { Role } from "./model/role";
 import { Shift } from "./model/shift";
+import { User } from "./model/user";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
@@ -35,4 +36,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createShift: (shift: Shift) => ipcRenderer.invoke('request:createShift', shift),
     updateShift: (shift: Shift) => ipcRenderer.invoke('request:updateShift', shift),
     deleteShift: (id: number) => ipcRenderer.invoke('request:deleteShift', id),
+    // User
+    getUsers: () => ipcRenderer.invoke('request:getUsers'),
+    createUser: (user: User) => ipcRenderer.invoke('request:createUser', user),
+    updateUser: (user: User) => ipcRenderer.invoke('request:updateUser', user),
+    deleteUser: (id: number) => ipcRenderer.invoke('request:deleteUser', id),
 });

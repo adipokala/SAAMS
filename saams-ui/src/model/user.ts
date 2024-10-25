@@ -1,3 +1,4 @@
+import { Base } from "./base";
 import Response from "./response";
 
 export interface UserLogin {
@@ -5,8 +6,7 @@ export interface UserLogin {
     password: string
 }
 
-export interface User {
-    id: number;
+export interface User extends Base {
     userName: string;
     password: string;
     firstName: string;

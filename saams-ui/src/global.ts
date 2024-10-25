@@ -3,7 +3,7 @@ import { Designation, DesignationResponse } from "./model/designation";
 import { PrivilegeResponse, Privilege } from "./model/privilege";
 import { Role, RoleResponse } from "./model/role";
 import { ShiftResponse, Shift } from "./model/shift";
-import { UserResponse } from "./model/user";
+import { UserResponse, User } from "./model/user";
 
 export {};
 
@@ -36,6 +36,11 @@ declare global {
             createShift: (shift: Shift) => ShiftResponse;
             updateShift: (shift: Shift) => ShiftResponse;
             deleteShift: (id: number) => ShiftResponse;
+            // User
+            getUsers: () => UserResponse;
+            createUser: (user: User) => UserResponse;
+            updateUser: (user: User) => UserResponse;
+            deleteUser: (id: number) => UserResponse;
         }
     }
 }
