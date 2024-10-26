@@ -8,6 +8,7 @@ import { Privilege } from "./model/privilege";
 import { Role } from "./model/role";
 import { Shift } from "./model/shift";
 import { User } from "./model/user";
+import { Company } from "./model/company";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
@@ -41,4 +42,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createUser: (user: User) => ipcRenderer.invoke('request:createUser', user),
     updateUser: (user: User) => ipcRenderer.invoke('request:updateUser', user),
     deleteUser: (id: number) => ipcRenderer.invoke('request:deleteUser', id),
+    // Company
+    getCompanies: () => ipcRenderer.invoke('request:getCompanies'),
+    createCompany: (company: Company) => ipcRenderer.invoke('request:createCompany', company),
+    updateCompany: (company: Company) => ipcRenderer.invoke('request:updateCompany', company),
+    deleteCompany: (id: Company) => ipcRenderer.invoke('request:deleteCompany', id),
 });

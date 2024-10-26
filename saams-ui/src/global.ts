@@ -4,6 +4,7 @@ import { PrivilegeResponse, Privilege } from "./model/privilege";
 import { Role, RoleResponse } from "./model/role";
 import { ShiftResponse, Shift } from "./model/shift";
 import { UserResponse, User } from "./model/user";
+import { CompanyResponse, Company } from "./model/company";
 
 export {};
 
@@ -41,6 +42,11 @@ declare global {
             createUser: (user: User) => UserResponse;
             updateUser: (user: User) => UserResponse;
             deleteUser: (id: number) => UserResponse;
+            //Company
+            getCompanies: () => CompanyResponse;
+            createCompany: (company: Company) => CompanyResponse;
+            updateCompany: (company: Company) => CompanyResponse;
+            deleteCompany: (id: number) => CompanyResponse;
         }
     }
 }
