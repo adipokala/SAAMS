@@ -44,9 +44,15 @@ namespace Saams.EF
                 .IsUnique();
 
             modelBuilder.Entity<Role>()
-                .HasOne<RolePrivilege>()
-                .WithOne()
-                .HasForeignKey<RolePrivilege>(r => r.RoleId)
+                .HasMany(r => r.Users)
+                .WithOne(r => r.Role)
+                .HasForeignKey(r => r.RoleId)
+                .IsRequired();
+
+            modelBuilder.Entity<Role>()
+                .HasMany(r => r.RolePrivileges)
+                .WithOne(r => r.Role)
+                .HasForeignKey(r => r.RoleId)
                 .IsRequired();
 
             modelBuilder.Entity<Role>()
@@ -63,9 +69,9 @@ namespace Saams.EF
                 .IsUnique();
 
             modelBuilder.Entity<Privilege>()
-                .HasOne<RolePrivilege>()
-                .WithOne()
-                .HasForeignKey<RolePrivilege>(r => r.PrivilegeId)
+                .HasMany(p => p.RolePrivileges)
+                .WithOne(p => p.Privilege)
+                .HasForeignKey(p => p.PrivilegeId)
                 .IsRequired();
 
             modelBuilder.Entity<Privilege>()
@@ -91,9 +97,9 @@ namespace Saams.EF
                 .IsUnique();
 
             modelBuilder.Entity<Company>()
-                .HasOne<User>()
-                .WithOne()
-                .HasForeignKey<User>(u => u.CompanyId)
+                .HasMany(c => c.Users)
+                .WithOne(c => c.Company)
+                .HasForeignKey(c => c.CompanyId)
                 .IsRequired();
 
             modelBuilder.Entity<Company>()
@@ -110,9 +116,9 @@ namespace Saams.EF
                 .IsUnique();
 
             modelBuilder.Entity<Designation>()
-                .HasOne<User>()
-                .WithOne()
-                .HasForeignKey<User>(u => u.DesignationId)
+                .HasMany(d => d.Users)
+                .WithOne(d => d.Designation)
+                .HasForeignKey(d => d.DesignationId)
                 .IsRequired();
 
             modelBuilder.Entity<Designation>()
@@ -129,9 +135,9 @@ namespace Saams.EF
                 .IsUnique();
 
             modelBuilder.Entity<Department>()
-                .HasOne<User>()
-                .WithOne()
-                .HasForeignKey<User>(u => u.DepartmentId)
+                .HasMany(d => d.Users)
+                .WithOne(d => d.Department)
+                .HasForeignKey(d => d.DepartmentId)
                 .IsRequired();
 
             modelBuilder.Entity<Department>()
@@ -152,9 +158,9 @@ namespace Saams.EF
                 .HasConversion<string>();
 
             modelBuilder.Entity<Shift>()
-                .HasOne<User>()
-                .WithOne()
-                .HasForeignKey<User>(u => u.ShiftId)
+                .HasMany(s => s.Users)
+                .WithOne(s => s.Shift)
+                .HasForeignKey(s => s.ShiftId)
                 .IsRequired();
 
             modelBuilder.Entity<Shift>()

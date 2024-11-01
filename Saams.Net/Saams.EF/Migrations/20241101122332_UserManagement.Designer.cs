@@ -12,7 +12,7 @@ using Saams.EF;
 namespace Saams.EF.Migrations
 {
     [DbContext(typeof(SaamsContext))]
-    [Migration("20240921105109_UserManagement")]
+    [Migration("20241101122332_UserManagement")]
     partial class UserManagement
     {
         /// <inheritdoc />
@@ -29,25 +29,21 @@ namespace Saams.EF.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("address");
+                        .HasColumnType("text");
 
                     b.Property<string>("City")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("city");
+                        .HasColumnType("text");
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("code");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnUpdate()
@@ -56,32 +52,26 @@ namespace Saams.EF.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
+                        .HasColumnType("text");
 
                     b.Property<string>("Fax")
-                        .HasColumnType("text")
-                        .HasColumnName("fax");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("phone");
+                        .HasColumnType("text");
 
                     b.Property<string>("Pincode")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("pincode");
+                        .HasColumnType("text");
 
                     b.Property<string>("State")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("state");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -92,22 +82,20 @@ namespace Saams.EF.Migrations
                     b.HasIndex("Code", "Email")
                         .IsUnique();
 
-                    b.ToTable("companies");
+                    b.ToTable("Companies");
                 });
 
             modelBuilder.Entity("Saams.EF.UserManagement.Department", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("code");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnUpdate()
@@ -116,8 +104,7 @@ namespace Saams.EF.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -128,22 +115,20 @@ namespace Saams.EF.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("departments");
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("Saams.EF.UserManagement.Designation", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("code");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnUpdate()
@@ -152,8 +137,7 @@ namespace Saams.EF.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -164,22 +148,20 @@ namespace Saams.EF.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("designations");
+                    b.ToTable("Designations");
                 });
 
             modelBuilder.Entity("Saams.EF.UserManagement.Privilege", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("code");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnUpdate()
@@ -188,8 +170,7 @@ namespace Saams.EF.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -200,22 +181,20 @@ namespace Saams.EF.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("privileges");
+                    b.ToTable("Privileges");
                 });
 
             modelBuilder.Entity("Saams.EF.UserManagement.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("code");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnUpdate()
@@ -224,8 +203,7 @@ namespace Saams.EF.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -236,15 +214,14 @@ namespace Saams.EF.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("roles");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Saams.EF.UserManagement.RolePrivilege", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -254,12 +231,10 @@ namespace Saams.EF.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<int>("PrivilegeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("privilege_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("RoleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("role_id");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -267,28 +242,24 @@ namespace Saams.EF.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PrivilegeId")
-                        .IsUnique();
+                    b.HasIndex("PrivilegeId");
 
-                    b.HasIndex("RoleId")
-                        .IsUnique();
+                    b.HasIndex("RoleId");
 
-                    b.ToTable("roles_privileges");
+                    b.ToTable("RolesPrivileges");
                 });
 
             modelBuilder.Entity("Saams.EF.UserManagement.Shift", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Code")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("code");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnUpdate()
@@ -296,42 +267,33 @@ namespace Saams.EF.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<TimeSpan>("EntryLunch")
-                        .HasColumnType("interval")
-                        .HasColumnName("entry_lunch");
+                        .HasColumnType("interval");
 
                     b.Property<TimeSpan>("EntryTime")
-                        .HasColumnType("interval")
-                        .HasColumnName("entry_time");
+                        .HasColumnType("interval");
 
                     b.Property<TimeSpan>("ExitLunch")
-                        .HasColumnType("interval")
-                        .HasColumnName("exit_lunch");
+                        .HasColumnType("interval");
 
                     b.Property<TimeSpan>("ExitTime")
-                        .HasColumnType("interval")
-                        .HasColumnName("exit_time");
+                        .HasColumnType("interval");
 
                     b.Property<TimeSpan>("GraceEntryTime")
-                        .HasColumnType("interval")
-                        .HasColumnName("grace_entry_time");
+                        .HasColumnType("interval");
 
                     b.Property<TimeSpan>("GraceExitTime")
-                        .HasColumnType("interval")
-                        .HasColumnName("grace_exit_time");
+                        .HasColumnType("interval");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<TimeSpan>("OverTimeAllowance")
-                        .HasColumnType("interval")
-                        .HasColumnName("over_time_allowance");
+                        .HasColumnType("interval");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("type");
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -342,21 +304,19 @@ namespace Saams.EF.Migrations
                     b.HasIndex("Code")
                         .IsUnique();
 
-                    b.ToTable("shifts");
+                    b.ToTable("Shifts");
                 });
 
             modelBuilder.Entity("Saams.EF.UserManagement.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CompanyId")
-                        .HasColumnType("integer")
-                        .HasColumnName("company_id");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnUpdate()
@@ -364,58 +324,46 @@ namespace Saams.EF.Migrations
                         .HasColumnName("created_at");
 
                     b.Property<DateOnly>("DateOfBirth")
-                        .HasColumnType("date")
-                        .HasColumnName("date_of_birth");
+                        .HasColumnType("date");
 
                     b.Property<DateOnly>("DateOfJoining")
-                        .HasColumnType("date")
-                        .HasColumnName("date_of_joining");
+                        .HasColumnType("date");
 
                     b.Property<int>("DepartmentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("department_id");
+                        .HasColumnType("integer");
 
                     b.Property<int>("DesignationId")
-                        .HasColumnType("integer")
-                        .HasColumnName("designation_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
+                        .HasColumnType("text");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("first_name");
+                        .HasColumnType("text");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("last_name");
+                        .HasColumnType("text");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("password");
+                        .HasColumnType("text");
 
                     b.Property<string>("Phone")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("phone");
+                        .HasColumnType("text");
 
                     b.Property<int>("RoleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("role_id");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Sex")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("sex");
+                        .HasColumnType("text");
 
                     b.Property<int>("ShiftId")
-                        .HasColumnType("integer")
-                        .HasColumnName("shift_id");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -423,69 +371,118 @@ namespace Saams.EF.Migrations
 
                     b.Property<string>("UserName")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("user_name");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId")
-                        .IsUnique();
+                    b.HasIndex("CompanyId");
 
-                    b.HasIndex("DepartmentId")
-                        .IsUnique();
+                    b.HasIndex("DepartmentId");
 
-                    b.HasIndex("DesignationId")
-                        .IsUnique();
+                    b.HasIndex("DesignationId");
 
-                    b.HasIndex("ShiftId")
-                        .IsUnique();
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("ShiftId");
 
                     b.HasIndex("UserName", "Email")
                         .IsUnique();
 
-                    b.ToTable("users");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Saams.EF.UserManagement.RolePrivilege", b =>
                 {
-                    b.HasOne("Saams.EF.UserManagement.Privilege", null)
-                        .WithOne()
-                        .HasForeignKey("Saams.EF.UserManagement.RolePrivilege", "PrivilegeId")
+                    b.HasOne("Saams.EF.UserManagement.Privilege", "Privilege")
+                        .WithMany("RolePrivileges")
+                        .HasForeignKey("PrivilegeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Saams.EF.UserManagement.Role", null)
-                        .WithOne()
-                        .HasForeignKey("Saams.EF.UserManagement.RolePrivilege", "RoleId")
+                    b.HasOne("Saams.EF.UserManagement.Role", "Role")
+                        .WithMany("RolePrivileges")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Privilege");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Saams.EF.UserManagement.User", b =>
                 {
-                    b.HasOne("Saams.EF.UserManagement.Company", null)
-                        .WithOne()
-                        .HasForeignKey("Saams.EF.UserManagement.User", "CompanyId")
+                    b.HasOne("Saams.EF.UserManagement.Company", "Company")
+                        .WithMany("Users")
+                        .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Saams.EF.UserManagement.Department", null)
-                        .WithOne()
-                        .HasForeignKey("Saams.EF.UserManagement.User", "DepartmentId")
+                    b.HasOne("Saams.EF.UserManagement.Department", "Department")
+                        .WithMany("Users")
+                        .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Saams.EF.UserManagement.Designation", null)
-                        .WithOne()
-                        .HasForeignKey("Saams.EF.UserManagement.User", "DesignationId")
+                    b.HasOne("Saams.EF.UserManagement.Designation", "Designation")
+                        .WithMany("Users")
+                        .HasForeignKey("DesignationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Saams.EF.UserManagement.Shift", null)
-                        .WithOne()
-                        .HasForeignKey("Saams.EF.UserManagement.User", "ShiftId")
+                    b.HasOne("Saams.EF.UserManagement.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Saams.EF.UserManagement.Shift", "Shift")
+                        .WithMany("Users")
+                        .HasForeignKey("ShiftId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Designation");
+
+                    b.Navigation("Role");
+
+                    b.Navigation("Shift");
+                });
+
+            modelBuilder.Entity("Saams.EF.UserManagement.Company", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Saams.EF.UserManagement.Department", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Saams.EF.UserManagement.Designation", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Saams.EF.UserManagement.Privilege", b =>
+                {
+                    b.Navigation("RolePrivileges");
+                });
+
+            modelBuilder.Entity("Saams.EF.UserManagement.Role", b =>
+                {
+                    b.Navigation("RolePrivileges");
+
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Saams.EF.UserManagement.Shift", b =>
+                {
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

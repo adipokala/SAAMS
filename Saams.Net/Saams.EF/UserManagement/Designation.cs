@@ -8,18 +8,17 @@ using System.Threading.Tasks;
 
 namespace Saams.EF.UserManagement
 {
-    [Table("designations")]
+    [Table("Designations")]
     public class Designation : IEntity
     {
-        [Column("id")]
         public int Id { get; set; }
 
-        [Column("name")]
         [Required]
         public required string Name { get; set; }
 
-        [Column("code")]
         [Required]
         public required string Code { get; set; }
+
+        public ICollection<User> Users { get; set; } = new List<User>();
     }
 }

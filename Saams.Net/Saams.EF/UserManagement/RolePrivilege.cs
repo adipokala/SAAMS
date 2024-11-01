@@ -8,18 +8,17 @@ using System.Threading.Tasks;
 
 namespace Saams.EF.UserManagement
 {
-    [Table("roles_privileges")]
+    [Table("RolesPrivileges")]
     public class RolePrivilege : IEntity
     {
-        [Column("id")]
         public int Id { get; set; }
 
-        [Column("role_id")]
         [Required]
         public int RoleId { get; set; }
+        public Role Role { get; set; } = null!;
 
-        [Column("privilege_id")]
         [Required]
         public int PrivilegeId { get; set; }
+        public Privilege Privilege { get; set; } = null!;
     }
 }
