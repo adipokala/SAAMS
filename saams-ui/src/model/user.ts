@@ -12,6 +12,8 @@ export interface User extends Base {
     firstName: string;
     lastName: string;
     sex: string;
+    dateOfBirth: string;
+    dateOfJoining: string;
     email: string;
     phone: string;
     roleId: number;

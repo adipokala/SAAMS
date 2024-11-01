@@ -8,15 +8,18 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Refresh, Add, Delete, Update, Error, Warning, Radio } from '@mui/icons-material';
+import { Refresh, Add, Delete, Update, Error, Warning } from '@mui/icons-material';
 import { User, UserResponse } from '../model/user';
 import { STRINGS } from '../constants';
-import { RadioGroup, FormControlLabel, Select, MenuItem, InputLabel } from '@mui/material';
+import { RadioGroup, Radio, FormControlLabel, Select, MenuItem, InputLabel, FormLabel } from '@mui/material';
 import { Designation } from '../model/designation';
 import { Company } from '../model/company';
 import { Role } from '../model/role';
 import { Department } from '../model/department';
 import { Shift } from '../model/shift';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 
 let selectedRows: User[] = [];
 let roles: Role[] = [];
@@ -36,7 +39,10 @@ const getAll = async () => {
   if (respRol.status) {
     roles = respRol.roles;
   }
-  // const resp = await window.electronAPI.getCompanies();
+  const respCmp = await window.electronAPI.getCompanies();
+  if (respCmp.status) {
+    companies = respCmp.companies;
+  }
   const respDes = await window.electronAPI.getDesignations();
   if (respDes.status) {
     designations = respDes.designations;
@@ -179,7 +185,9 @@ export default function UserView() {
               companyId: formJson.companyId,
               designationId: formJson.designationId,
               departmentId: formJson.departmentId,
-              shiftId: formJson.shiftId
+              shiftId: formJson.shiftId,
+              dateOfBirth: formJson.dob,
+              dateOfJoining: formJson.doj
             };
             const resp = await window.electronAPI.createUser(user);
             if (resp) {
@@ -242,7 +250,9 @@ export default function UserView() {
             fullWidth
             variant="standard"
           />
+          <FormLabel id="demo-radio-buttons-group-label">Gender</FormLabel>
           <RadioGroup
+            aria-labelledby="demo-radio-buttons-group-label"
             id="sex"
             defaultValue="MALE"
             name="sex"
@@ -270,6 +280,10 @@ export default function UserView() {
             fullWidth
             variant="standard"
           />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker label="Date of Birth" name="dob" sx={{ margin: 1 }} format="YYYY-MM-DD" />
+            <DatePicker label="Date of Joining" name="doj" sx={{ margin: 1 }} format="YYYY-MM-DD" />
+          </LocalizationProvider>
           <InputLabel id="roleLabel">Role</InputLabel>
           <Select
             labelId="roleLabel"
@@ -290,7 +304,11 @@ export default function UserView() {
             name="companyId"
             fullWidth
           >
-            <MenuItem value="Company">Company</MenuItem>
+            {
+              companies.map((element) => (
+                <MenuItem value={element.id}>{element.name}</MenuItem>
+              ))
+            }
           </Select>
           <InputLabel id="designationLabel">Designation</InputLabel>
           <Select
@@ -361,7 +379,9 @@ export default function UserView() {
               companyId: formJson.companyId,
               designationId: formJson.designationId,
               departmentId: formJson.departmentId,
-              shiftId: formJson.shiftId
+              shiftId: formJson.shiftId,
+              dateOfBirth: '',
+              dateOfJoining: ''
             };
             const resp = await window.electronAPI.updateUser(user);
             if(resp) {

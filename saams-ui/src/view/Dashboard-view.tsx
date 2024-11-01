@@ -53,7 +53,7 @@ const darkTheme = createTheme({
   },
 });
 
-const menuItems: string[] = [ 'Home', 'Designation', 'Department', 'Role', 'Shift', 'User', 'Company' ]
+const menuItems: string[] = [ 'Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User' ]
 
 const switchView = (key: string): React.JSX.Element => {
   console.log("Clicked on: " + key);
