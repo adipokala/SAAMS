@@ -11,6 +11,7 @@ UI Library is Material UI - https://mui.com/material-ui/getting-started/
 
 ## Folder Structure
 
+- docs: Contains project related documents (ex: SRS)
 - saams-ui: Contains main electron app
     - src: Contains source code (entry point of electron - index.ts)
         - view: Contains react components
