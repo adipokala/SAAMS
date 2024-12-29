@@ -12,8 +12,8 @@ using Saams.EF;
 namespace Saams.EF.Migrations
 {
     [DbContext(typeof(SaamsContext))]
-    [Migration("20241228144936_UserOrganisation")]
-    partial class UserOrganisation
+    [Migration("20241229210440_UserManagement")]
+    partial class UserManagement
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -392,7 +392,7 @@ namespace Saams.EF.Migrations
 
                     b.HasIndex("ShiftId");
 
-                    b.HasIndex("UserName", "Email")
+                    b.HasIndex("UserNumber", "UserName", "Email")
                         .IsUnique();
 
                     b.ToTable("Users");

@@ -23,7 +23,7 @@ namespace Saams.EF
         {
             // User
             modelBuilder.Entity<User>()
-                .HasIndex(u => new { u.UserName, u.Email })
+                .HasIndex(u => new { u.UserNumber, u.UserName, u.Email })
                 .IsUnique();
 
             modelBuilder.Entity<User>()

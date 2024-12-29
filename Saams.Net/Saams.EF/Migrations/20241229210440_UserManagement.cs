@@ -157,6 +157,7 @@ namespace Saams.EF.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserNumber = table.Column<string>(type: "text", nullable: false),
                     UserName = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false),
                     FirstName = table.Column<string>(type: "text", nullable: false),
@@ -166,6 +167,7 @@ namespace Saams.EF.Migrations
                     Sex = table.Column<string>(type: "text", nullable: false),
                     DateOfBirth = table.Column<DateOnly>(type: "date", nullable: false),
                     DateOfJoining = table.Column<DateOnly>(type: "date", nullable: false),
+                    ReportsTo = table.Column<int>(type: "integer", nullable: false),
                     RoleId = table.Column<int>(type: "integer", nullable: false),
                     CompanyId = table.Column<int>(type: "integer", nullable: false),
                     DesignationId = table.Column<int>(type: "integer", nullable: false),
@@ -281,9 +283,9 @@ namespace Saams.EF.Migrations
                 column: "ShiftId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_UserName_Email",
+                name: "IX_Users_UserNumber_UserName_Email",
                 table: "Users",
-                columns: new[] { "UserName", "Email" },
+                columns: new[] { "UserNumber", "UserName", "Email" },
                 unique: true);
         }
 

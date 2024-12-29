@@ -389,7 +389,7 @@ namespace Saams.EF.Migrations
 
                     b.HasIndex("ShiftId");
 
-                    b.HasIndex("UserName", "Email")
+                    b.HasIndex("UserNumber", "UserName", "Email")
                         .IsUnique();
 
                     b.ToTable("Users");
