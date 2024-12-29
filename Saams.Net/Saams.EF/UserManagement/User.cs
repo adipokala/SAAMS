@@ -15,6 +15,9 @@ namespace Saams.EF.UserManagement
         public int Id { get; set; }
 
         [Required]
+        public required string UserNumber { get; set; }
+
+        [Required]
         public required string UserName { get; set; }
 
         [Required]
@@ -40,6 +43,9 @@ namespace Saams.EF.UserManagement
 
         [Required]
         public required DateOnly DateOfJoining { get; set; }
+
+        [Required]
+        public required int ReportsTo { get; set; }
 
         [Required]
         public required int RoleId { get; set; }

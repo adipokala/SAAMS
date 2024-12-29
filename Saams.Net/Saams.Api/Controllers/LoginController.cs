@@ -55,6 +55,7 @@ namespace Saams.Api.Controllers
                     User = new UserModel()
                     {
                         Id = user.Id,
+                        UserNumber = user.UserName,
                         UserName = user.UserName,
                         FirstName = user.FirstName,
                         LastName = user.LastName,
@@ -63,6 +64,7 @@ namespace Saams.Api.Controllers
                         DateOfBirth = user.DateOfBirth,
                         DateOfJoining = user.DateOfJoining,
                         Sex = user.Sex.ToString(),
+                        ReportsTo = user.ReportsTo,
                         RoleId = user.RoleId,
                         CompanyId = user.CompanyId,
                         DepartmentId = user.DepartmentId,

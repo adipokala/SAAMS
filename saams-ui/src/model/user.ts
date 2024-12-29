@@ -7,6 +7,7 @@ export interface UserLogin {
 }
 
 export interface User extends Base {
+    userNumber: string;
     userName: string;
     password: string;
     firstName: string;
@@ -16,6 +17,7 @@ export interface User extends Base {
     dateOfJoining: string;
     email: string;
     phone: string;
+    reportsTo: number;
     roleId: number;
     companyId: number;
     designationId: number;

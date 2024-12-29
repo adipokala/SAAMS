@@ -33,6 +33,7 @@ namespace Saams.Api.Controllers
                     var model = new UserModel()
                     {
                         Id = user.Id,
+                        UserNumber = user.UserNumber,
                         UserName = user.UserName,
                         Password = user.Password,
                         FirstName = user.FirstName,
@@ -42,6 +43,7 @@ namespace Saams.Api.Controllers
                         Sex = user.Sex.ToString(),
                         DateOfBirth = user.DateOfBirth,
                         DateOfJoining = user.DateOfJoining,
+                        ReportsTo = user.ReportsTo,
                         RoleId = user.RoleId,
                         CompanyId = user.CompanyId,
                         DesignationId = user.DesignationId,
@@ -82,6 +84,7 @@ namespace Saams.Api.Controllers
                         User = new UserModel()
                         {
                             Id = user.Id,
+                            UserNumber = user.UserNumber,
                             UserName = user.UserName,
                             Password = user.Password,
                             FirstName = user.FirstName,
@@ -91,6 +94,7 @@ namespace Saams.Api.Controllers
                             Sex = user.Sex.ToString(),
                             DateOfBirth = user.DateOfBirth,
                             DateOfJoining = user.DateOfJoining,
+                            ReportsTo = user.ReportsTo,
                             RoleId = user.RoleId,
                             CompanyId = user.CompanyId,
                             DesignationId = user.DesignationId,
@@ -127,6 +131,7 @@ namespace Saams.Api.Controllers
                 var user = new User()
                 {
                     Id = model.Id,
+                    UserNumber = model.UserNumber,
                     UserName = model.UserName,
                     Password = AESEncryption.Encrypt(model.Password),
                     FirstName = model.FirstName,
@@ -136,6 +141,7 @@ namespace Saams.Api.Controllers
                     Sex = (Sex)Enum.Parse(typeof(Sex), model.Sex),
                     DateOfBirth = model.DateOfBirth,
                     DateOfJoining = model.DateOfJoining,
+                    ReportsTo = model.ReportsTo,
                     RoleId = model.RoleId,
                     CompanyId = model.CompanyId,
                     DesignationId = model.DesignationId,
@@ -181,6 +187,7 @@ namespace Saams.Api.Controllers
                     });
                 }
 
+                user.UserNumber = model.UserNumber;
                 user.UserName = model.UserName;
                 user.Password = AESEncryption.Encrypt(model.Password);
                 user.FirstName = model.FirstName;
@@ -190,6 +197,7 @@ namespace Saams.Api.Controllers
                 user.Sex = (Sex)Enum.Parse(typeof(Sex), model.Sex);
                 user.DateOfBirth = model.DateOfBirth;
                 user.DateOfJoining = model.DateOfJoining;
+                user.ReportsTo = model.ReportsTo;
                 user.RoleId = model.RoleId;
                 user.CompanyId = model.CompanyId;
                 user.DesignationId = model.DesignationId;

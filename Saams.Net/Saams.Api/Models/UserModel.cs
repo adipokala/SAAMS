@@ -2,6 +2,8 @@
 {
     public class UserModel : BaseModel
     {
+        public required string UserNumber { get; set; }
+
         public required string UserName { get; set; }
 
         public required string Password { get; set; }
@@ -19,6 +21,8 @@
         public required DateOnly DateOfBirth { get; set; }
 
         public required DateOnly DateOfJoining { get; set; }
+
+        public required int ReportsTo { get; set; }
 
         public required int RoleId { get; set; }
 
