@@ -13,8 +13,8 @@ export interface User extends Base {
     firstName: string;
     lastName: string;
     sex: string;
-    dateOfBirth: string; //yyyy-mm-dd
-    dateOfJoining: string; //yyyy-mm-dd
+    dateOfBirth: string; // yyyy-mm-dd
+    dateOfJoining: string; // yyyy-mm-dd
     email: string;
     phone: string;
     reportsTo: number;
