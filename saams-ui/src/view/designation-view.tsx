@@ -136,7 +136,7 @@ export default function DesignationView() {
               setMessageTitle("Error");
               setMessageContent("Code should not contain spaces");
               setMessageModal(true);
-              return;
+              return;//added
             }
             let designation: Designation = {
               name: formJson.name,
