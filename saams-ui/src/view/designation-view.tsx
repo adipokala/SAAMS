@@ -32,10 +32,10 @@ export default function DesignationView() {
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: 'Name', width: 150 },
-    { field: 'code', headerName: 'Code', width: 110},
+    { field: 'code', headerName: 'Code', width: 110 },
   ];
 
-  const handleRefreshButtonClick = async () =>  {
+  const handleRefreshButtonClick = async () => {
     const response = await handleOnGet();
     if (!response.status) {
       setMessageTitle("Error");
@@ -132,6 +132,12 @@ export default function DesignationView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
+            if (/\s/.test(formJson.code)) {
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;//added
+            }
             let designation: Designation = {
               name: formJson.name,
               code: formJson.code,
@@ -176,11 +182,15 @@ export default function DesignationView() {
             type="text"
             fullWidth
             variant="standard"
+            inputProps={{
+              maxLength: 4,
+              minLength: 2,
+            }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.add }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.add}</Button>
         </DialogActions>
       </Dialog>
 
@@ -200,7 +210,7 @@ export default function DesignationView() {
               code: formJson.code,
             };
             const resp = await window.electronAPI.updateDesignation(designation);
-            if(resp) {
+            if (resp) {
               setMessageTitle("Success");
               setMessageContent(resp.message);
               setMessageModal(true);
@@ -244,8 +254,8 @@ export default function DesignationView() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.update }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.update}</Button>
         </DialogActions>
       </Dialog>
 
@@ -257,15 +267,15 @@ export default function DesignationView() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          { messageTitle }
+          {messageTitle}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            { messageContent }
+            {messageContent}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.ok }</Button>
+          <Button onClick={handleClose}>{STRINGS.ok}</Button>
         </DialogActions>
       </Dialog>
     </Stack>
