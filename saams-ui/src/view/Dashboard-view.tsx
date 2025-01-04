@@ -164,7 +164,7 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
             flexGrow: 1,
             bgcolor: darkTheme.palette.background.default,
             p: 3,
-            ml: `${drawerWidth}px`,
+            ml: open ? `${drawerWidth}px` : 0,
             height: "100vh",
           }}
         >
