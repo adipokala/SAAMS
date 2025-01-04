@@ -12,6 +12,8 @@ import {
   ThemeProvider,
   createTheme,
   Button,
+  Divider,
+  ListSubheader,
 } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -53,7 +55,9 @@ const darkTheme = createTheme({
   },
 });
 
-const menuItems: string[] = [ 'Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User' ]
+const userManagementItems: string[] = [ 'Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User' ];
+const accessManagementItems: string[] = [ 'Area', 'Channel', 'Reader' ];
+const reportManagementItems: string[] = [ 'User Report', 'Reader Report', 'Attendance Report' ];
 
 const switchView = (key: string): React.JSX.Element => {
   console.log("Clicked on: " + key);
@@ -92,6 +96,39 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
   const toggleMenuOpen = () => {
     setOpen(!open);
   }
+
+  const userManagementList = <List>
+    {userManagementItems.map((text, index) => (
+      <ListItemButton>
+        <ListItemText
+          primary={text}
+          sx={{ color: darkTheme.palette.text.primary }}
+          onClick={() => setItem(userManagementItems[index])} />
+      </ListItemButton>
+    ))}
+  </List>;
+
+const accessManagementList = <List>
+{accessManagementItems.map((text, index) => (
+  <ListItemButton>
+    <ListItemText
+      primary={text}
+      sx={{ color: darkTheme.palette.text.primary }}
+      onClick={() => setItem(accessManagementItems[index])} />
+  </ListItemButton>
+))}
+</List>;
+
+const reportManagementList = <List>
+{reportManagementItems.map((text, index) => (
+  <ListItemButton>
+    <ListItemText
+      primary={text}
+      sx={{ color: darkTheme.palette.text.primary }}
+      onClick={() => setItem(reportManagementItems[index])} />
+  </ListItemButton>
+))}
+</List>;
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -144,17 +181,20 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
         >
           <Toolbar />
           <Box sx={{ overflow: "auto" }}>
-            <List>
-              { menuItems.map((text, index) => (
-                <ListItemButton>
-                  <ListItemText
-                    primary={text}
-                    sx={{ color: darkTheme.palette.text.primary }}
-                    onClick={() => setItem(menuItems[index])}
-                  />
-                </ListItemButton>
-              ))}
-            </List>
+            <ListSubheader component="div" id="nested-list-subheader">
+              User Management
+            </ListSubheader>
+            {userManagementList}
+            <Divider />
+            <ListSubheader component="div" id="nested-list-subheader">
+              Access Management
+            </ListSubheader>
+            {accessManagementList}
+            <Divider />
+            <ListSubheader component="div" id="nested-list-subheader">
+              Report Management
+            </ListSubheader>
+            {reportManagementList}
           </Box>
         </Drawer>
         {/* Main content area */}
