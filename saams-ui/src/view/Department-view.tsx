@@ -33,10 +33,10 @@ export default function DepartmentView() {
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: 'Name', width: 150 },
-    { field: 'code', headerName: 'Code', width: 110},
+    { field: 'code', headerName: 'Code', width: 110 },
   ];
 
-  const handleRefreshButtonClick = async () =>  {
+  const handleRefreshButtonClick = async () => {
     const response = await handleOnGet();
     if (!response.status) {
       setMessageTitle("Error");
@@ -79,7 +79,7 @@ export default function DepartmentView() {
         }
       });
       handleRefreshButtonClick();
-    }    
+    }
   }
 
   const handleClose = () => {
@@ -122,7 +122,7 @@ export default function DepartmentView() {
         }}
       />
 
-      <Dialog 
+      <Dialog
         open={addModal}
         onClose={handleClose}
         PaperProps={{
@@ -131,6 +131,12 @@ export default function DepartmentView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
+            if (/\s/.test(formJson.code)) {
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;
+            }
             let department: Department = {
               name: formJson.name,
               code: formJson.code
@@ -165,7 +171,7 @@ export default function DepartmentView() {
             type="text"
             fullWidth
             variant="standard"
-            />
+          />
           <TextField
             required
             margin="dense"
@@ -175,11 +181,15 @@ export default function DepartmentView() {
             type="text"
             fullWidth
             variant="standard"
-            />
+            inputProps={{
+              maxLength: 4,
+              minLength: 2,
+            }}
+          />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.add }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.add}</Button>
         </DialogActions>
       </Dialog>
 
@@ -193,13 +203,19 @@ export default function DepartmentView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
+            if (/\s/.test(formJson.code)) {
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;
+            }
             let department: Department = {
               id: selectedRows[0].id,
               name: formJson.name,
               code: formJson.code,
-            };            
+            };
             const resp = await window.electronAPI.updateDepartment(department);
-            if(resp) {
+            if (resp) {
               setMessageTitle("Success");
               setMessageContent(resp.message);
               setMessageModal(true);
@@ -241,11 +257,15 @@ export default function DepartmentView() {
             fullWidth
             variant="standard"
             defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].code}
+            inputProps={{
+              maxLength: 4,
+              minLength: 2,
+            }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.update }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.update}</Button>
         </DialogActions>
       </Dialog>
 
@@ -257,15 +277,15 @@ export default function DepartmentView() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          { messageTitle }
+          {messageTitle}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            { messageContent }
+            {messageContent}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.ok }</Button>
+          <Button onClick={handleClose}>{STRINGS.ok}</Button>
         </DialogActions>
       </Dialog>
     </Stack>
