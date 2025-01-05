@@ -37,24 +37,24 @@ export default function ShiftView() {
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: 'Name', width: 150 },
-    { field: 'code', headerName: 'Code', width: 110},
-    { field: 'type', headerName: 'Type', width: 110},
-    { field: 'entryTime', headerName: 'Entry Time', width: 110},
-    { field: 'graceEntryTime', headerName: 'Entry Grace Time', width: 110},
-    { field: 'exitLunch', headerName: 'Exit Lunch', width: 110},
-    { field: 'entryLunch', headerName: 'Entry Lunch', width: 110},
-    { field: 'exitTime', headerName: 'Exit Time', width: 110},
-    { field: 'graceExitTime', headerName: 'Exit Grace Time', width: 110},
-    { field: 'overTimeAllowance', headerName: 'Overtime Allowance', width: 110},
+    { field: 'code', headerName: 'Code', width: 110 },
+    { field: 'type', headerName: 'Type', width: 110 },
+    { field: 'entryTime', headerName: 'Entry Time', width: 110 },
+    { field: 'graceEntryTime', headerName: 'Entry Grace Time', width: 110 },
+    { field: 'exitLunch', headerName: 'Exit Lunch', width: 110 },
+    { field: 'entryLunch', headerName: 'Entry Lunch', width: 110 },
+    { field: 'exitTime', headerName: 'Exit Time', width: 110 },
+    { field: 'graceExitTime', headerName: 'Exit Grace Time', width: 110 },
+    { field: 'overTimeAllowance', headerName: 'Overtime Allowance', width: 110 },
   ];
 
   const getDateDayjs = (hour: string, minute: string): Dayjs => {
     const value = dayjs().hour(Number(hour)).minute(Number(minute));
 
     return value;
-  } 
+  }
 
-  const handleRefreshButtonClick = async () =>  {
+  const handleRefreshButtonClick = async () => {
     const response = await handleOnGet();
     if (!response.status) {
       setMessageTitle("Error");
@@ -116,10 +116,10 @@ export default function ShiftView() {
   return (
     <Stack spacing={2} direction="column">
       <Stack spacing={2} direction="row">
-        <Button variant="contained" onClick={handleRefreshButtonClick}>{ STRINGS.refresh } <Refresh /></Button>
-        <Button variant="contained" onClick={handleAddButtonClick}>{ STRINGS.add } <Add /></Button>
-        <Button variant="contained" onClick={handleUpdateButtonClick}>{ STRINGS.modify } <Update /></Button>
-        <Button variant="contained" onClick={handleDeleteButtonClick}>{ STRINGS.delete } <Delete /></Button>
+        <Button variant="contained" onClick={handleRefreshButtonClick}>{STRINGS.refresh} <Refresh /></Button>
+        <Button variant="contained" onClick={handleAddButtonClick}>{STRINGS.add} <Add /></Button>
+        <Button variant="contained" onClick={handleUpdateButtonClick}>{STRINGS.modify} <Update /></Button>
+        <Button variant="contained" onClick={handleDeleteButtonClick}>{STRINGS.delete} <Delete /></Button>
       </Stack>
       <DataGrid
         rows={rows}
@@ -151,6 +151,12 @@ export default function ShiftView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
+            if (/\s/.test(formJson.code)) {
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;
+            }
             let shift: Shift = {
               name: formJson.name,
               code: formJson.code,
@@ -163,6 +169,7 @@ export default function ShiftView() {
               graceExitTime: "0." + formJson.exitGrace + ":00",
               overTimeAllowance: "0." + formJson.overTimeAllowance + ":00"
             };
+
             const resp = await window.electronAPI.createShift(shift);
             if (resp) {
               setMessageTitle("Success");
@@ -202,6 +209,10 @@ export default function ShiftView() {
             type="text"
             fullWidth
             variant="standard"
+            inputProps={{
+              maxLength: 4,
+              minLength: 2,
+            }}
           />
           <InputLabel id="shiftTypeLabel">Shift Type</InputLabel>
           <Select
@@ -210,8 +221,8 @@ export default function ShiftView() {
             name="type"
             fullWidth
           >
-            <MenuItem value={ShiftType.rotational}>{ ShiftType.rotational }</MenuItem>
-            <MenuItem value={ShiftType.nonrotational}>{ ShiftType.nonrotational.replace("_", " ") }</MenuItem>
+            <MenuItem value={ShiftType.rotational}>{ShiftType.rotational}</MenuItem>
+            <MenuItem value={ShiftType.nonrotational}>{ShiftType.nonrotational.replace("_", " ")}</MenuItem>
           </Select>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <TimePicker
@@ -273,8 +284,8 @@ export default function ShiftView() {
           </LocalizationProvider>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.add }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.add}</Button>
         </DialogActions>
       </Dialog>
 
@@ -288,6 +299,12 @@ export default function ShiftView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
+            if (/\s/.test(formJson.code)) {
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;
+            }
             let shift: Shift = {
               id: selectedRows[0].id,
               name: formJson.name,
@@ -302,7 +319,7 @@ export default function ShiftView() {
               overTimeAllowance: "0." + formJson.overTimeAllowance + ":00"
             };
             const resp = await window.electronAPI.updateShift(shift);
-            if(resp) {
+            if (resp) {
               setMessageTitle("Success");
               setMessageContent(resp.message);
               setMessageModal(true);
@@ -342,6 +359,10 @@ export default function ShiftView() {
             fullWidth
             variant="standard"
             defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].code}
+            inputProps={{
+              maxLength: 4,
+              minLength: 2,
+            }}
           />
           <InputLabel id="shiftTypeLabel">Shift Type</InputLabel>
           <Select
@@ -351,8 +372,8 @@ export default function ShiftView() {
             defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].type}
             fullWidth
           >
-            <MenuItem value={ShiftType.rotational}>{ ShiftType.rotational }</MenuItem>
-            <MenuItem value={ShiftType.nonrotational}>{ ShiftType.nonrotational.replace("_", " ") }</MenuItem>
+            <MenuItem value={ShiftType.rotational}>{ShiftType.rotational}</MenuItem>
+            <MenuItem value={ShiftType.nonrotational}>{ShiftType.nonrotational.replace("_", " ")}</MenuItem>
           </Select>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <TimePicker
@@ -421,8 +442,8 @@ export default function ShiftView() {
           </LocalizationProvider>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.update }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.update}</Button>
         </DialogActions>
       </Dialog>
 
@@ -434,15 +455,15 @@ export default function ShiftView() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          { messageTitle }
+          {messageTitle}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            { messageContent }
+            {messageContent}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.ok }</Button>
+          <Button onClick={handleClose}>{STRINGS.ok}</Button>
         </DialogActions>
       </Dialog>
     </Stack>
