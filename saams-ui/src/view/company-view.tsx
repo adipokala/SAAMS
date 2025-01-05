@@ -291,7 +291,7 @@ export default function CompanyView() {
               setMessageTitle("Error");
               setMessageContent("Code should not contain spaces");
               setMessageModal(true);
-              return;//changed
+              return;//change
             }
             let Company: Company = {
               id: selectedRows[0].id,
