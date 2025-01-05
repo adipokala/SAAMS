@@ -143,7 +143,7 @@ export default function CompanyView() {
               setMessageTitle("Error");
               setMessageContent("Code should not contain spaces");
               setMessageModal(true);
-              return;
+              return;//change
             }
             let company: Company = {
               name: formJson.name,
