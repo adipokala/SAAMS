@@ -348,7 +348,7 @@ export default function CompanyView() {
             inputProps={{
               maxLength: 4,
               minLength: 2,
-            }}
+            }}//changed
             defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].code}
           />
           <TextField
