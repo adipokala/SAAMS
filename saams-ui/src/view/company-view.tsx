@@ -32,17 +32,17 @@ export default function CompanyView() {
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: 'Name', width: 150 },
-    { field: 'code', headerName: 'Code', width: 110},
-    { field: 'address', headerName: 'Address', width: 110},
-    { field: 'city', headerName: 'City', width: 110},
-    { field: 'state', headerName: 'State', width: 110},
-    { field: 'pincode', headerName: 'PinCode', width: 110},
-    { field: 'email', headerName: 'Email', width: 110},
-    { field: 'phone', headerName: 'Phone', width: 110},
-    { field: 'fax', headerName: 'Fax', width: 110},
-  ]; 
+    { field: 'code', headerName: 'Code', width: 110 },
+    { field: 'address', headerName: 'Address', width: 110 },
+    { field: 'city', headerName: 'City', width: 110 },
+    { field: 'state', headerName: 'State', width: 110 },
+    { field: 'pincode', headerName: 'PinCode', width: 110 },
+    { field: 'email', headerName: 'Email', width: 110 },
+    { field: 'phone', headerName: 'Phone', width: 110 },
+    { field: 'fax', headerName: 'Fax', width: 110 },
+  ];
 
-  const handleRefreshButtonClick = async () =>  {
+  const handleRefreshButtonClick = async () => {
     const response = await handleOnGet();
     if (!response.status) {
       setMessageTitle("Error");
@@ -139,6 +139,12 @@ export default function CompanyView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
+            if (/\s/.test(formJson.code)) {
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;
+            }
             let company: Company = {
               name: formJson.name,
               code: formJson.code,
@@ -189,6 +195,10 @@ export default function CompanyView() {
             type="text"
             fullWidth
             variant="standard"
+            inputProps={{
+              maxLength: 4,
+              minLength: 2,
+            }}
           />
           <TextField
             required
@@ -262,8 +272,8 @@ export default function CompanyView() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.add }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.add}</Button>
         </DialogActions>
       </Dialog>
 
@@ -277,6 +287,12 @@ export default function CompanyView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
+            if (/\s/.test(formJson.code)) {
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;
+            }
             let Company: Company = {
               id: selectedRows[0].id,
               name: formJson.name,
@@ -290,7 +306,7 @@ export default function CompanyView() {
               fax: formJson.fax
             };
             const resp = await window.electronAPI.updateCompany(Company);
-            if(resp) {
+            if (resp) {
               setMessageTitle("Success");
               setMessageContent(resp.message);
               setMessageModal(true);
@@ -329,6 +345,10 @@ export default function CompanyView() {
             type="text"
             fullWidth
             variant="standard"
+            inputProps={{
+              maxLength: 4,
+              minLength: 2,
+            }}
             defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].code}
           />
           <TextField
@@ -410,8 +430,8 @@ export default function CompanyView() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.update }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.update}</Button>
         </DialogActions>
       </Dialog>
 
@@ -423,15 +443,15 @@ export default function CompanyView() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          { messageTitle }
+          {messageTitle}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            { messageContent }
+            {messageContent}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.ok }</Button>
+          <Button onClick={handleClose}>{STRINGS.ok}</Button>
         </DialogActions>
       </Dialog>
     </Stack>
