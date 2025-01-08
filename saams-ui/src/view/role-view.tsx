@@ -132,6 +132,12 @@ export default function RoleView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
+            if (/\s/.test(formJson.code)) {
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;//added
+            }
             let role: Role = {
               name: formJson.name,
               code: formJson.code,
@@ -171,6 +177,10 @@ export default function RoleView() {
             required
             margin="dense"
             id="code"
+            inputProps={{
+              maxLength: 4,
+              minLength: 2,
+            }}
             name="code"
             label="Role Code"
             type="text"
@@ -194,6 +204,12 @@ export default function RoleView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
+            if (/\s/.test(formJson.code)) {
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;//added
+            }
             let role: Role = {
               id: selectedRows[0].id,
               name: formJson.name,
@@ -235,6 +251,10 @@ export default function RoleView() {
             required
             margin="dense"
             id="code"
+            inputProps={{
+              maxLength: 4,
+              minLength: 2,
+            }}
             name="code"
             label="Role Code"
             type="text"
