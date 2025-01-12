@@ -1,34 +1,35 @@
-import React from "react";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   AppBar,
+  Box,
+  CssBaseline,
+  Divider,
   Drawer,
   List,
   ListItemText,
+  ListSubheader,
+  Menu,
+  MenuItem,
+  ThemeProvider,
   Toolbar,
   Typography,
-  Grid,
-  Box,
-  CssBaseline,
-  ThemeProvider,
-  createTheme,
-  Button,
-  Divider,
-  ListSubheader,
+  createTheme
 } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import ListItemButton from "@mui/material/ListItemButton";
-import DepartmentView from "./Department-view";
-import DesignationView from "./designation-view";
-import HomeView from "./home-view";
-import { Logout } from "@mui/icons-material";
-import ShiftView from "./shift-view";
-import RoleView from "./role-view";
-import UserView from "./user-view";
-import CompanyView from "./company-view";
+import React from "react";
+import AccountDetailsView from "./AccountDetails-view"; // Ensure correct import path
+import CompanyView from "./company-view"; // Ensure correct import path
+import DepartmentView from "./Department-view"; // Ensure correct import path
+import DesignationView from "./designation-view"; // Ensure correct import path
+import HomeView from "./home-view"; // Ensure correct import path
+import RoleView from "./role-view"; // Ensure correct import path
+import ShiftView from "./shift-view"; // Ensure correct import path
+import UserView from "./user-view"; // Ensure correct import path
 
 interface DashboardViewProps {
-  handleLogout: any;
+  handleLogout: () => void;
   userNameForDashboard: string;
 }
 
@@ -55,80 +56,98 @@ const darkTheme = createTheme({
   },
 });
 
-const userManagementItems: string[] = [ 'Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User' ];
-const accessManagementItems: string[] = [ 'Area', 'Channel', 'Reader' ];
-const reportManagementItems: string[] = [ 'User Report', 'Reader Report', 'Attendance Report' ];
+const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User', 'Account Details'];
+const accessManagementItems: string[] = ['Area', 'Channel', 'Reader'];
+const reportManagementItems: string[] = ['User Report', 'Reader Report', 'Attendance Report'];
 
-const switchView = (key: string): React.JSX.Element => {
+const switchView = (key: string, userNameForDashboard: string): React.JSX.Element => {
   console.log("Clicked on: " + key);
 
   switch (key) {
     case 'Home':
       return <HomeView />;
-
     case 'Designation':
       return <DesignationView />;
-
     case 'Department':
       return <DepartmentView />;
-
     case 'Shift':
       return <ShiftView />;
-
     case 'Role':
       return <RoleView />;
-
     case 'User':
       return <UserView />;
-    
     case 'Company':
-      return <CompanyView />
-  
+      return <CompanyView />;
+    case 'Account Details':
+      return <AccountDetailsView userName={userNameForDashboard} email="user@example.com" />;
     default:
       return <HomeView />;
   }
-}
+};
 
 export default function DashboardView({ userNameForDashboard, handleLogout }: DashboardViewProps) {
   const [item, setItem] = React.useState<string>('Home');
   const [open, setOpen] = React.useState<boolean>(true);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const toggleMenuOpen = () => {
     setOpen(!open);
-  }
+  };
 
-  const userManagementList = <List>
-    {userManagementItems.map((text, index) => (
-      <ListItemButton>
-        <ListItemText
-          primary={text}
-          sx={{ color: darkTheme.palette.text.primary }}
-          onClick={() => setItem(userManagementItems[index])} />
-      </ListItemButton>
-    ))}
-  </List>;
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-const accessManagementList = <List>
-{accessManagementItems.map((text, index) => (
-  <ListItemButton>
-    <ListItemText
-      primary={text}
-      sx={{ color: darkTheme.palette.text.primary }}
-      onClick={() => setItem(accessManagementItems[index])} />
-  </ListItemButton>
-))}
-</List>;
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
-const reportManagementList = <List>
-{reportManagementItems.map((text, index) => (
-  <ListItemButton>
-    <ListItemText
-      primary={text}
-      sx={{ color: darkTheme.palette.text.primary }}
-      onClick={() => setItem(reportManagementItems[index])} />
-  </ListItemButton>
-))}
-</List>;
+  const handleAccountDetails = () => {
+    setItem("Account Details");
+    handleMenuClose();
+  };
+  
+  const userManagementList = (
+    <List>
+      {userManagementItems.map((text, index) => (
+        <ListItemButton key={index}>
+          <ListItemText
+            primary={text}
+            sx={{ color: darkTheme.palette.text.primary }}
+            onClick={() => setItem(userManagementItems[index])}
+          />
+        </ListItemButton>
+      ))}
+    </List>
+  );
+
+  const accessManagementList = (
+    <List>
+      {accessManagementItems.map((text, index) => (
+        <ListItemButton key={index}>
+          <ListItemText
+            primary={text}
+            sx={{ color: darkTheme.palette.text.primary }}
+            onClick={() => setItem(accessManagementItems[index])}
+          />
+        </ListItemButton>
+      ))}
+    </List>
+  );
+
+  const reportManagementList = (
+    <List>
+      {reportManagementItems.map((text, index) => (
+        <ListItemButton key={index}>
+          <ListItemText
+            primary={text}
+            sx={{ color: darkTheme.palette.text.primary }}
+            onClick={() => setItem(reportManagementItems[index])}
+          />
+        </ListItemButton>
+      ))}
+    </List>
+  );
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -161,14 +180,30 @@ const reportManagementList = <List>
             Welcome to {userNameForDashboard}
           </Typography>
 
-          <Button color="inherit" onClick={handleLogout}>Logout <Logout /></Button>
+          {/* Profile Icon and Dropdown */}
+          <IconButton
+            color="inherit"
+            onClick={handleMenuOpen}
+            size="large"
+          >
+            <AccountCircleIcon />
+          </IconButton>
+
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={handleAccountDetails}>Account Details</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
 
       <Box sx={{ display: "flex" }}>
         <Drawer
           sx={{
-            visibility: open ? "visible" : "collapse",
+            display: open ? "block" : "none",  // Change visibility to display
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
@@ -197,6 +232,7 @@ const reportManagementList = <List>
             {reportManagementList}
           </Box>
         </Drawer>
+
         {/* Main content area */}
         <Box
           component="main"
@@ -208,10 +244,9 @@ const reportManagementList = <List>
             height: "100vh",
           }}
         >
-        
           {/* Content below AppBar */}
           <Toolbar />
-          { switchView(item) }
+          {switchView(item, userNameForDashboard)} {/* Pass userNameForDashboard */}
         </Box>
       </Box>
     </ThemeProvider>
