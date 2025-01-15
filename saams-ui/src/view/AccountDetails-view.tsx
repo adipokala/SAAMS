@@ -2,11 +2,12 @@ import { Box, Card, CardContent, Divider, Typography } from "@mui/material";
 import React from "react";
 
 interface AccountDetailsViewProps {
-  userName: string;
+  firstName: string;
+  lastName: string;
   email: string;
 }
 
-const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ userName, email }) => {
+const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ firstName, lastName, email }) => {
   return (
     <Box sx={{ padding: 3 }}>
       <Card>
@@ -16,7 +17,10 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ userName, email
           </Typography>
           <Divider sx={{ marginBottom: 2 }} />
           <Typography variant="body1" sx={{ marginBottom: 1 }}>
-            <strong>Username:</strong> {userName}
+            <strong>First Name:</strong> {firstName}
+          </Typography>
+          <Typography variant="body1" sx={{ marginBottom: 1 }}>
+            <strong>Last Name:</strong> {lastName}
           </Typography>
           <Typography variant="body1" sx={{ marginBottom: 1 }}>
             <strong>Email:</strong> {email}

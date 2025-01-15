@@ -1,12 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import LoginView from './view/login-view';
 import DashboardView from './view/Dashboard-view';
-import DepartmentView from './view/Department-view';
-import { useState } from 'react';
-import Button from '@mui/material/Button';
-import { Box } from '@mui/material';
-import DiscordLikeInterface from './view/DiscordLikeView';
+import LoginView from './view/login-view';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,17 +10,20 @@ function App() {
     const [userNameForDashboard, setUserNameForDashboard] = useState<string>('');
 
     const handleLogin = async (userName: string, password: string) => {
-        const resp = await window.electronAPI.loginUser('{ "userName": "' + userName + '", "password": "' + password + '" }');
-        if(resp.status) {
+        const resp = await window.electronAPI.loginUser(`{ "userName": "${userName}", "password": "${password}" }`);
+        if (resp.status) {
             setIsAuthenticated(true);
             setCurrentView('dashboard');
-            setUserNameForDashboard(resp.user.firstName);
-            console.log(userNameForDashboard);
+            
+            setUserNameForDashboard(`${resp.user.firstName} ${resp.user.lastName}`);
+            
+            console.log(`Logged in as: ${resp.user.firstName} ${resp.user.lastName}`);
         } else {
             setLoginAttempted(true);
             setIsAuthenticated(false);
         }
     };
+    
 
     const handleLogout = () => {
         setIsAuthenticated(false);

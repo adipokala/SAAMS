@@ -35,7 +35,6 @@ interface DashboardViewProps {
 
 const drawerWidth = 240;
 
-// Create a custom dark theme that mimics Discord's color palette
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
@@ -78,8 +77,10 @@ const switchView = (key: string, userNameForDashboard: string): React.JSX.Elemen
       return <UserView />;
     case 'Company':
       return <CompanyView />;
-    case 'Account Details':
-      return <AccountDetailsView userName={userNameForDashboard} email="user@example.com" />;
+      case 'Account Details': {
+        const [firstName, lastName] = userNameForDashboard.split(" "); 
+        return <AccountDetailsView firstName={firstName} lastName={lastName} email="user@example.com" />;
+      }      
     default:
       return <HomeView />;
   }
@@ -203,7 +204,7 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
       <Box sx={{ display: "flex" }}>
         <Drawer
           sx={{
-            display: open ? "block" : "none",  // Change visibility to display
+            display: open ? "block" : "none",  
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
