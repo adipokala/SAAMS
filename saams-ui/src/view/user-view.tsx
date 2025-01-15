@@ -16,6 +16,8 @@ import { Designation } from '../model/designation';
 import { Company } from '../model/company';
 import { Role } from '../model/role';
 import { Department } from '../model/department';
+import { useState } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
 import { Shift } from '../model/shift';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -61,30 +63,37 @@ export default function UserView() {
   const [rows, setRows] = React.useState<User[]>([]);
   const [initialLoad, setInitialLoad] = React.useState<boolean>(true);
   const [addModal, setAddModal] = React.useState<boolean>(false);
+  const [currentUserId] = React.useState<number>(1); // Replace with actual current user ID
   const [updateModal, setUpdateModal] = React.useState<boolean>(false);
   const [messageModal, setMessageModal] = React.useState<boolean>(false);
   const [messageTitle, setMessageTitle] = React.useState<string>("");
   const [messageContent, setMessageContent] = React.useState<string>("");
+  const [users, setUsers] = React.useState<User[]>([]);
+  const [dob, setDob] = useState<Dayjs | null>(null);
+  const [doj, setDoj] = useState<Dayjs | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'userNumber', headerName: 'User Number', width: 130 },
     { field: 'firstName', headerName: 'First Name', width: 110 },
-    { field: 'lastName', headerName: 'Last Name', width: 110},
-    { field: 'userName', headerName: 'User Name', width: 110},
-    { field: 'email', headerName: 'Email', width: 150},
-    { field: 'phone', headerName: 'Phone', width: 110},
+    { field: 'lastName', headerName: 'Last Name', width: 110 },
+    { field: 'userName', headerName: 'User Name', width: 110 },
+    { field: 'reportsTo', headerName: 'Reports To', width: 110 },
+    { field: 'email', headerName: 'Email', width: 150 },
+    { field: 'phone', headerName: 'Phone', width: 110 },
   ];
 
-  const handleRefreshButtonClick = async () =>  {
+  const handleRefreshButtonClick = async () => {
     const response = await handleOnGet();
-    if (!response.status) {
+    if (response.status) {
+      setRows(response.users); // Always update the rows
+    } else {
       setMessageTitle("Error");
       setMessageContent("Error fetching data");
       setMessageModal(true);
     }
-    setRows(response.users);
-  }
-
+  };
   const handleAddButtonClick = () => {
     setAddModal(true);
   }
@@ -126,6 +135,15 @@ export default function UserView() {
     setUpdateModal(false);
     setMessageModal(false);
   }
+  //to fetch all users
+  const handleOnGet = async () => {
+    const resp = await window.electronAPI.getUsers();
+    if (resp.status) {
+      setUsers(resp.users); // Store the users list
+    }
+    return resp;
+  }
+
 
   React.useEffect(() => {
     if (initialLoad) {
@@ -174,6 +192,8 @@ export default function UserView() {
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
             let user: User = {
+              id: selectedRows[0]?.id || 0, // Ensure id is set
+              userNumber: formJson.userNumber,
               userName: formJson.userName,
               firstName: formJson.firstName,
               lastName: formJson.lastName,
@@ -181,14 +201,16 @@ export default function UserView() {
               sex: formJson.sex,
               email: formJson.email,
               phone: formJson.phone,
+              reportsTo: formJson.reportsTo,
               roleId: formJson.roleId,
               companyId: formJson.companyId,
               designationId: formJson.designationId,
               departmentId: formJson.departmentId,
               shiftId: formJson.shiftId,
-              dateOfBirth: formJson.dob,
-              dateOfJoining: formJson.doj
+              dateOfBirth: dob ? dob.format('YYYY-MM-DD') : undefined, // Format dob
+              dateOfJoining: doj ? doj.format('YYYY-MM-DD') : undefined // Format doj
             };
+            console.log(user);
             const resp = await window.electronAPI.createUser(user);
             if (resp) {
               setMessageTitle("Success");
@@ -209,6 +231,26 @@ export default function UserView() {
           <DialogContentText>
             Fill in user name and code.
           </DialogContentText>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="userNumber"
+            name="userNumber"
+            label="User-Number"
+            type="alphanumeric"
+            fullWidth
+            variant="standard"
+            inputProps={{
+              pattern: "^[a-zA-Z0-9]+$", // Alphanumeric characters only
+              title: "User Number must not contain spaces or special characters.",
+              minLength: 6,
+            }}
+            onInput={(e) => {
+              const target = e.target as HTMLInputElement;
+              target.value = target.value.replace(/[^a-zA-Z0-9]/g, ""); // Remove invalid characters
+            }}
+          />
           <TextField
             autoFocus
             required
@@ -246,9 +288,12 @@ export default function UserView() {
             id="password"
             name="password"
             label="Password"
-            type="text"
+            type="password"
             fullWidth
             variant="standard"
+            inputProps={{
+              minLength: 8,
+            }}
           />
           <FormLabel id="demo-radio-buttons-group-label">Gender</FormLabel>
           <RadioGroup
@@ -281,9 +326,47 @@ export default function UserView() {
             variant="standard"
           />
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker label="Date of Birth" name="dob" sx={{ margin: 1 }} format="YYYY-MM-DD" />
-            <DatePicker label="Date of Joining" name="doj" sx={{ margin: 1 }} format="YYYY-MM-DD" />
+            <DatePicker
+              label="Date of Birth"
+              value={dob}
+              onChange={(newValue) => setDob(newValue)}
+              format="YYYY-MM-DD"
+              sx={{ margin: 1 }}
+            />
+            <DatePicker
+              label="Date of Joining"
+              value={doj}
+              onChange={(newValue) => {
+                if (dob && newValue && newValue.isBefore(dob)) {
+                  setErrorMessage("Date of Joining cannot be earlier than Date of Birth.");
+                } else {
+                  setErrorMessage("");
+                  setDoj(newValue);
+                }
+              }}
+              format="YYYY-MM-DD"
+              minDate={dob}
+              sx={{ margin: 1 }}
+            />
+            {errorMessage && <div style={{ color: "red" }}>{errorMessage}</div>}
           </LocalizationProvider>
+          <InputLabel id="reportsToLabel">Reports To</InputLabel>
+          <Select
+            labelId="reportsToLabel"
+            id="reportsTo"
+            name="reportsTo"
+            fullWidth
+          >
+            <MenuItem value={0}>None</MenuItem>
+            {users
+              .filter((user) => user.id !== currentUserId) // Exclude current user
+              .map((user) => (
+                <MenuItem key={user.id} value={user.id}>
+                  {user.firstName} {user.lastName} ({user.userName})
+                </MenuItem>
+              ))}
+          </Select>
+
           <InputLabel id="roleLabel">Role</InputLabel>
           <Select
             labelId="roleLabel"
@@ -351,8 +434,8 @@ export default function UserView() {
           </Select>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.add }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.add}</Button>
         </DialogActions>
       </Dialog>
 
@@ -384,7 +467,7 @@ export default function UserView() {
               dateOfJoining: ''
             };
             const resp = await window.electronAPI.updateUser(user);
-            if(resp) {
+            if (resp) {
               setMessageTitle("Success");
               setMessageContent(resp.message);
               setMessageModal(true);
@@ -413,7 +496,7 @@ export default function UserView() {
             type="text"
             fullWidth
             variant="standard"
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].firstName }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].firstName}
           />
           <TextField
             required
@@ -424,7 +507,7 @@ export default function UserView() {
             type="text"
             fullWidth
             variant="standard"
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].lastName }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].lastName}
           />
           <TextField
             required
@@ -435,7 +518,7 @@ export default function UserView() {
             type="text"
             fullWidth
             variant="standard"
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].userName }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].userName}
           />
           <TextField
             required
@@ -449,7 +532,7 @@ export default function UserView() {
           />
           <RadioGroup
             id="sex"
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].sex }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].sex}
             name="sex"
           >
             <FormControlLabel value="MALE" control={<Radio />} label="Male" />
@@ -464,7 +547,7 @@ export default function UserView() {
             type="email"
             fullWidth
             variant="standard"
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].email }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].email}
           />
           <TextField
             required
@@ -475,7 +558,7 @@ export default function UserView() {
             type="number"
             fullWidth
             variant="standard"
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].phone }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].phone}
           />
           <InputLabel id="roleLabel">Role</InputLabel>
           <Select
@@ -483,7 +566,7 @@ export default function UserView() {
             id="roleId"
             name="roleId"
             fullWidth
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].roleId }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].roleId}
           >
             {
               roles.map((element) => (
@@ -506,7 +589,7 @@ export default function UserView() {
             id="designationId"
             name="designationId"
             fullWidth
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].designationId }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].designationId}
           >
             {
               designations.map((element) => (
@@ -520,7 +603,7 @@ export default function UserView() {
             id="departmentId"
             name="departmentId"
             fullWidth
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].departmentId }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].departmentId}
           >
             {
               departments.map((element) => (
@@ -534,7 +617,7 @@ export default function UserView() {
             id="shiftId"
             name="shiftId"
             fullWidth
-            defaultValue={ selectedRows[0] === undefined ? "" : selectedRows[0].shiftId }
+            defaultValue={selectedRows[0] === undefined ? "" : selectedRows[0].shiftId}
           >
             {
               shifts.map((element) => (
@@ -544,8 +627,8 @@ export default function UserView() {
           </Select>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.update }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.update}</Button>
         </DialogActions>
       </Dialog>
 
@@ -557,15 +640,15 @@ export default function UserView() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          { messageTitle }
+          {messageTitle}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            { messageContent }
+            {messageContent}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.ok }</Button>
+          <Button onClick={handleClose}>{STRINGS.ok}</Button>
         </DialogActions>
       </Dialog>
     </Stack>
