@@ -14,21 +14,25 @@ declare global {
             loginUser: (json: string) => UserResponse;
             // Department
             getDepartments: () => DepartmentResponse;
+            getDepartment: (id: number) => DepartmentResponse;
             createDepartment: (department: Department) => DepartmentResponse;
             updateDepartment: (department: Department) => DepartmentResponse;
             deleteDepartment: (id: number) => DepartmentResponse;
             // Designation
             getDesignations: () => DesignationResponse;
+            getDesignation: (id: number) => DesignationResponse;
             createDesignation: (designation: Designation) => DesignationResponse;
             updateDesignation: (designation: Designation) => DesignationResponse;
             deleteDesignation: (id: number) => DesignationResponse;
             //Privilege
             getPrivileges: () => PrivilegeResponse;
+            getPrivilege: (id: number) => PrivilegeResponse;
             createPrivilege: (role: Privilege) => PrivilegeResponse;
             updatePrivilege: (role: Privilege) => PrivilegeResponse;
             deletePrivilege: (id: number) => PrivilegeResponse;
             // Role
             getRoles: () => RoleResponse;
+            getRole: (id: number) => RoleResponse;
             createRole: (role: Role) => RoleResponse;
             updateRole: (role: Role) => RoleResponse;
             deleteRole: (id: number) => RoleResponse;
@@ -44,6 +48,7 @@ declare global {
             deleteUser: (id: number) => UserResponse;
             //Company
             getCompanies: () => CompanyResponse;
+            getCompanie: (id: number) => CompanyResponse;
             createCompany: (company: Company) => CompanyResponse;
             updateCompany: (company: Company) => CompanyResponse;
             deleteCompany: (id: number) => CompanyResponse;

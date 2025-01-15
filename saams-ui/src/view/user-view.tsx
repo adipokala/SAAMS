@@ -32,7 +32,6 @@ let shifts: Shift[] = [];
 
 const handleOnGet = async () => {
   const resp = await window.electronAPI.getUsers();
-
   return resp;
 }
 
