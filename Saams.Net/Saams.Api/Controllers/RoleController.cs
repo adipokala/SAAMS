@@ -32,6 +32,8 @@ namespace Saams.Api.Controllers
                         Id = role.Id,
                         Name = role.Name,
                         Code = role.Code,
+                        CreatedAt = role.CreatedAt,
+                        UpdatedAt = role.UpdatedAt,
                     });
                 }
             }
@@ -68,6 +70,8 @@ namespace Saams.Api.Controllers
                             Id = role.Id,
                             Code = role.Code,
                             Name = role.Name,
+                            CreatedAt = role.CreatedAt,
+                            UpdatedAt = role.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -106,6 +110,8 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
 
                 model.Id = role.Id;
+                model.CreatedAt = role.CreatedAt;
+                model.UpdatedAt = role.UpdatedAt;
             }
 
             return Ok(new RoleResponseModel()
@@ -144,6 +150,9 @@ namespace Saams.Api.Controllers
                 role.Name = model.Name;
                 context.Roles.Update(role);
                 context.SaveChanges();
+
+                model.CreatedAt = role.CreatedAt;
+                model.UpdatedAt = role.UpdatedAt;
             }
 
             return Ok(new RoleResponseModel()
