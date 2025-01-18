@@ -57,4 +57,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createCompany: (company: Company) => ipcRenderer.invoke('request:createCompany', company),
     updateCompany: (company: Company) => ipcRenderer.invoke('request:updateCompany', company),
     deleteCompany: (id: Company) => ipcRenderer.invoke('request:deleteCompany', id),
+    // Communication
+    getSerialData: () => ipcRenderer.invoke('request:getSerialData'),
 });
