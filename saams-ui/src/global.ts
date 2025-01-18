@@ -5,6 +5,7 @@ import { Role, RoleResponse } from "./model/role";
 import { ShiftResponse, Shift } from "./model/shift";
 import { UserResponse, User } from "./model/user";
 import { CompanyResponse, Company } from "./model/company";
+import { SerialDataResponse } from "./model/serial-response";
 
 export {};
 
@@ -47,6 +48,8 @@ declare global {
             createCompany: (company: Company) => CompanyResponse;
             updateCompany: (company: Company) => CompanyResponse;
             deleteCompany: (id: number) => CompanyResponse;
+            // Communication
+            getSerialData: () => SerialDataResponse;
         }
     }
 }
