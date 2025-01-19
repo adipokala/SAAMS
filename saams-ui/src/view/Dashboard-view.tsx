@@ -20,7 +20,6 @@ import IconButton from '@mui/material/IconButton';
 import ListItemButton from "@mui/material/ListItemButton";
 import React from "react";
 import AccountDetailsView from "./AccountDetails-view"; // Ensure correct import path
-import CompanyView from "./company-view"; // Ensure correct import path
 import DepartmentView from "./Department-view"; // Ensure correct import path
 import DesignationView from "./designation-view"; // Ensure correct import path
 import HomeView from "./home-view"; // Ensure correct import path
@@ -28,9 +27,17 @@ import RoleView from "./role-view"; // Ensure correct import path
 import ShiftView from "./shift-view"; // Ensure correct import path
 import UserView from "./user-view"; // Ensure correct import path
 
+interface User {
+  firstName: string;
+  lastName: string;
+  email: string;
+  userName: string;
+  phone: string;
+}
+
 interface DashboardViewProps {
   handleLogout: () => void;
-  userNameForDashboard: string;
+  user: User; // Updated to pass the whole user object
 }
 
 const drawerWidth = 240;
@@ -55,11 +62,11 @@ const darkTheme = createTheme({
   },
 });
 
-const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User', 'Account Details'];
+const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User'];
 const accessManagementItems: string[] = ['Area', 'Channel', 'Reader'];
 const reportManagementItems: string[] = ['User Report', 'Reader Report', 'Attendance Report'];
 
-const switchView = (key: string, userNameForDashboard: string): React.JSX.Element => {
+const switchView = (key: string, user: User): React.JSX.Element => {
   console.log("Clicked on: " + key);
 
   switch (key) {
@@ -75,18 +82,15 @@ const switchView = (key: string, userNameForDashboard: string): React.JSX.Elemen
       return <RoleView />;
     case 'User':
       return <UserView />;
-    case 'Company':
-      return <CompanyView />;
-      case 'Account Details': {
-        const [firstName, lastName] = userNameForDashboard.split(" "); 
-        return <AccountDetailsView firstName={firstName} lastName={lastName} email="user@example.com" />;
-      }      
+    case 'Account Details': {
+      return <AccountDetailsView user={user} />; // Pass the whole user object
+    }      
     default:
       return <HomeView />;
   }
 };
 
-export default function DashboardView({ userNameForDashboard, handleLogout }: DashboardViewProps) {
+export default function DashboardView({ user, handleLogout }: DashboardViewProps) {
   const [item, setItem] = React.useState<string>('Home');
   const [open, setOpen] = React.useState<boolean>(true);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -178,7 +182,7 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
             component="div"
             sx={{ flexGrow: 1 }}
           >
-            Welcome to {userNameForDashboard}
+            Welcome to {user.userName}
           </Typography>
 
           {/* Profile Icon and Dropdown */}
@@ -247,7 +251,7 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
         >
           {/* Content below AppBar */}
           <Toolbar />
-          {switchView(item, userNameForDashboard)} {/* Pass userNameForDashboard */}
+          {switchView(item, user)} {/* Pass the whole user object */}
         </Box>
       </Box>
     </ThemeProvider>
