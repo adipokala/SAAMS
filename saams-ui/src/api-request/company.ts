@@ -40,7 +40,7 @@ export const getCompanies = async () => {
     
         return future;
 }
- export const getCompanie = async (id: number) => {
+ export const getCompany = async (id: number) => {
     const future = await new Promise<CompanyResponse>((resolve, reject) => {
         // Make sure the entry exists
         const request = net.request({

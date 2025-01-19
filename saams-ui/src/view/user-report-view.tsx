@@ -12,12 +12,9 @@ import jsPDF from 'jspdf';
 import { User } from '../model/user';
 import { STRINGS } from '../constants';
 
-const getRoleName = async (id:number) => {
-  const resp = await window.electronAPI.getRole(id);
-  return resp.role.name;
-}
 
 export default function UserReportView() {
+  const [roleName, setRoleName] = React.useState<string>('');
   const [users, setUsers] = React.useState<User[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
   const [errorDialog, setErrorDialog] = React.useState<{ open: boolean; title: string; message: string }>({
@@ -41,6 +38,11 @@ export default function UserReportView() {
     }
   };
 
+  const getRoleName = async (id: number) => {
+    const resp = await window.electronAPI.getRole(id);
+    setRoleName(resp.role.name);
+  }
+
   const handleExportToPDF = () => {
     const doc = new jsPDF();
     doc.text('User Report', 20, 10);
@@ -53,7 +55,7 @@ export default function UserReportView() {
         Username: ${user.userName}
         Email: ${user.email}
         Phone: ${user.phone}
-        Role id : ${user.roleId}
+        Role name : ${roleName}
         Company id: ${user.companyId}
         Designation id: ${user.designationId}
         Department id: ${user.departmentId}
@@ -94,7 +96,7 @@ export default function UserReportView() {
               <Typography>Username: {user.userName}</Typography>
               <Typography>Email: {user.email}</Typography>
               <Typography>Phone: {user.phone}</Typography>
-              <Typography>Role ID: {user.roleId}</Typography>
+              <Typography>Role name: {roleName}</Typography>
               <Typography>Company Id: {user.companyId}</Typography>
               <Typography>Designation Id: {user.designationId}</Typography>
               <Typography>Department Id: {user.departmentId}</Typography>

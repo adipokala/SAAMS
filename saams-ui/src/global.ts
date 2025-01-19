@@ -48,7 +48,7 @@ declare global {
             deleteUser: (id: number) => UserResponse;
             //Company
             getCompanies: () => CompanyResponse;
-            getCompanie: (id: number) => CompanyResponse;
+            getCompany: (id: number) => CompanyResponse;
             createCompany: (company: Company) => CompanyResponse;
             updateCompany: (company: Company) => CompanyResponse;
             deleteCompany: (id: number) => CompanyResponse;
