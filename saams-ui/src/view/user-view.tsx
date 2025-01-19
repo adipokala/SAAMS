@@ -63,7 +63,7 @@ export default function UserView() {
   const [rows, setRows] = React.useState<User[]>([]);
   const [initialLoad, setInitialLoad] = React.useState<boolean>(true);
   const [addModal, setAddModal] = React.useState<boolean>(false);
-  const [currentUserId] = React.useState<number>(0); // Replace with actual current user ID
+  const [currentUserId] = React.useState<number>(0); // Replace with actual current user ID updated
   const [updateModal, setUpdateModal] = React.useState<boolean>(false);
   const [messageModal, setMessageModal] = React.useState<boolean>(false);
   const [messageTitle, setMessageTitle] = React.useState<string>("");

@@ -16,7 +16,7 @@ function App() {
 
     const handleLogin = async (userName: string, password: string) => {
         const resp = await window.electronAPI.loginUser('{ "userName": "' + userName + '", "password": "' + password + '" }');
-        if(resp.status) {
+        if (resp.status) {
             setIsAuthenticated(true);
             setCurrentView('dashboard');
             setUserNameForDashboard(resp.user.firstName);
@@ -34,14 +34,14 @@ function App() {
     }
     return (
         <>
-        {isAuthenticated ? (
-            currentView == 'dashboard' ? (<DashboardView userNameForDashboard={userNameForDashboard} handleLogout={handleLogout} />
+            {isAuthenticated ? (
+                currentView == 'dashboard' ? (<DashboardView userNameForDashboard={userNameForDashboard} handleLogout={handleLogout} />
+                ) : (
+                    1
+                )
             ) : (
-                1
-            )
-        ) : (
-            <LoginView onLogin={handleLogin} loginAttempted={loginAttempted} />
-        )}
+                <LoginView onLogin={handleLogin} loginAttempted={loginAttempted} />
+            )}
         </>
     );
 }
@@ -50,4 +50,4 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
     const root = createRoot(rootElement);
     root.render(<App />);
-  }
+}
