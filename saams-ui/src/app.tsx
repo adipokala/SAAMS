@@ -13,19 +13,34 @@ function App() {
     const [loginAttempted, setLoginAttempted] = useState(false); // Track if a login attempt has been made
     const [currentView, setCurrentView] = useState<'login' | 'dashboard' | 'department'>('login');
     const [userNameForDashboard, setUserNameForDashboard] = useState<string>('');
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
 
     const handleLogin = async (userName: string, password: string) => {
-        const resp = await window.electronAPI.loginUser('{ "userName": "' + userName + '", "password": "' + password + '" }');
-        if(resp.status) {
-            setIsAuthenticated(true);
-            setCurrentView('dashboard');
-            setUserNameForDashboard(resp.user.firstName);
-            console.log(userNameForDashboard);
-        } else {
+        try {
+            const resp = await window.electronAPI.loginUser(
+                '{ "userName": "' + userName + '", "password": "' + password + '" }'
+            );
+
+            if (resp.status) {
+                setIsAuthenticated(true);
+                setCurrentView('dashboard');
+                setUserNameForDashboard(resp.user.firstName);
+                setErrorMessage(null); // Clear previous error messages
+            } else {
+                setLoginAttempted(true);
+                setIsAuthenticated(false);
+                setErrorMessage('Invalid username or password. Please try again.');
+            }
+        } catch (error) {
+            console.error("Backend connection failed:", error);
             setLoginAttempted(true);
             setIsAuthenticated(false);
+            setErrorMessage('Unable to connect to the server. Please try again later.');
         }
     };
+
+
 
     const handleLogout = () => {
         setIsAuthenticated(false);
@@ -34,14 +49,15 @@ function App() {
     }
     return (
         <>
-        {isAuthenticated ? (
-            currentView == 'dashboard' ? (<DashboardView userNameForDashboard={userNameForDashboard} handleLogout={handleLogout} />
+            {isAuthenticated ? (
+                currentView == 'dashboard' ? (<DashboardView userNameForDashboard={userNameForDashboard} handleLogout={handleLogout} />
+                ) : (
+                    1
+                )
             ) : (
-                1
-            )
-        ) : (
-            <LoginView onLogin={handleLogin} loginAttempted={loginAttempted} />
-        )}
+                <LoginView onLogin={handleLogin} loginAttempted={loginAttempted} errorMessage={errorMessage} />
+
+            )}
         </>
     );
 }
@@ -50,4 +66,4 @@ const rootElement = document.getElementById('root');
 if (rootElement) {
     const root = createRoot(rootElement);
     root.render(<App />);
-  }
+}

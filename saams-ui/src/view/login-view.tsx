@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import {useState} from 'react';
+import { useState } from 'react';
 import { Snackbar } from '@mui/material';
 
 function Copyright(props: any) {
@@ -28,25 +28,18 @@ function Copyright(props: any) {
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
-
 interface LoginViewProps {
   onLogin: (userName: string, password: string) => void;
   loginAttempted: boolean;
+  errorMessage?: string; // Optional error message prop.
 }
 
-export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
+
+export default function LoginView({ onLogin, loginAttempted, errorMessage }: LoginViewProps) {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('userName'),
-      password: data.get('password'),
-    });
-
-    // call the onLogin function passed as a prop
-    onLogin(data.get('userName').toString(), data.get('password').toString());
-
-    //reset the input fields after login process
+    onLogin(data.get('userName')?.toString() ?? '', data.get('password')?.toString() ?? '');
   };
 
   return (
@@ -59,9 +52,7 @@ export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
           sm={4}
           md={7}
           sx={{
-            backgroundImage:
-              'url("/static/images/templates/templates-images/sign-in-side-bg.png")',
-
+            backgroundImage: 'url("/static/images/templates/templates-images/sign-in-side-bg.png")',
             backgroundColor: (t) =>
               t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
             backgroundSize: 'cover',
@@ -103,15 +94,16 @@ export default function LoginView({onLogin, loginAttempted} : LoginViewProps) {
                 type="password"
                 id="password"
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
+              <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                 Sign In
               </Button>
-              <Snackbar open={loginAttempted} autoHideDuration={3000} message="Invalid username or password. Try again." />
+              {loginAttempted && (
+                <Snackbar
+                  open={loginAttempted}
+                  autoHideDuration={3000}
+                  message={errorMessage || 'Invalid username or password. Try again.'}
+                />
+              )}
               <Copyright sx={{ mt: 5 }} />
             </Box>
           </Box>
