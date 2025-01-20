@@ -6,14 +6,14 @@ export const getDepartments = async () => {
     const future = await new Promise<DepartmentResponse>((resolve, reject) => {
         // Make sure the entry exists
         const request = net.request('https://localhost:7192/api/Department');
-    
+
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -25,51 +25,51 @@ export const getDepartments = async () => {
                 console.log('no more data');
             });
         });
-    
+
         request.on('error', (error) => {
             reject(error); // Reject the promise if there's a request error
         });
-    
+
         request.end();
-        });
-    
-        console.log('before the return statement');
-        return future;
+    });
+
+    console.log('before the return statement');
+    return future;
 }
- export const getDepartment = async (id: number) => {
+export const getDepartment = async (id: number) => {
     const future = await new Promise<DepartmentResponse>((resolve, reject) => {
-    const request = net.request({
-        method: 'POST',
-        protocol: 'https:',
-        hostname: API_CONFIG.hostname,
-        port: API_CONFIG.port,
-        path: API_ENDPOINTS.department+`/${id}`,
-        headers: API_CONFIG.headers,
-    });
-
-   
-    request.on('response', (response) => {
-        let responseData = '';
-
-        response.on('data', (chunk) => {
-        responseData += chunk; // Collect all data chunks
+        const request = net.request({
+            method: 'POST',
+            protocol: 'https:',
+            hostname: API_CONFIG.hostname,
+            port: API_CONFIG.port,
+            path: API_ENDPOINTS.department + `/${id}`,
+            headers: API_CONFIG.headers,
         });
 
-        response.on('end', () => {
-            try {
-                const data = JSON.parse(responseData);
-                resolve(data); // Resolve the promise with the id
-            } catch (error) {
-                reject(error); // Reject if parsing fails
-            }
+        request.on('response', (response) => {
+            let responseData = '';
+
+            response.on('data', (chunk) => {
+                responseData += chunk; // Collect all data chunks
+            });
+
+            response.on('end', () => {
+                try {
+                    console.log('response data: ', responseData);
+                    const data = JSON.parse(responseData);
+                    resolve(data); // Resolve the promise with the id
+                } catch (error) {
+                    reject(error); // Reject if parsing fails
+                }
+            });
         });
-    });
 
-    request.on('error', (error) => {
-        reject(error); // Reject the promise if there's a request error
-    });
+        request.on('error', (error) => {
+            reject(error); // Reject the promise if there's a request error
+        });
 
-    request.end();
+        request.end();
     });
 
     return future;
@@ -88,11 +88,11 @@ export const createDepartment = async (department: Department) => {
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -101,14 +101,14 @@ export const createDepartment = async (department: Department) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
 
         request.write(JSON.stringify(department));
-    
+
         request.end();
     });
 
@@ -128,11 +128,11 @@ export const updateDepartment = async (department: Department) => {
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -141,14 +141,14 @@ export const updateDepartment = async (department: Department) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
 
         request.write(JSON.stringify(department));
-        
+
         request.end();
     });
 
@@ -167,11 +167,11 @@ export const deleteDepartment = async (id: number) => {
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -180,7 +180,7 @@ export const deleteDepartment = async (id: number) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });

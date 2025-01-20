@@ -46,7 +46,7 @@ app.on('ready', () => {
 
 ipcMain.handle('request:loginUser', (event, json) => loginUser(json));
 // Department
-ipcMain.handle('request:getDepartments', (event, id) => getDepartments());
+ipcMain.handle('request:getDepartments', () => getDepartments());
 ipcMain.handle('request:getDepartment', (event, id) => getDepartment(id));
 ipcMain.handle('request:createDepartment', (event, department) => createDepartment(department));
 ipcMain.handle('request:updateDepartment', (event, department) => updateDepartment(department));
