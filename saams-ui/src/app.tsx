@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import LoginView from './view/login-view';
 import DashboardView from './view/Dashboard-view';
 import DepartmentView from './view/Department-view';
-import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { Box } from '@mui/material';
 import DiscordLikeInterface from './view/DiscordLikeView';
@@ -15,18 +14,17 @@ function App() {
     const [userNameForDashboard, setUserNameForDashboard] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-
     const handleLogin = async (userName: string, password: string) => {
         try {
             const resp = await window.electronAPI.loginUser(
-                '{ "userName": "' + userName + '", "password": "' + password + '" }'
+                `{ "userName": "${userName}", "password": "${password}" }`
             );
 
             if (resp.status) {
                 setIsAuthenticated(true);
                 setCurrentView('dashboard');
                 setUserNameForDashboard(resp.user.firstName);
-                setErrorMessage(null); // Clear previous error messages
+                setErrorMessage(null); // Clear any previous error messages
             } else {
                 setLoginAttempted(true);
                 setIsAuthenticated(false);
@@ -40,23 +38,29 @@ function App() {
         }
     };
 
-
-
     const handleLogout = () => {
         setIsAuthenticated(false);
         setCurrentView('login');
         setUserNameForDashboard('');
-    }
+    };
+
     return (
         <>
             {isAuthenticated ? (
-                currentView == 'dashboard' ? (<DashboardView userNameForDashboard={userNameForDashboard} handleLogout={handleLogout} />
+                currentView === 'dashboard' ? (
+                    <DashboardView
+                        userNameForDashboard={userNameForDashboard}
+                        handleLogout={handleLogout}
+                    />
                 ) : (
-                    1
+                    <DepartmentView />
                 )
             ) : (
-                <LoginView onLogin={handleLogin} loginAttempted={loginAttempted} errorMessage={errorMessage} />
-
+                <LoginView
+                    onLogin={handleLogin}
+                    loginAttempted={loginAttempted}
+                    errorMessage={errorMessage}
+                />
             )}
         </>
     );
