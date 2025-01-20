@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Saams.EF.AccessManagement;
 using Saams.EF.UserManagement;
 
 namespace Saams.EF
@@ -13,6 +14,9 @@ namespace Saams.EF
         public DbSet<Designation> Designations { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Shift> Shifts { get; set; }
+        public DbSet<Reader> Readers { get; set; }
+        public DbSet<Area> Areas { get; set; }
+        public DbSet<Channel> Channels { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -170,6 +174,60 @@ namespace Saams.EF
             modelBuilder.Entity<Shift>()
                 .Property(u => u.CreatedAt)
                 .ValueGeneratedOnUpdate();
+
+            // Reader
+            modelBuilder.Entity<Reader>()
+                .HasIndex(r => new { r.Code, r.SerialNumber })
+                .IsUnique();
+
+            modelBuilder.Entity<Reader>()
+                .Property(r => r.DoorMode)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Reader>()
+                .Property(r => r.Type)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Reader>()
+                .Property(r => r.AccessControl)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Reader>()
+                .Property(r => r.Switch)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Reader>()
+                .Property(r => r.Display)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Reader>()
+                .Property(r => r.TransactionLog)
+                .HasConversion<string>();
+
+            // Channel
+            modelBuilder.Entity<Channel>()
+                .HasIndex(c => c.Code)
+                .IsUnique();
+
+            modelBuilder.Entity<Channel>()
+                .Property(c => c.Type)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Channel>()
+                .HasMany(c => c.Readers)
+                .WithOne(c => c.Channel)
+                .HasForeignKey(c => c.ChannelId)
+                .IsRequired();
+
+            // Area
+            modelBuilder.Entity<Area>()
+                .HasIndex(a => a.Code)
+                .IsUnique();
+
+            modelBuilder.Entity<Area>()
+                .HasMany(a => a.Readers)
+                .WithOne(a => a.Area)
+                .HasForeignKey(a => a.AreaId);
 
             base.OnModelCreating(modelBuilder);
         }

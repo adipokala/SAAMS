@@ -49,6 +49,8 @@ namespace Saams.Api.Controllers
                         DesignationId = user.DesignationId,
                         DepartmentId = user.DepartmentId,
                         ShiftId = user.ShiftId,
+                        CreatedAt = user.CreatedAt,
+                        UpdatedAt = user.UpdatedAt,
                     };
                     userModels.Add(model);
                 }
@@ -100,6 +102,8 @@ namespace Saams.Api.Controllers
                             DesignationId = user.DesignationId,
                             DepartmentId = user.DepartmentId,
                             ShiftId = user.ShiftId,
+                            CreatedAt = user.CreatedAt,
+                            UpdatedAt = user.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true,
@@ -153,6 +157,8 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
 
                 model.Id = user.Id;
+                model.CreatedAt = user.CreatedAt;
+                model.UpdatedAt = user.UpdatedAt;
             }
 
             return Ok(new UserResponseModel()
@@ -205,6 +211,9 @@ namespace Saams.Api.Controllers
                 user.ShiftId = model.ShiftId;
                 context.Users.Update(user);
                 context.SaveChanges();
+
+                model.CreatedAt = user.CreatedAt;
+                model.UpdatedAt = user.UpdatedAt;
             }
 
             return Ok(new UserResponseModel()

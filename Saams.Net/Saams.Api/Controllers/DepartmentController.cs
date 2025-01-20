@@ -32,6 +32,8 @@ namespace Saams.Api.Controllers
                         Id = department.Id,
                         Name = department.Name,
                         Code = department.Code,
+                        CreatedAt = department.CreatedAt,
+                        UpdatedAt = department.UpdatedAt,
                     };
                     departmentModels.Add(model);
                 }
@@ -69,6 +71,8 @@ namespace Saams.Api.Controllers
                             Id = department.Id,
                             Code = department.Code,
                             Name = department.Name,
+                            CreatedAt = department.CreatedAt,
+                            UpdatedAt = department.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -107,6 +111,8 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
 
                 model.Id = department.Id;
+                model.CreatedAt = department.CreatedAt;
+                model.UpdatedAt = department.UpdatedAt;
             }
 
             return Ok(new DepartmentResponseModel()
@@ -141,6 +147,9 @@ namespace Saams.Api.Controllers
                 department.Name = model.Name;
                 context.Departments.Update(department);
                 context.SaveChanges();
+
+                model.CreatedAt = department.CreatedAt;
+                model.UpdatedAt = department.UpdatedAt;
             }
 
             return Ok(new DepartmentResponseModel()

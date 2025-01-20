@@ -40,6 +40,8 @@ namespace Saams.Api.Controllers
                         ExitTime = shift.ExitTime,
                         GraceExitTime = shift.GraceExitTime,
                         OverTimeAllowance = shift.OverTimeAllowance,
+                        CreatedAt = shift.CreatedAt,
+                        UpdatedAt = shift.UpdatedAt,
                     };
                     shiftModels.Add(model);
                 }
@@ -85,6 +87,8 @@ namespace Saams.Api.Controllers
                             ExitTime = shift.ExitTime,
                             GraceExitTime = shift.GraceExitTime,
                             OverTimeAllowance = shift.OverTimeAllowance,
+                            CreatedAt = shift.CreatedAt,
+                            UpdatedAt = shift.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -131,6 +135,8 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
 
                 model.Id = shift.Id;
+                model.CreatedAt = shift.CreatedAt;
+                model.UpdatedAt = shift.UpdatedAt;
             }
 
             return Ok(new ShiftResponseModel()
@@ -177,6 +183,9 @@ namespace Saams.Api.Controllers
                 shift.OverTimeAllowance = model.OverTimeAllowance;
                 context.Shifts.Update(shift);
                 context.SaveChanges();
+
+                model.CreatedAt = shift.CreatedAt;
+                model.UpdatedAt = shift.UpdatedAt;
             }
 
             return Ok(new ShiftResponseModel()
