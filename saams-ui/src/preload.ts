@@ -9,6 +9,7 @@ import { Role } from "./model/role";
 import { Shift } from "./model/shift";
 import { User } from "./model/user";
 import { Company } from "./model/company";
+import { Area } from "./model/area";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
@@ -47,4 +48,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createCompany: (company: Company) => ipcRenderer.invoke('request:createCompany', company),
     updateCompany: (company: Company) => ipcRenderer.invoke('request:updateCompany', company),
     deleteCompany: (id: Company) => ipcRenderer.invoke('request:deleteCompany', id),
+    // Area
+    getAreas: () => ipcRenderer.invoke('request:getAreas'),
+    createArea: (area: Area) => ipcRenderer.invoke('request:createArea', area),
+    updateArea: (area: Area) => ipcRenderer.invoke('request:updateArea', area),
+    deleteArea: (id: number) => ipcRenderer.invoke('request:deleteArea', id),
+
+
 });
