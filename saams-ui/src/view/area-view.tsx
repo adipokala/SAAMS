@@ -17,7 +17,7 @@ let selectedRows: Area[] = [];
 const handleOnGet = async () => {
   const resp = await window.electronAPI.getAreas();
   return resp;
-}
+};
 
 export default function AreaView() {
   const [rows, setRows] = React.useState<Area[]>([]);
@@ -25,9 +25,8 @@ export default function AreaView() {
   const [addModal, setAddModal] = React.useState<boolean>(false);
   const [updateModal, setUpdateModal] = React.useState<boolean>(false);
   const [messageModal, setMessageModal] = React.useState<boolean>(false);
-  const [messageTitle, setMessageTitle] = React.useState<string>("");
-  const [messageContent, setMessageContent] = React.useState<string>("");
-  const [newArea, setNewArea] = React.useState<Area>({ id: 0, name: '', code: '' });
+  const [messageTitle, setMessageTitle] = React.useState<string>('');
+  const [messageContent, setMessageContent] = React.useState<string>('');
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
@@ -38,100 +37,256 @@ export default function AreaView() {
   const handleRefreshButtonClick = async () => {
     const response = await handleOnGet();
     if (!response.status) {
-      setMessageTitle("Error");
-      setMessageContent("Error fetching data");
+      setMessageTitle('Error');
+      setMessageContent('Error fetching data');
       setMessageModal(true);
-    } else {
-      setRows(response.areas);
     }
-  }
+    setRows(response.areas);
+  };
 
   const handleAddButtonClick = () => {
     setAddModal(true);
-  }
+  };
 
-  const handleAddArea = async () => {
-    try {
-      const addedArea = await window.electronAPI.createArea(newArea);
-      setAddModal(false);
-      setNewArea({ id: 0, name: '', code: '' });
-    } catch (error) {
-      setMessageTitle("Error");
-      setMessageContent("Error adding area");
+  const handleUpdateButtonClick = () => {
+    if (selectedRows.length > 1) {
+      setMessageTitle('Update Area');
+      setMessageContent('Select only one item to edit.');
       setMessageModal(true);
+    } else if (selectedRows.length === 0) {
+      setMessageTitle('Update Area');
+      setMessageContent('Select an item to edit.');
+      setMessageModal(true);
+    } else {
+      setUpdateModal(true);
     }
-  }
+  };
+
+  const handleDeleteButtonClick = async () => {
+    if (selectedRows.length === 0) {
+      setMessageTitle('Delete Area');
+      setMessageContent('Select an item to delete.');
+      setMessageModal(true);
+    } else {
+      selectedRows.forEach(async (element) => {
+        const resp = await window.electronAPI.deleteArea(element.id);
+        if (!resp) {
+          setMessageTitle('Delete Area');
+          setMessageContent(`Failed to delete item with ID ${element.id}`);
+          setMessageModal(true);
+        }
+      });
+      handleRefreshButtonClick();
+    }
+  };
+
+  const handleClose = () => {
+    setAddModal(false);
+    setUpdateModal(false);
+    setMessageModal(false);
+  };
 
   React.useEffect(() => {
     if (initialLoad) {
       handleRefreshButtonClick();
       setInitialLoad(false);
     }
-  }, [initialLoad]);
+  });
 
   return (
-    <div>
-      <Stack direction="row" spacing={2}>
-        <Button variant="contained" startIcon={<Refresh />} onClick={handleRefreshButtonClick}>
-          Refresh
+    <Stack spacing={2} direction="column">
+      <Stack spacing={2} direction="row">
+        <Button variant="contained" onClick={handleRefreshButtonClick}>
+          Refresh <Refresh />
         </Button>
-        <Button variant="contained" startIcon={<Add />} onClick={handleAddButtonClick}>
-          Add
+        <Button variant="contained" onClick={handleAddButtonClick}>
+          Add <Add />
         </Button>
-        <Button variant="contained" startIcon={<Update />}>
-          Update
+        <Button variant="contained" onClick={handleUpdateButtonClick}>
+          Modify <Update />
         </Button>
-        <Button variant="contained" startIcon={<Delete />}>
-          Delete
+        <Button variant="contained" onClick={handleDeleteButtonClick}>
+          Delete <Delete />
         </Button>
       </Stack>
-      <div style={{ height: 400, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} checkboxSelection />
-      </div>
-      <Dialog open={addModal} onClose={() => setAddModal(false)}>
-        <DialogTitle>{STRINGS.add}</DialogTitle>
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 5,
+            },
+          },
+        }}
+        pageSizeOptions={[5]}
+        checkboxSelection
+        disableRowSelectionOnClick
+        onRowSelectionModelChange={(ids) => {
+          const selectedIds = new Set(ids);
+          selectedRows = rows.filter((row) => selectedIds.has(row.id));
+        }}
+      />
+
+      <Dialog
+        open={addModal}
+        onClose={handleClose}
+        PaperProps={{
+          component: 'form',
+          onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            if (/\s/.test(formJson.code as string)) {
+              setMessageTitle('Error');
+              setMessageContent('Code should not contain spaces');
+              setMessageModal(true);
+              return;
+            }
+            const area: Area = {
+              name: formJson.name as string,
+              code: formJson.code as string,
+            };
+            const resp = await window.electronAPI.createArea(area);
+            if (resp) {
+              setMessageTitle('Success');
+              setMessageContent(resp.message);
+              setMessageModal(true);
+              handleRefreshButtonClick();
+            } else {
+              setMessageTitle('Error');
+              setMessageContent(resp.message);
+              setMessageModal(true);
+            }
+            handleClose();
+          },
+        }}
+      >
+        <DialogTitle>Add Area</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            {STRINGS.ADD_AREA_DESCRIPTION}
-          </DialogContentText>
+          <DialogContentText>Fill in area name and code.</DialogContentText>
           <TextField
             autoFocus
+            required
             margin="dense"
-            label="Name"
+            id="name"
+            name="name"
+            label="Area Name"
+            type="text"
             fullWidth
-            value={newArea.name}
-            onChange={(e) => setNewArea({ ...newArea, name: e.target.value })}
+            variant="standard"
           />
           <TextField
+            required
             margin="dense"
-            label="Code"
+            id="code"
+            name="code"
+            label="Area Code"
+            type="text"
             fullWidth
-            value={newArea.code}
-            onChange={(e) => setNewArea({ ...newArea, code: e.target.value })}
+            variant="standard"
+            inputProps={{
+              maxLength: 6,
+              minLength: 4,
+            }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setAddModal(false)} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleAddArea} color="primary">
-            Add
-          </Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.add}</Button>
         </DialogActions>
       </Dialog>
-      <Dialog open={messageModal} onClose={() => setMessageModal(false)}>
-        <DialogTitle>{messageTitle}</DialogTitle>
+
+      {/* Update Modal */}
+      <Dialog
+        open={updateModal}
+        onClose={handleClose}
+        PaperProps={{
+          component: 'form',
+          onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            const formData = new FormData(event.currentTarget);
+            const formJson = Object.fromEntries(formData.entries());
+            if (/\s/.test(formJson.code as string)) {
+              setMessageTitle('Error');
+              setMessageContent('Code should not contain spaces');
+              setMessageModal(true);
+              return;
+            }
+            const area: Area = {
+              id: selectedRows[0].id,
+              name: formJson.name as string,
+              code: formJson.code as string,
+            };
+            const resp = await window.electronAPI.updateArea(area);
+            if (resp) {
+              setMessageTitle('Success');
+              setMessageContent(resp.message);
+              setMessageModal(true);
+              handleRefreshButtonClick();
+            } else {
+              setMessageTitle('Error');
+              setMessageContent('resp.message');
+              setMessageModal(true);
+            }
+            handleClose();
+          },
+        }}
+      >
+        <DialogTitle>Update Area</DialogTitle>
         <DialogContent>
-          <DialogContentText>
+          <DialogContentText>Fill in area name and code</DialogContentText>
+          <TextField
+            autoFocus
+            required
+            margin="dense"
+            id="name"
+            name="name"
+            label="Area Name"
+            type="text"
+            fullWidth
+            variant="standard"
+            defaultValue={selectedRows[0]?.name || ''}
+          />
+          <TextField
+            required
+            margin="dense"
+            id="code"
+            name="code"
+            label="Area Code"
+            type="text"
+            fullWidth
+            variant="standard"
+            defaultValue={selectedRows[0]?.code || ''}
+            inputProps={{
+              maxLength: 6,
+              minLength: 4,
+            }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.update}</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Message Dialog */}
+      <Dialog
+        open={messageModal}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{messageTitle}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
             {messageContent}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setMessageModal(false)} color="primary">
-            Close
-          </Button>
+          <Button onClick={handleClose}>{STRINGS.ok}</Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Stack>
   );
 }

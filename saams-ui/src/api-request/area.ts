@@ -16,7 +16,7 @@ export const getAreas = async () => {
 
             response.on('end', () => {
                 try {
-                    console.log(responseData);
+
                     const data = JSON.parse(responseData);
                     console.log(`${data.id}`);
                     resolve(data); // Resolve the promise with the id
