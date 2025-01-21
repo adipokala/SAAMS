@@ -32,6 +32,8 @@ namespace Saams.Api.Controllers
                         Id = privilege.Id,
                         Name = privilege.Name,
                         Code = privilege.Code,
+                        CreatedAt = privilege.CreatedAt,
+                        UpdatedAt = privilege.UpdatedAt,
                     };
                     privilegeModels.Add(model);
                 }
@@ -69,6 +71,8 @@ namespace Saams.Api.Controllers
                             Id = privilege.Id,
                             Code = privilege.Code,
                             Name = privilege.Name,
+                            CreatedAt = privilege.CreatedAt,
+                            UpdatedAt = privilege.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -107,6 +111,8 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
 
                 model.Id = privilege.Id;
+                model.CreatedAt = privilege.CreatedAt;
+                model.UpdatedAt = privilege.UpdatedAt;
             }
 
             return Ok(new PrivilegeResponseModel()
@@ -145,6 +151,9 @@ namespace Saams.Api.Controllers
                 privilege.Name = model.Name;
                 context.Privileges.Update(privilege);
                 context.SaveChanges();
+
+                model.CreatedAt = privilege.CreatedAt;
+                model.UpdatedAt = privilege.UpdatedAt;
             }
 
             return Ok(new PrivilegeResponseModel()

@@ -33,6 +33,8 @@ namespace Saams.Api.Controllers
                         Id = designation.Id,
                         Name = designation.Name,
                         Code = designation.Code,
+                        CreatedAt = designation.CreatedAt,
+                        UpdatedAt = designation.UpdatedAt,
                     };
                     designationModels.Add(model);
                 }
@@ -70,6 +72,8 @@ namespace Saams.Api.Controllers
                             Id = designation.Id,
                             Code = designation.Code,
                             Name = designation.Name,
+                            CreatedAt = designation.CreatedAt,
+                            UpdatedAt = designation.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -108,6 +112,8 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
 
                 model.Id = designation.Id;
+                model.CreatedAt = designation.CreatedAt;
+                model.UpdatedAt = designation.UpdatedAt;
             }
 
             return Ok(new DesignationResponseModel()
@@ -146,6 +152,9 @@ namespace Saams.Api.Controllers
                 designation.Name = model.Name;
                 context.Designations.Update(designation);
                 context.SaveChanges();
+
+                model.CreatedAt = designation.CreatedAt;
+                model.UpdatedAt = designation.UpdatedAt;
             }
 
             return Ok(new DesignationResponseModel() 

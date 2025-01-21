@@ -32,6 +32,8 @@ namespace Saams.Api.Controllers
                         Id = rolePrivilege.Id,
                         RoleId = rolePrivilege.RoleId,
                         PrivilegeId = rolePrivilege.PrivilegeId,
+                        CreatedAt = rolePrivilege.CreatedAt,
+                        UpdatedAt = rolePrivilege.UpdatedAt,
                     };
                     rolePrivilegeModels.Add(model);
                 }
@@ -69,6 +71,8 @@ namespace Saams.Api.Controllers
                             Id = rolePrivilege.Id,
                             RoleId = rolePrivilege.RoleId,
                             PrivilegeId = rolePrivilege.PrivilegeId,
+                            CreatedAt = rolePrivilege.CreatedAt,
+                            UpdatedAt = rolePrivilege.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -107,6 +111,8 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
 
                 model.Id = rolePrivilege.Id;
+                model.CreatedAt = rolePrivilege.CreatedAt;
+                model.UpdatedAt = rolePrivilege.UpdatedAt;
             }
 
             return Ok(new RolePrivilegeResponseModel()
@@ -145,6 +151,9 @@ namespace Saams.Api.Controllers
                 rolePrivilege.RoleId = model.RoleId;
                 context.RolePrivileges.Update(rolePrivilege);
                 context.SaveChanges();
+
+                model.CreatedAt = rolePrivilege.CreatedAt;
+                model.UpdatedAt = rolePrivilege.UpdatedAt;
             }
 
             return Ok(new RolePrivilegeResponseModel()

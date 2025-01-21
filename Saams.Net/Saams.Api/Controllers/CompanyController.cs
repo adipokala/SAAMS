@@ -39,6 +39,8 @@ namespace Saams.Api.Controllers
                         Email = company.Email,
                         Phone = company.Phone,
                         Fax = company.Fax,
+                        CreatedAt = company.CreatedAt,
+                        UpdatedAt = company.UpdatedAt,
                     });
                 }
             }
@@ -81,6 +83,8 @@ namespace Saams.Api.Controllers
                             Email = company.Email,
                             Phone = company.Phone,
                             Fax = company.Fax,
+                            CreatedAt = company.CreatedAt,
+                            UpdatedAt = company.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -126,6 +130,8 @@ namespace Saams.Api.Controllers
                 context.SaveChanges();
 
                 model.Id = company.Id;
+                model.CreatedAt = company.CreatedAt;
+                model.UpdatedAt = company.UpdatedAt;
             }
 
             return Ok(new CompanyResponseModel()
@@ -171,6 +177,9 @@ namespace Saams.Api.Controllers
                 company.Fax = model.Fax;
                 context.Companies.Update(company);
                 context.SaveChanges();
+
+                model.CreatedAt = company.CreatedAt;
+                model.UpdatedAt = company.UpdatedAt;
             }
 
             return Ok(new CompanyResponseModel()
