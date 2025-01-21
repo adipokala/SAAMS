@@ -17,6 +17,9 @@ export default function UserReportView() {
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [roleNames, setRoleNames] = useState<Record<number, string>>({});
   const [departmentNames, setDepartmentNames] = useState<Record<number, string>>({});
+  const [companyNames, setCompanyNames] = useState<Record<number, string>>({});
+  const [shiftNames, setShiftNames] = useState<Record<number, string>>({});
+  const [designationNames, setDesignationNames] = useState<Record<number, string>>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [errorDialog, setErrorDialog] = useState<{ open: boolean; title: string; message: string }>({
     open: false,
@@ -29,7 +32,7 @@ export default function UserReportView() {
     setLoading(true);
     try {
       const response = await window.electronAPI.getUsers();
-      if (!response.status) {
+      if (!response?.status) {
         throw new Error('Failed to fetch user data');
       }
       setUsers(response.users);
@@ -44,43 +47,91 @@ export default function UserReportView() {
   const fetchRoleName = async (roleId: number) => {
     try {
       const response = await window.electronAPI.getRole(roleId);
-      return response.role.name; // Assuming the response contains the role name
+      return response?.role?.name || 'Unknown Role';
     } catch (error) {
       console.error(`Error fetching role name for ID ${roleId}:`, error);
-      return 'Unknown Role'; // In case of error, return a default value
+      return 'Unknown Role';
     }
   };
 
   // Fetch department name for a given ID using IPC
   const fetchDepartmentName = async (departmentId: number) => {
     try {
-      const response= await window.electronAPI.getDepartment(departmentId);
-      return response.department.name; // Assuming the response contains the department name
+      const response = await window.electronAPI.getDepartment(departmentId);
+      return response?.department?.name || 'Unknown Department';
     } catch (error) {
       console.error(`Error fetching department name for ID ${departmentId}:`, error);
-      return 'Unknown Department'; // In case of error, return a default value
+      return 'Unknown Department';
     }
   };
 
-  // Load role names and department names for all users
+  // Fetch company name for a given ID using IPC
+  const fetchCompanyName = async (companyId: number) => {
+    try {
+      const response = await window.electronAPI.getCompany(companyId); // Ensure this is exposed in the main process
+      return response?.company?.name || 'Unknown Company';
+    } catch (error) {
+      console.error(`Error fetching company name for ID ${companyId}:`, error);
+      return 'Unknown Company';
+    }
+  };
+
+  const fetchShiftName = async (shiftId: number) => {
+    try {
+      const response = await window.electronAPI.getShift(shiftId);
+      return response?.shift?.name || 'Unknown Shift';
+    } catch (error) {
+      console.error(`Error fetching shift name for ID ${shiftId}:`, error);
+      return 'Unknown Shift';
+    }
+  }
+
+  const fetchDesignationName = async (designationId: number) => {
+    try {
+      const response = await window.electronAPI.getDesignation(designationId);
+      return response?.designation?.name || 'Unknown Designation';
+    } catch (error) {
+      console.error(`Error fetching designation name for ID ${designationId}:`, error);
+      return 'Unknown Designation';
+    }
+  }
+
+  // Load role names, department names, and company names for all users
   const loadRoleAndDepartmentNames = async () => {
     const roleMap: Record<number, string> = {};
     const departmentMap: Record<number, string> = {};
+    const companyMap: Record<number, string> = {};
+    const shiftMap: Record<number, string> = {};
+    const designationMap: Record<number, string> = {};
 
     for (const user of users) {
       if (!roleMap[user.roleId]) {
         const roleName = await fetchRoleName(user.roleId);
         roleMap[user.roleId] = roleName;
       }
-
       if (!departmentMap[user.departmentId]) {
         const departmentName = await fetchDepartmentName(user.departmentId);
         departmentMap[user.departmentId] = departmentName;
+      }
+      if (!companyMap[user.companyId]) {
+        const companyName = await fetchCompanyName(user.companyId);
+        companyMap[user.companyId] = companyName;
+      }
+      if (!shiftMap[user.shiftId]) {
+        const shiftName = await fetchShiftName(user.shiftId);
+        shiftMap[user.shiftId] = shiftName;
+      }
+      if (!designationMap[user.designationId]) {
+        const designationName = await fetchDesignationName(user.designationId);
+        designationMap[user.designationId] = designationName;
       }
     }
 
     setRoleNames(roleMap);
     setDepartmentNames(departmentMap);
+    setCompanyNames(companyMap);
+    setShiftNames(shiftMap);
+    setDesignationNames(designationMap);
   };
 
   // Export user to PDF
@@ -93,6 +144,9 @@ export default function UserReportView() {
 
     const roleName = roleNames[user.roleId] || (await fetchRoleName(user.roleId));
     const departmentName = departmentNames[user.departmentId] || (await fetchDepartmentName(user.departmentId));
+    const companyName = companyNames[user.companyId] || (await fetchCompanyName(user.companyId));
+    const shiftName = shiftNames[user.shiftId] || (await fetchShiftName(user.shiftId));
+    const designationName = designationNames[user.designationId] || (await fetchDesignationName(user.designationId));
 
     const doc = new jsPDF();
     const userText = `
@@ -105,9 +159,9 @@ export default function UserReportView() {
       Phone: ${user.phone}
       Role Name: ${roleName}
       Department Name: ${departmentName}
-      Company id: ${user.companyId}
-      Designation id: ${user.designationId}
-      Shift id: ${user.shiftId}
+      Company Name: ${companyName}
+      Designation Name: ${designationName}
+      Shift Name: ${shiftName}
       Date of Birth: ${user.dateOfBirth}
       Date of Joining: ${user.dateOfJoining}
     `;
@@ -133,7 +187,7 @@ export default function UserReportView() {
       <Stack spacing={2} direction="row" alignItems="center">
         <Typography>Select a User:</Typography>
         <Select
-          value={selectedUserId ?? ''}
+          value={selectedUserId ?? undefined}
           onChange={(e) => setSelectedUserId(Number(e.target.value))}
           displayEmpty
           style={{ minWidth: '200px' }}
@@ -162,6 +216,9 @@ export default function UserReportView() {
               if (!user) return <Typography>User not found!</Typography>;
               const roleName = roleNames[user.roleId] || 'Loading...';
               const departmentName = departmentNames[user.departmentId] || 'Loading...';
+              const companyName = companyNames[user.companyId] || 'Loading...';
+              const shiftName = shiftNames[user.shiftId] || 'Loading...';
+              const designationName = designationNames[user.designationId] || 'Loading...';
               return (
                 <Stack spacing={1}>
                   <Typography>ID: {user.id}</Typography>
@@ -172,9 +229,9 @@ export default function UserReportView() {
                   <Typography>Phone: {user.phone}</Typography>
                   <Typography>Role Name: {roleName}</Typography>
                   <Typography>Department Name: {departmentName}</Typography>
-                  <Typography>Company Id: {user.companyId}</Typography>
-                  <Typography>Designation Id: {user.designationId}</Typography>
-                  <Typography>Shift Id: {user.shiftId}</Typography>
+                  <Typography>Company Name: {companyName}</Typography>
+                  <Typography>Designation Name: {designationName}</Typography>
+                  <Typography>Shift Name: {shiftName}</Typography>
                   <Typography>Date of Birth: {user.dateOfBirth}</Typography>
                   <Typography>Date of Joining: {user.dateOfJoining}</Typography>
                 </Stack>

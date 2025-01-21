@@ -38,6 +38,7 @@ declare global {
             deleteRole: (id: number) => RoleResponse;
             // Shift
             getShifts: () => ShiftResponse;
+            getShift: (id: number) => ShiftResponse;
             createShift: (shift: Shift) => ShiftResponse;
             updateShift: (shift: Shift) => ShiftResponse;
             deleteShift: (id: number) => ShiftResponse;

@@ -2,83 +2,11 @@ import { net } from "electron";
 import { Department, DepartmentResponse } from "../model/department";
 import { API_CONFIG, API_ENDPOINTS } from "../config";
 
-export const getDepartments = async () => {
-    const future = await new Promise<DepartmentResponse>((resolve, reject) => {
-        // Make sure the entry exists
-        const request = net.request('https://localhost:7192/api/Department');
 
-        request.on('response', (response) => {
-            let responseData = '';
-
-            response.on('data', (chunk) => {
-                responseData += chunk; // Collect all data chunks
-            });
-
-            response.on('end', () => {
-                try {
-                    const data = JSON.parse(responseData);
-                    console.log(`${data.id}`);
-                    resolve(data); // Resolve the promise with the id
-                } catch (error) {
-                    reject(error); // Reject if parsing fails
-                }
-                console.log('no more data');
-            });
-        });
-
-        request.on('error', (error) => {
-            reject(error); // Reject the promise if there's a request error
-        });
-
-        request.end();
-    });
-
-    console.log('before the return statement');
-    return future;
-}
-export const getDepartment = async (id: number) => {
+export const getDepartments = async (): Promise<DepartmentResponse> => {
     const future = await new Promise<DepartmentResponse>((resolve, reject) => {
         const request = net.request({
-            method: 'POST',
-            protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
-            path: API_ENDPOINTS.department + `/${id}`,
-            headers: API_CONFIG.headers,
-        });
-
-        request.on('response', (response) => {
-            let responseData = '';
-
-            response.on('data', (chunk) => {
-                responseData += chunk; // Collect all data chunks
-            });
-
-            response.on('end', () => {
-                try {
-                    console.log('response data: ', responseData);
-                    const data = JSON.parse(responseData);
-                    resolve(data); // Resolve the promise with the id
-                } catch (error) {
-                    reject(error); // Reject if parsing fails
-                }
-            });
-        });
-
-        request.on('error', (error) => {
-            reject(error); // Reject the promise if there's a request error
-        });
-
-        request.end();
-    });
-
-    return future;
-}
-
-export const createDepartment = async (department: Department) => {
-    const future = await new Promise<DepartmentResponse>((resolve, reject) => {
-        const request = net.request({
-            method: 'POST',
+            method: 'GET',
             protocol: 'https:',
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
@@ -90,32 +18,110 @@ export const createDepartment = async (department: Department) => {
             let responseData = '';
 
             response.on('data', (chunk) => {
-                responseData += chunk; // Collect all data chunks
+                responseData += chunk;
             });
 
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
-                    resolve(data); // Resolve the promise with the id
+                    resolve(data);
                 } catch (error) {
-                    reject(error); // Reject if parsing fails
+                    reject(error);
                 }
-            });
-
-            request.on('error', (error) => {
-                reject(error); // Reject the promise if there's a request error
             });
         });
 
-        request.write(JSON.stringify(department));
+        request.on('error', (error) => {
+            reject(error);
+        });
 
         request.end();
     });
 
     return future;
-}
+};
 
-export const updateDepartment = async (department: Department) => {
+export const getDepartment = async (id: number): Promise<DepartmentResponse> => {
+    const future = await new Promise<DepartmentResponse>((resolve, reject) => {
+        const request = net.request({
+            method: 'GET',
+            protocol: 'https:',
+            hostname: API_CONFIG.hostname,
+            port: API_CONFIG.port,
+            path: `${API_ENDPOINTS.department}/${id}`,
+            headers: API_CONFIG.headers,
+        });
+
+        request.on('response', (response) => {
+            let responseData = '';
+
+            response.on('data', (chunk) => {
+                responseData += chunk;
+            });
+
+            response.on('end', () => {
+                try {
+                    const data = JSON.parse(responseData);
+                    resolve(data);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+
+        request.on('error', (error) => {
+            reject(error);
+        });
+
+        request.end();
+    });
+
+    return future;
+};
+
+export const createDepartment = async (department: Department): Promise<DepartmentResponse> => {
+    const future = await new Promise<DepartmentResponse>((resolve, reject) => {
+        const request = net.request({
+            method: 'POST',
+            protocol: 'https:',
+            hostname: API_CONFIG.hostname,
+            port: API_CONFIG.port,
+            path: API_ENDPOINTS.department,
+            headers: {
+                ...API_CONFIG.headers,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        request.on('response', (response) => {
+            let responseData = '';
+
+            response.on('data', (chunk) => {
+                responseData += chunk;
+            });
+
+            response.on('end', () => {
+                try {
+                    const data = JSON.parse(responseData);
+                    resolve(data);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+
+        request.on('error', (error) => {
+            reject(error);
+        });
+
+        request.write(JSON.stringify(department));
+        request.end();
+    });
+
+    return future;
+};
+
+export const updateDepartment = async (department: Department): Promise<DepartmentResponse> => {
     const future = await new Promise<DepartmentResponse>((resolve, reject) => {
         const request = net.request({
             method: 'PUT',
@@ -123,71 +129,73 @@ export const updateDepartment = async (department: Department) => {
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
             path: API_ENDPOINTS.department,
-            headers: API_CONFIG.headers,
+            headers: {
+                ...API_CONFIG.headers,
+                'Content-Type': 'application/json',
+            },
         });
 
         request.on('response', (response) => {
             let responseData = '';
 
             response.on('data', (chunk) => {
-                responseData += chunk; // Collect all data chunks
+                responseData += chunk;
             });
 
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
-                    resolve(data); // Resolve the promise with the id
+                    resolve(data);
                 } catch (error) {
-                    reject(error); // Reject if parsing fails
+                    reject(error);
                 }
-            });
-
-            request.on('error', (error) => {
-                reject(error); // Reject the promise if there's a request error
             });
         });
 
-        request.write(JSON.stringify(department));
+        request.on('error', (error) => {
+            reject(error);
+        });
 
+        request.write(JSON.stringify(department));
         request.end();
     });
 
     return future;
-}
+};
 
-export const deleteDepartment = async (id: number) => {
+export const deleteDepartment = async (id: number): Promise<DepartmentResponse> => {
     const future = await new Promise<DepartmentResponse>((resolve, reject) => {
         const request = net.request({
             method: 'DELETE',
             protocol: 'https:',
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
-            path: API_ENDPOINTS.department + `/${id}`,
+            path: `${API_ENDPOINTS.department}/${id}`,
         });
 
         request.on('response', (response) => {
             let responseData = '';
 
             response.on('data', (chunk) => {
-                responseData += chunk; // Collect all data chunks
+                responseData += chunk;
             });
 
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
-                    resolve(data); // Resolve the promise with the id
+                    resolve(data);
                 } catch (error) {
-                    reject(error); // Reject if parsing fails
+                    reject(error);
                 }
             });
+        });
 
-            request.on('error', (error) => {
-                reject(error); // Reject the promise if there's a request error
-            });
+        request.on('error', (error) => {
+            reject(error);
         });
 
         request.end();
     });
 
     return future;
-}
+};

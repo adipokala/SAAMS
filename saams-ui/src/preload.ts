@@ -53,7 +53,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteUser: (id: number) => ipcRenderer.invoke('request:deleteUser', id),
     // Company
     getCompanies: () => ipcRenderer.invoke('request:getCompanies'),
-    getcompany: (id: number) => ipcRenderer.invoke('request:getCompany', id),
+    getCompany: (id: number) => ipcRenderer.invoke('request:getCompany', id),
     createCompany: (company: Company) => ipcRenderer.invoke('request:createCompany', company),
     updateCompany: (company: Company) => ipcRenderer.invoke('request:updateCompany', company),
     deleteCompany: (id: Company) => ipcRenderer.invoke('request:deleteCompany', id),
