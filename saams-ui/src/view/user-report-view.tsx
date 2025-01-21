@@ -95,7 +95,7 @@ export default function UserReportView() {
       return 'Unknown Designation';
     }
   }
-
+  // updated code
   // Load role names, department names, and company names for all users
   const loadRoleAndDepartmentNames = async () => {
     const roleMap: Record<number, string> = {};
