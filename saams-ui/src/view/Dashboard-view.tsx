@@ -26,6 +26,7 @@ import ShiftView from "./shift-view";
 import RoleView from "./role-view";
 import UserView from "./user-view";
 import CompanyView from "./company-view";
+import UserReportView from "./user-report-view";
 
 interface DashboardViewProps {
   handleLogout: any;
@@ -57,7 +58,7 @@ const darkTheme = createTheme({
 
 const userManagementItems: string[] = [ 'Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User' ];
 const accessManagementItems: string[] = [ 'Area', 'Channel', 'Reader' ];
-const reportManagementItems: string[] = [ 'User Report', 'Reader Report', 'Attendance Report' ];
+const reportManagementItems: string[] = [ 'User-Report', 'Reader-Report', 'Attendance-Report' ];
 
 const switchView = (key: string): React.JSX.Element => {
   console.log("Clicked on: " + key);
@@ -82,8 +83,11 @@ const switchView = (key: string): React.JSX.Element => {
       return <UserView />;
     
     case 'Company':
-      return <CompanyView />
-  
+      return <CompanyView />;
+    
+    case 'User-Report':
+      return <UserReportView />
+    
     default:
       return <HomeView />;
   }
