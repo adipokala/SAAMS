@@ -105,23 +105,36 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var channel = new Channel()
+                using (var context = new SaamsContext())
                 {
-                    Name = model.Name,
-                    Code = model.Code,
-                    Type = (ChannelType)Enum.Parse(typeof(ChannelType), model.Type),
-                    Value = model.Value,
-                    LTS = model.LTS,
-                };
+                    var channel = new Channel()
+                    {
+                        Name = model.Name,
+                        Code = model.Code,
+                        Type = (ChannelType)Enum.Parse(typeof(ChannelType), model.Type),
+                        Value = model.Value,
+                        LTS = model.LTS,
+                    };
 
-                context.Channels.Add(channel);
-                context.SaveChanges();
+                    context.Channels.Add(channel);
+                    context.SaveChanges();
 
-                model.Id = channel.Id;
-                model.CreatedAt = channel.CreatedAt;
-                model.UpdatedAt = channel.UpdatedAt;
+                    model.Id = channel.Id;
+                    model.CreatedAt = channel.CreatedAt;
+                    model.UpdatedAt = channel.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ChannelResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new ChannelResponseModel()
@@ -140,28 +153,41 @@ namespace Saams.Api.Controllers
                 return BadRequest(new ChannelResponseModel() { Message = "Channel model required", Status = false });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var channel = context.Channels.FirstOrDefault(d => d.Id == model.Id);
-                if (channel == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new ChannelResponseModel()
+                    var channel = context.Channels.FirstOrDefault(d => d.Id == model.Id);
+                    if (channel == null)
                     {
-                        Message = "Channel not found",
-                        Status = false,
-                    });
+                        return NotFound(new ChannelResponseModel()
+                        {
+                            Message = "Channel not found",
+                            Status = false,
+                        });
+                    }
+
+                    channel.Code = model.Code;
+                    channel.Name = model.Name;
+                    channel.Type = (ChannelType)Enum.Parse(typeof(ChannelType), model.Type);
+                    channel.Value = model.Value;
+                    channel.LTS = model.LTS;
+                    context.Channels.Update(channel);
+                    context.SaveChanges();
+
+                    model.CreatedAt = channel.CreatedAt;
+                    model.UpdatedAt = channel.UpdatedAt;
                 }
-
-                channel.Code = model.Code;
-                channel.Name = model.Name;
-                channel.Type = (ChannelType)Enum.Parse(typeof(ChannelType), model.Type);
-                channel.Value = model.Value;
-                channel.LTS = model.LTS;
-                context.Channels.Update(channel);
-                context.SaveChanges();
-
-                model.CreatedAt = channel.CreatedAt;
-                model.UpdatedAt = channel.UpdatedAt;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ChannelResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new ChannelResponseModel()

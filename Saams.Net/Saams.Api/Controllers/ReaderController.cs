@@ -138,41 +138,54 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var reader = new Reader()
+                using (var context = new SaamsContext())
                 {
-                    Id = model.Id,
-                    Name = model.Name,
-                    Code = model.Code,
-                    SerialNumber = model.SerialNumber,
-                    InstallationDate = model.InstallationDate,
-                    IsAttendanceReader = model.IsAttendanceReader,
-                    Status = model.Status,
-                    AdminPIN = model.AdminPIN,
-                    DateValidation = model.DateValidation,
-                    AntiPassback = model.AntiPassback,
-                    Biometrics = model.Biometrics,
-                    SIDControl = model.SIDControl,
-                    DoorMode = (DoorMode)Enum.Parse(typeof(DoorMode), model.DoorMode),
-                    Type = (ReaderType)Enum.Parse(typeof(ReaderType), model.Type),
-                    AccessControl = (AccessControl)Enum.Parse(typeof(AccessControl), model.AccessControl),
-                    Switch = (ReaderSwitch)Enum.Parse(typeof(ReaderSwitch), model.Switch),
-                    Display = (ReaderDisplay)Enum.Parse(typeof(ReaderDisplay), model.Display),
-                    TransactionLog = (TransactionLog)Enum.Parse(typeof(TransactionLog), model.TransactionLog),
-                    UnlockDuration = model.UnlockDuration,
-                    DoorOpenDuration = model.DoorOpenDuration,
-                    DisplayDuration = model.DisplayDuration,
-                    ChannelId = model.ChannelId,
-                    AreaId = model.AreaId,
-                };
+                    var reader = new Reader()
+                    {
+                        Id = model.Id,
+                        Name = model.Name,
+                        Code = model.Code,
+                        SerialNumber = model.SerialNumber,
+                        InstallationDate = model.InstallationDate,
+                        IsAttendanceReader = model.IsAttendanceReader,
+                        Status = model.Status,
+                        AdminPIN = model.AdminPIN,
+                        DateValidation = model.DateValidation,
+                        AntiPassback = model.AntiPassback,
+                        Biometrics = model.Biometrics,
+                        SIDControl = model.SIDControl,
+                        DoorMode = (DoorMode)Enum.Parse(typeof(DoorMode), model.DoorMode),
+                        Type = (ReaderType)Enum.Parse(typeof(ReaderType), model.Type),
+                        AccessControl = (AccessControl)Enum.Parse(typeof(AccessControl), model.AccessControl),
+                        Switch = (ReaderSwitch)Enum.Parse(typeof(ReaderSwitch), model.Switch),
+                        Display = (ReaderDisplay)Enum.Parse(typeof(ReaderDisplay), model.Display),
+                        TransactionLog = (TransactionLog)Enum.Parse(typeof(TransactionLog), model.TransactionLog),
+                        UnlockDuration = model.UnlockDuration,
+                        DoorOpenDuration = model.DoorOpenDuration,
+                        DisplayDuration = model.DisplayDuration,
+                        ChannelId = model.ChannelId,
+                        AreaId = model.AreaId,
+                    };
 
-                context.Readers.Add(reader);
-                context.SaveChanges();
+                    context.Readers.Add(reader);
+                    context.SaveChanges();
 
-                model.Id = reader.Id;
-                model.CreatedAt = reader.CreatedAt;
-                model.UpdatedAt = reader.UpdatedAt;
+                    model.Id = reader.Id;
+                    model.CreatedAt = reader.CreatedAt;
+                    model.UpdatedAt = reader.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ReaderResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new ReaderResponseModel()
@@ -191,46 +204,59 @@ namespace Saams.Api.Controllers
                 return BadRequest(new ReaderResponseModel() { Message = "Reader model required", Status = false });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var reader = context.Readers.FirstOrDefault(d => d.Id == model.Id);
-                if (reader == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new ReaderResponseModel()
+                    var reader = context.Readers.FirstOrDefault(d => d.Id == model.Id);
+                    if (reader == null)
                     {
-                        Message = "Reader not found",
-                        Status = false,
-                    });
+                        return NotFound(new ReaderResponseModel()
+                        {
+                            Message = "Reader not found",
+                            Status = false,
+                        });
+                    }
+
+                    reader.Id = model.Id;
+                    reader.Name = model.Name;
+                    reader.Code = model.Code;
+                    reader.SerialNumber = model.SerialNumber;
+                    reader.InstallationDate = model.InstallationDate;
+                    reader.IsAttendanceReader = model.IsAttendanceReader;
+                    reader.Status = model.Status;
+                    reader.AdminPIN = model.AdminPIN;
+                    reader.DateValidation = model.DateValidation;
+                    reader.AntiPassback = model.AntiPassback;
+                    reader.Biometrics = model.Biometrics;
+                    reader.SIDControl = model.SIDControl;
+                    reader.DoorMode = (DoorMode)Enum.Parse(typeof(DoorMode), model.DoorMode);
+                    reader.Type = (ReaderType)Enum.Parse(typeof(ReaderType), model.Type);
+                    reader.AccessControl = (AccessControl)Enum.Parse(typeof(AccessControl), model.AccessControl);
+                    reader.Switch = (ReaderSwitch)Enum.Parse(typeof(ReaderSwitch), model.Switch);
+                    reader.Display = (ReaderDisplay)Enum.Parse(typeof(ReaderDisplay), model.Display);
+                    reader.TransactionLog = (TransactionLog)Enum.Parse(typeof(TransactionLog), model.TransactionLog);
+                    reader.UnlockDuration = model.UnlockDuration;
+                    reader.DoorOpenDuration = model.DoorOpenDuration;
+                    reader.DisplayDuration = model.DisplayDuration;
+                    reader.ChannelId = model.ChannelId;
+                    reader.AreaId = model.AreaId;
+                    context.Readers.Update(reader);
+                    context.SaveChanges();
+
+                    model.CreatedAt = reader.CreatedAt;
+                    model.UpdatedAt = reader.UpdatedAt;
                 }
-
-                reader.Id = model.Id;
-                reader.Name = model.Name;
-                reader.Code = model.Code;
-                reader.SerialNumber = model.SerialNumber;
-                reader.InstallationDate = model.InstallationDate;
-                reader.IsAttendanceReader = model.IsAttendanceReader;
-                reader.Status = model.Status;
-                reader.AdminPIN = model.AdminPIN;
-                reader.DateValidation = model.DateValidation;
-                reader.AntiPassback = model.AntiPassback;
-                reader.Biometrics = model.Biometrics;
-                reader.SIDControl = model.SIDControl;
-                reader.DoorMode = (DoorMode)Enum.Parse(typeof(DoorMode), model.DoorMode);
-                reader.Type = (ReaderType)Enum.Parse(typeof(ReaderType), model.Type);
-                reader.AccessControl = (AccessControl)Enum.Parse(typeof(AccessControl), model.AccessControl);
-                reader.Switch = (ReaderSwitch)Enum.Parse(typeof(ReaderSwitch), model.Switch);
-                reader.Display = (ReaderDisplay)Enum.Parse(typeof(ReaderDisplay), model.Display);
-                reader.TransactionLog = (TransactionLog)Enum.Parse(typeof(TransactionLog), model.TransactionLog);
-                reader.UnlockDuration = model.UnlockDuration;
-                reader.DoorOpenDuration = model.DoorOpenDuration;
-                reader.DisplayDuration = model.DisplayDuration;
-                reader.ChannelId = model.ChannelId;
-                reader.AreaId = model.AreaId;
-                context.Readers.Update(reader);
-                context.SaveChanges();
-
-                model.CreatedAt = reader.CreatedAt;
-                model.UpdatedAt = reader.UpdatedAt;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ReaderResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new ReaderResponseModel()

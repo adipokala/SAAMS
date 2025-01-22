@@ -99,20 +99,33 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var area = new Area()
+                using (var context = new SaamsContext())
                 {
-                    Name = model.Name,
-                    Code = model.Code,
-                };
+                    var area = new Area()
+                    {
+                        Name = model.Name,
+                        Code = model.Code,
+                    };
 
-                context.Areas.Add(area);
-                context.SaveChanges();
+                    context.Areas.Add(area);
+                    context.SaveChanges();
 
-                model.Id = area.Id;
-                model.CreatedAt = area.CreatedAt;
-                model.UpdatedAt = area.UpdatedAt;
+                    model.Id = area.Id;
+                    model.CreatedAt = area.CreatedAt;
+                    model.UpdatedAt = area.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new AreaResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new AreaResponseModel()
@@ -131,25 +144,38 @@ namespace Saams.Api.Controllers
                 return BadRequest(new AreaResponseModel() { Message = "Area model required", Status = false });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var area = context.Areas.FirstOrDefault(d => d.Id == model.Id);
-                if (area == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new AreaResponseModel()
+                    var area = context.Areas.FirstOrDefault(d => d.Id == model.Id);
+                    if (area == null)
                     {
-                        Message = "Area not found",
-                        Status = false,
-                    });
+                        return NotFound(new AreaResponseModel()
+                        {
+                            Message = "Area not found",
+                            Status = false,
+                        });
+                    }
+
+                    area.Code = model.Code;
+                    area.Name = model.Name;
+                    context.Areas.Update(area);
+                    context.SaveChanges();
+
+                    model.CreatedAt = area.CreatedAt;
+                    model.UpdatedAt = area.UpdatedAt;
                 }
-
-                area.Code = model.Code;
-                area.Name = model.Name;
-                context.Areas.Update(area);
-                context.SaveChanges();
-
-                model.CreatedAt = area.CreatedAt;
-                model.UpdatedAt = area.UpdatedAt;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new AreaResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new AreaResponseModel()
