@@ -27,6 +27,7 @@ import RoleView from "./role-view";
 import UserView from "./user-view";
 import CompanyView from "./company-view";
 import AreaView from "./area-view";
+import UserReportView from "./user-report-view";
 
 interface DashboardViewProps {
   handleLogout: any;
@@ -83,7 +84,10 @@ const switchView = (key: string): React.JSX.Element => {
       return <UserView />;
 
     case 'Company':
-      return <CompanyView />
+      return <CompanyView />;
+
+    case 'User Report':
+      return <UserReportView />
     case 'Area':
       return <AreaView />;
 

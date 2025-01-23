@@ -99,20 +99,33 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var department = new Department()
+                using (var context = new SaamsContext())
                 {
-                    Name = model.Name,
-                    Code = model.Code,
-                };
+                    var department = new Department()
+                    {
+                        Name = model.Name,
+                        Code = model.Code,
+                    };
 
-                context.Departments.Add(department);
-                context.SaveChanges();
+                    context.Departments.Add(department);
+                    context.SaveChanges();
 
-                model.Id = department.Id;
-                model.CreatedAt = department.CreatedAt;
-                model.UpdatedAt = department.UpdatedAt;
+                    model.Id = department.Id;
+                    model.CreatedAt = department.CreatedAt;
+                    model.UpdatedAt = department.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new DepartmentResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new DepartmentResponseModel()
@@ -131,25 +144,38 @@ namespace Saams.Api.Controllers
                 return BadRequest(new DepartmentResponseModel() { Message = "Department model required", Status = false });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var department = context.Departments.FirstOrDefault(d => d.Id == model.Id);
-                if (department == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new DepartmentResponseModel()
+                    var department = context.Departments.FirstOrDefault(d => d.Id == model.Id);
+                    if (department == null)
                     {
-                        Message = "Department not found",
-                        Status = false,
-                    });
+                        return NotFound(new DepartmentResponseModel()
+                        {
+                            Message = "Department not found",
+                            Status = false,
+                        });
+                    }
+
+                    department.Code = model.Code;
+                    department.Name = model.Name;
+                    context.Departments.Update(department);
+                    context.SaveChanges();
+
+                    model.CreatedAt = department.CreatedAt;
+                    model.UpdatedAt = department.UpdatedAt;
                 }
-
-                department.Code = model.Code;
-                department.Name = model.Name;
-                context.Departments.Update(department);
-                context.SaveChanges();
-
-                model.CreatedAt = department.CreatedAt;
-                model.UpdatedAt = department.UpdatedAt;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new DepartmentResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new DepartmentResponseModel()

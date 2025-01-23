@@ -130,35 +130,48 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var user = new User()
+                using (var context = new SaamsContext())
                 {
-                    Id = model.Id,
-                    UserNumber = model.UserNumber,
-                    UserName = model.UserName,
-                    Password = AESEncryption.Encrypt(model.Password),
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    Phone = model.Phone,
-                    Sex = (Sex)Enum.Parse(typeof(Sex), model.Sex),
-                    DateOfBirth = model.DateOfBirth,
-                    DateOfJoining = model.DateOfJoining,
-                    ReportsTo = model.ReportsTo,
-                    RoleId = model.RoleId,
-                    CompanyId = model.CompanyId,
-                    DesignationId = model.DesignationId,
-                    DepartmentId = model.DepartmentId,
-                    ShiftId = model.ShiftId,
-                };
+                    var user = new User()
+                    {
+                        Id = model.Id,
+                        UserNumber = model.UserNumber,
+                        UserName = model.UserName,
+                        Password = AESEncryption.Encrypt(model.Password),
+                        FirstName = model.FirstName,
+                        LastName = model.LastName,
+                        Email = model.Email,
+                        Phone = model.Phone,
+                        Sex = (Sex)Enum.Parse(typeof(Sex), model.Sex),
+                        DateOfBirth = model.DateOfBirth,
+                        DateOfJoining = model.DateOfJoining,
+                        ReportsTo = model.ReportsTo,
+                        RoleId = model.RoleId,
+                        CompanyId = model.CompanyId,
+                        DesignationId = model.DesignationId,
+                        DepartmentId = model.DepartmentId,
+                        ShiftId = model.ShiftId,
+                    };
 
-                context.Users.Add(user);
-                context.SaveChanges();
+                    context.Users.Add(user);
+                    context.SaveChanges();
 
-                model.Id = user.Id;
-                model.CreatedAt = user.CreatedAt;
-                model.UpdatedAt = user.UpdatedAt;
+                    model.Id = user.Id;
+                    model.CreatedAt = user.CreatedAt;
+                    model.UpdatedAt = user.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new UserResponseModel()
+                    { 
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new UserResponseModel()
@@ -181,39 +194,52 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var user = context.Users.FirstOrDefault(d => d.Id == model.Id);
-                if (user == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new UserResponseModel()
-                    { 
-                        Message = "User not found",
+                    var user = context.Users.FirstOrDefault(d => d.Id == model.Id);
+                    if (user == null)
+                    {
+                        return NotFound(new UserResponseModel()
+                        {
+                            Message = "User not found",
+                            Status = false
+                        });
+                    }
+
+                    user.UserNumber = model.UserNumber;
+                    user.UserName = model.UserName;
+                    user.Password = AESEncryption.Encrypt(model.Password);
+                    user.FirstName = model.FirstName;
+                    user.LastName = model.LastName;
+                    user.Email = model.Email;
+                    user.Phone = model.Phone;
+                    user.Sex = (Sex)Enum.Parse(typeof(Sex), model.Sex);
+                    user.DateOfBirth = model.DateOfBirth;
+                    user.DateOfJoining = model.DateOfJoining;
+                    user.ReportsTo = model.ReportsTo;
+                    user.RoleId = model.RoleId;
+                    user.CompanyId = model.CompanyId;
+                    user.DesignationId = model.DesignationId;
+                    user.DepartmentId = model.DepartmentId;
+                    user.ShiftId = model.ShiftId;
+                    context.Users.Update(user);
+                    context.SaveChanges();
+
+                    model.CreatedAt = user.CreatedAt;
+                    model.UpdatedAt = user.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new UserResponseModel()
+                    {
+                        Message = ex.Message,
                         Status = false
                     });
-                }
-
-                user.UserNumber = model.UserNumber;
-                user.UserName = model.UserName;
-                user.Password = AESEncryption.Encrypt(model.Password);
-                user.FirstName = model.FirstName;
-                user.LastName = model.LastName;
-                user.Email = model.Email;
-                user.Phone = model.Phone;
-                user.Sex = (Sex)Enum.Parse(typeof(Sex), model.Sex);
-                user.DateOfBirth = model.DateOfBirth;
-                user.DateOfJoining = model.DateOfJoining;
-                user.ReportsTo = model.ReportsTo;
-                user.RoleId = model.RoleId;
-                user.CompanyId = model.CompanyId;
-                user.DesignationId = model.DesignationId;
-                user.DepartmentId = model.DepartmentId;
-                user.ShiftId = model.ShiftId;
-                context.Users.Update(user);
-                context.SaveChanges();
-
-                model.CreatedAt = user.CreatedAt;
-                model.UpdatedAt = user.UpdatedAt;
             }
 
             return Ok(new UserResponseModel()
