@@ -21,7 +21,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { Shift } from '../model/shift';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 
 let selectedRows: User[] = [];
 let roles: Role[] = [];

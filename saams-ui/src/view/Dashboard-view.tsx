@@ -27,6 +27,7 @@ import RoleView from "./role-view";
 import UserView from "./user-view";
 import CompanyView from "./company-view";
 import UserReportView from "./user-report-view";
+import PrivilegeView from "./privilege-view";
 
 interface DashboardViewProps {
   handleLogout: any;
@@ -56,7 +57,7 @@ const darkTheme = createTheme({
   },
 });
 
-const userManagementItems: string[] = [ 'Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User' ];
+const userManagementItems: string[] = [ 'Home', 'Company', 'Designation', 'Department','Privilege', 'Role', 'Shift', 'User' ];
 const accessManagementItems: string[] = [ 'Area', 'Channel', 'Reader' ];
 const reportManagementItems: string[] = [ 'User-Report', 'Reader-Report', 'Attendance-Report' ];
 
@@ -76,6 +77,9 @@ const switchView = (key: string): React.JSX.Element => {
     case 'Shift':
       return <ShiftView />;
 
+    case 'Privilege':
+      return <PrivilegeView />;
+    
     case 'Role':
       return <RoleView />;
 

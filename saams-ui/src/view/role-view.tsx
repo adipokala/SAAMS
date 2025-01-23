@@ -8,7 +8,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Refresh, Add, Delete, Update, Error, Warning } from '@mui/icons-material';
+import { Refresh, Add, Delete, Update} from '@mui/icons-material';
 import { Role, RoleResponse } from '../model/role';
 import { STRINGS } from '../constants';
 
@@ -32,10 +32,10 @@ export default function RoleView() {
   const columns: GridColDef<(typeof rows)[number]>[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     { field: 'name', headerName: 'Name', width: 150 },
-    { field: 'code', headerName: 'Code', width: 110},
+    { field: 'code', headerName: 'Code', width: 110 },
   ];
 
-  const handleRefreshButtonClick = async () =>  {
+  const handleRefreshButtonClick = async () => {
     const response = await handleOnGet();
     if (!response.status) {
       setMessageTitle("Error");
@@ -189,8 +189,8 @@ export default function RoleView() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.add }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.add}</Button>
         </DialogActions>
       </Dialog>
 
@@ -216,7 +216,7 @@ export default function RoleView() {
               code: formJson.code,
             };
             const resp = await window.electronAPI.updateRole(role);
-            if(resp) {
+            if (resp) {
               setMessageTitle("Success");
               setMessageContent(resp.message);
               setMessageModal(true);
@@ -264,8 +264,8 @@ export default function RoleView() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.cancel }</Button>
-          <Button type="submit">{ STRINGS.update }</Button>
+          <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+          <Button type="submit">{STRINGS.update}</Button>
         </DialogActions>
       </Dialog>
 
@@ -277,15 +277,15 @@ export default function RoleView() {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          { messageTitle }
+          {messageTitle}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            { messageContent }
+            {messageContent}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>{ STRINGS.ok }</Button>
+          <Button onClick={handleClose}>{STRINGS.ok}</Button>
         </DialogActions>
       </Dialog>
     </Stack>
