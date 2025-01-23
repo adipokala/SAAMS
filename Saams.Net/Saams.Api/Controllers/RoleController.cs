@@ -10,11 +10,11 @@ namespace Saams.Api.Controllers
     [ApiController]
     public class RoleController : ControllerBase
     {
-        private readonly ILogger<RoleController> logger;
+        private readonly ILogger<RoleController> _logger;
 
         public RoleController(ILogger<RoleController> logger)
         {
-            this.logger = logger;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -32,6 +32,8 @@ namespace Saams.Api.Controllers
                         Id = role.Id,
                         Name = role.Name,
                         Code = role.Code,
+                        CreatedAt = role.CreatedAt,
+                        UpdatedAt = role.UpdatedAt,
                     });
                 }
             }
@@ -68,6 +70,8 @@ namespace Saams.Api.Controllers
                             Id = role.Id,
                             Code = role.Code,
                             Name = role.Name,
+                            CreatedAt = role.CreatedAt,
+                            UpdatedAt = role.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -94,18 +98,33 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using(var context = new SaamsContext())
+            try
             {
-                var role = new Role()
+                using (var context = new SaamsContext())
                 {
-                    Name = model.Name,
-                    Code = model.Code,
-                };
+                    var role = new Role()
+                    {
+                        Name = model.Name,
+                        Code = model.Code,
+                    };
 
-                context.Roles.Add(role);
-                context.SaveChanges();
+                    context.Roles.Add(role);
+                    context.SaveChanges();
 
-                model.Id = role.Id;
+                    model.Id = role.Id;
+                    model.CreatedAt = role.CreatedAt;
+                    model.UpdatedAt = role.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new RoleResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new RoleResponseModel()
@@ -128,22 +147,38 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var role = context.Roles.FirstOrDefault(d => d.Id == model.Id);
-                if (role == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new RoleResponseModel()
+                    var role = context.Roles.FirstOrDefault(d => d.Id == model.Id);
+                    if (role == null)
                     {
-                        Message = "Role not found",
+                        return NotFound(new RoleResponseModel()
+                        {
+                            Message = "Role not found",
+                            Status = false
+                        });
+                    }
+
+                    role.Code = model.Code;
+                    role.Name = model.Name;
+                    context.Roles.Update(role);
+                    context.SaveChanges();
+
+                    model.CreatedAt = role.CreatedAt;
+                    model.UpdatedAt = role.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new RoleResponseModel()
+                    {
+                        Message = ex.Message,
                         Status = false
                     });
-                }
-
-                role.Code = model.Code;
-                role.Name = model.Name;
-                context.Roles.Update(role);
-                context.SaveChanges();
             }
 
             return Ok(new RoleResponseModel()

@@ -16,19 +16,30 @@ function App() {
     const [loginAttempted, setLoginAttempted] = useState(false); // Track if a login attempt has been made
     const [currentView, setCurrentView] = useState<'login' | 'dashboard' | 'department'>('login');
     const [user, setUser] = useState<User | null>(null); // Updated to hold the user object
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const handleLogin = async (userName: string, password: string) => {
-        const resp = await window.electronAPI.loginUser(`{ "userName": "${userName}", "password": "${password}" }`);
-        console.log(resp); // Log the response to inspect its structure
-        if (resp.status) {
-            setIsAuthenticated(true);
-            setCurrentView('dashboard');
-            setUser(resp.user); 
-            
-            console.log(`Logged in as: ${resp.user.firstName} ${resp.user.lastName}`);
-        } else {
+        try {
+            const resp = await window.electronAPI.loginUser(
+                `{ "userName": "${userName}", "password": "${password}" }`
+            );
+
+            if (resp.status) {
+                setIsAuthenticated(true);
+                setCurrentView('dashboard');
+                setUser(resp.user); 
+                setErrorMessage(null); // Clear any previous error messages
+            } else {
+                setLoginAttempted(true);
+                setIsAuthenticated(false);
+                setErrorMessage('Invalid username or password. Please try again.');
+            }
+        } catch (error) {
+            console.error("Backend connection failed:", error);
+        
             setLoginAttempted(true);
             setIsAuthenticated(false);
+            setErrorMessage('Unable to connect to the server. Please try again later.');
         }
     };
     
@@ -40,15 +51,18 @@ function App() {
     }
     return (
         <>
-        {isAuthenticated ? (
-            currentView === 'dashboard' ? (
-                <DashboardView user={user} handleLogout={handleLogout} /> // Pass the user object
+            {isAuthenticated ? (
+                    <DashboardView
+                        user={user}
+                        handleLogout={handleLogout}
+                    /> // Pass the user object
             ) : (
-                1
-            )
-        ) : (
-            <LoginView onLogin={handleLogin} loginAttempted={loginAttempted} />
-        )}
+                <LoginView
+                    onLogin={handleLogin}
+                    loginAttempted={loginAttempted}
+                    errorMessage={errorMessage}
+                />
+            )}
         </>
     );
 }

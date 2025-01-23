@@ -36,6 +36,44 @@ export const getPrivileges = async () => {
         console.log('before the return statement');
         return future;
 }
+export const getPrivilege = async (id:number) => {
+    const future = await new Promise<PrivilegeResponse>((resolve, reject) => {
+        const request = net.request({
+            method: 'POST',
+            protocol: 'https:',
+            hostname: API_CONFIG.hostname,
+            port: API_CONFIG.port,
+            path: API_ENDPOINTS.privilege+`/${id}`,
+            headers: API_CONFIG.headers,
+        });
+        request.on('response', (response) => {
+            let responseData = '';
+    
+            response.on('data', (chunk) => {
+            responseData += chunk; // Collect all data chunks
+            });
+    
+            response.on('end', () => {
+                try {
+                    const data = JSON.parse(responseData);
+                    console.log(`${data.id}`);
+                    resolve(data); // Resolve the promise with the id
+                } catch (error) {
+                    reject(error); // Reject if parsing fails
+                }
+                console.log('no more data');
+            });
+        });
+    
+        request.on('error', (error) => {
+            reject(error); // Reject the promise if there's a request error
+        });
+    
+        request.end();
+        });
+    
+        console.log('before the return statement');
+        return future;}
 
 export const createPrivilege = async (privilege: Privilege) => {
     const future = await new Promise<PrivilegeResponse>((resolve, reject) => {

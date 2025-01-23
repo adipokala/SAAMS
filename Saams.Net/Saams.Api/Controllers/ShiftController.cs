@@ -40,6 +40,8 @@ namespace Saams.Api.Controllers
                         ExitTime = shift.ExitTime,
                         GraceExitTime = shift.GraceExitTime,
                         OverTimeAllowance = shift.OverTimeAllowance,
+                        CreatedAt = shift.CreatedAt,
+                        UpdatedAt = shift.UpdatedAt,
                     };
                     shiftModels.Add(model);
                 }
@@ -85,6 +87,8 @@ namespace Saams.Api.Controllers
                             ExitTime = shift.ExitTime,
                             GraceExitTime = shift.GraceExitTime,
                             OverTimeAllowance = shift.OverTimeAllowance,
+                            CreatedAt = shift.CreatedAt,
+                            UpdatedAt = shift.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -111,26 +115,41 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var shift = new Shift()
+                using (var context = new SaamsContext())
                 {
-                    Name = model.Name,
-                    Code = model.Code,
-                    Type = (ShiftType)Enum.Parse(typeof(ShiftType), model.Type),
-                    EntryTime = model.EntryTime,
-                    GraceEntryTime = model.GraceEntryTime,
-                    ExitLunch = model.ExitLunch,
-                    EntryLunch = model.EntryLunch,
-                    ExitTime = model.ExitTime,
-                    GraceExitTime = model.GraceExitTime,
-                    OverTimeAllowance = model.OverTimeAllowance,
-                };
+                    var shift = new Shift()
+                    {
+                        Name = model.Name,
+                        Code = model.Code,
+                        Type = (ShiftType)Enum.Parse(typeof(ShiftType), model.Type),
+                        EntryTime = model.EntryTime,
+                        GraceEntryTime = model.GraceEntryTime,
+                        ExitLunch = model.ExitLunch,
+                        EntryLunch = model.EntryLunch,
+                        ExitTime = model.ExitTime,
+                        GraceExitTime = model.GraceExitTime,
+                        OverTimeAllowance = model.OverTimeAllowance,
+                    };
 
-                context.Shifts.Add(shift);
-                context.SaveChanges();
+                    context.Shifts.Add(shift);
+                    context.SaveChanges();
 
-                model.Id = shift.Id;
+                    model.Id = shift.Id;
+                    model.CreatedAt = shift.CreatedAt;
+                    model.UpdatedAt = shift.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ShiftResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new ShiftResponseModel()
@@ -153,30 +172,46 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var shift = context.Shifts.FirstOrDefault(d => d.Id == model.Id);
-                if (shift == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new ShiftResponseModel()
+                    var shift = context.Shifts.FirstOrDefault(d => d.Id == model.Id);
+                    if (shift == null)
                     {
-                        Message = "Shift not found",
+                        return NotFound(new ShiftResponseModel()
+                        {
+                            Message = "Shift not found",
+                            Status = false
+                        });
+                    }
+
+                    shift.Code = model.Code;
+                    shift.Name = model.Name;
+                    shift.Type = (ShiftType)Enum.Parse(typeof(ShiftType), model.Type);
+                    shift.EntryTime = model.EntryTime;
+                    shift.GraceEntryTime = model.GraceEntryTime;
+                    shift.ExitLunch = model.ExitLunch;
+                    shift.EntryLunch = model.EntryLunch;
+                    shift.ExitTime = model.ExitTime;
+                    shift.GraceExitTime = model.GraceExitTime;
+                    shift.OverTimeAllowance = model.OverTimeAllowance;
+                    context.Shifts.Update(shift);
+                    context.SaveChanges();
+
+                    model.CreatedAt = shift.CreatedAt;
+                    model.UpdatedAt = shift.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new ShiftResponseModel()
+                    {
+                        Message = ex.Message,
                         Status = false
                     });
-                }
-
-                shift.Code = model.Code;
-                shift.Name = model.Name;
-                shift.Type = (ShiftType)Enum.Parse(typeof(ShiftType), model.Type);
-                shift.EntryTime = model.EntryTime;
-                shift.GraceEntryTime = model.GraceEntryTime;
-                shift.ExitLunch = model.ExitLunch;
-                shift.EntryLunch = model.EntryLunch;
-                shift.ExitTime = model.ExitTime;
-                shift.GraceExitTime = model.GraceExitTime;
-                shift.OverTimeAllowance = model.OverTimeAllowance;
-                context.Shifts.Update(shift);
-                context.SaveChanges();
             }
 
             return Ok(new ShiftResponseModel()

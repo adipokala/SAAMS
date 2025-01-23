@@ -1,9 +1,7 @@
 ﻿namespace Saams.Api.Models
 {
-    public class ShiftModel
+    public class ShiftModel : BaseModel
     {
-        public int Id { get; set; }
-
         public required string Name { get; set; }
 
         public required string Code { get; set; }

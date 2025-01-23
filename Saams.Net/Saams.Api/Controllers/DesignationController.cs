@@ -33,6 +33,8 @@ namespace Saams.Api.Controllers
                         Id = designation.Id,
                         Name = designation.Name,
                         Code = designation.Code,
+                        CreatedAt = designation.CreatedAt,
+                        UpdatedAt = designation.UpdatedAt,
                     };
                     designationModels.Add(model);
                 }
@@ -70,6 +72,8 @@ namespace Saams.Api.Controllers
                             Id = designation.Id,
                             Code = designation.Code,
                             Name = designation.Name,
+                            CreatedAt = designation.CreatedAt,
+                            UpdatedAt = designation.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -96,18 +100,33 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                Designation designation = new Designation()
+                using (var context = new SaamsContext())
                 {
-                    Name = model.Name,
-                    Code = model.Code,
-                };
+                    Designation designation = new Designation()
+                    {
+                        Name = model.Name,
+                        Code = model.Code,
+                    };
 
-                context.Designations.Add(designation);
-                context.SaveChanges();
+                    context.Designations.Add(designation);
+                    context.SaveChanges();
 
-                model.Id = designation.Id;
+                    model.Id = designation.Id;
+                    model.CreatedAt = designation.CreatedAt;
+                    model.UpdatedAt = designation.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new DesignationResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new DesignationResponseModel()
@@ -130,22 +149,38 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var designation = context.Designations.FirstOrDefault(d => d.Id == model.Id);
-                if (designation == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new DesignationResponseModel()
+                    var designation = context.Designations.FirstOrDefault(d => d.Id == model.Id);
+                    if (designation == null)
                     {
-                        Message = "Designation not found",
+                        return NotFound(new DesignationResponseModel()
+                        {
+                            Message = "Designation not found",
+                            Status = false
+                        });
+                    }
+
+                    designation.Code = model.Code;
+                    designation.Name = model.Name;
+                    context.Designations.Update(designation);
+                    context.SaveChanges();
+
+                    model.CreatedAt = designation.CreatedAt;
+                    model.UpdatedAt = designation.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new DesignationResponseModel()
+                    {
+                        Message = ex.Message,
                         Status = false
                     });
-                }
-
-                designation.Code = model.Code;
-                designation.Name = model.Name;
-                context.Designations.Update(designation);
-                context.SaveChanges();
             }
 
             return Ok(new DesignationResponseModel() 

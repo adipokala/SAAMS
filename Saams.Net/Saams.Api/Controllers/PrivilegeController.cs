@@ -32,6 +32,8 @@ namespace Saams.Api.Controllers
                         Id = privilege.Id,
                         Name = privilege.Name,
                         Code = privilege.Code,
+                        CreatedAt = privilege.CreatedAt,
+                        UpdatedAt = privilege.UpdatedAt,
                     };
                     privilegeModels.Add(model);
                 }
@@ -69,6 +71,8 @@ namespace Saams.Api.Controllers
                             Id = privilege.Id,
                             Code = privilege.Code,
                             Name = privilege.Name,
+                            CreatedAt = privilege.CreatedAt,
+                            UpdatedAt = privilege.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -95,18 +99,33 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var privilege = new Privilege()
+                using (var context = new SaamsContext())
                 {
-                    Name = model.Name,
-                    Code = model.Code,
-                };
+                    var privilege = new Privilege()
+                    {
+                        Name = model.Name,
+                        Code = model.Code,
+                    };
 
-                context.Privileges.Add(privilege);
-                context.SaveChanges();
+                    context.Privileges.Add(privilege);
+                    context.SaveChanges();
 
-                model.Id = privilege.Id;
+                    model.Id = privilege.Id;
+                    model.CreatedAt = privilege.CreatedAt;
+                    model.UpdatedAt = privilege.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new PrivilegeResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new PrivilegeResponseModel()
@@ -129,22 +148,38 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var privilege = context.Privileges.FirstOrDefault(d => d.Id == model.Id);
-                if (privilege == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new PrivilegeResponseModel()
+                    var privilege = context.Privileges.FirstOrDefault(d => d.Id == model.Id);
+                    if (privilege == null)
                     {
-                        Message = "Privilege not found",
+                        return NotFound(new PrivilegeResponseModel()
+                        {
+                            Message = "Privilege not found",
+                            Status = false
+                        });
+                    }
+
+                    privilege.Code = model.Code;
+                    privilege.Name = model.Name;
+                    context.Privileges.Update(privilege);
+                    context.SaveChanges();
+
+                    model.CreatedAt = privilege.CreatedAt;
+                    model.UpdatedAt = privilege.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new PrivilegeResponseModel()
+                    {
+                        Message = ex.Message,
                         Status = false
                     });
-                }
-
-                privilege.Code = model.Code;
-                privilege.Name = model.Name;
-                context.Privileges.Update(privilege);
-                context.SaveChanges();
             }
 
             return Ok(new PrivilegeResponseModel()

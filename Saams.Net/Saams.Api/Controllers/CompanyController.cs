@@ -39,6 +39,8 @@ namespace Saams.Api.Controllers
                         Email = company.Email,
                         Phone = company.Phone,
                         Fax = company.Fax,
+                        CreatedAt = company.CreatedAt,
+                        UpdatedAt = company.UpdatedAt,
                     });
                 }
             }
@@ -81,6 +83,8 @@ namespace Saams.Api.Controllers
                             Email = company.Email,
                             Phone = company.Phone,
                             Fax = company.Fax,
+                            CreatedAt = company.CreatedAt,
+                            UpdatedAt = company.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -107,25 +111,40 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var company = new Company()
+                using (var context = new SaamsContext())
                 {
-                    Name = model.Name,
-                    Code = model.Code,
-                    Address = model.Address,
-                    City = model.City,
-                    State = model.State,
-                    Pincode = model.Pincode,
-                    Email = model.Email,
-                    Phone = model.Phone,
-                    Fax = model.Fax,
-                };
+                    var company = new Company()
+                    {
+                        Name = model.Name,
+                        Code = model.Code,
+                        Address = model.Address,
+                        City = model.City,
+                        State = model.State,
+                        Pincode = model.Pincode,
+                        Email = model.Email,
+                        Phone = model.Phone,
+                        Fax = model.Fax,
+                    };
 
-                context.Companies.Add(company);
-                context.SaveChanges();
+                    context.Companies.Add(company);
+                    context.SaveChanges();
 
-                model.Id = company.Id;
+                    model.Id = company.Id;
+                    model.CreatedAt = company.CreatedAt;
+                    model.UpdatedAt = company.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new CompanyResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new CompanyResponseModel()
@@ -148,29 +167,45 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var company = context.Companies.FirstOrDefault(x => x.Id == model.Id);
-                if (company == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new CompanyResponseModel()
+                    var company = context.Companies.FirstOrDefault(x => x.Id == model.Id);
+                    if (company == null)
                     {
-                        Message = "Company not found",
+                        return NotFound(new CompanyResponseModel()
+                        {
+                            Message = "Company not found",
+                            Status = false
+                        });
+                    }
+
+                    company.Name = model.Name;
+                    company.Code = model.Code;
+                    company.Address = model.Address;
+                    company.City = model.City;
+                    company.State = model.State;
+                    company.Pincode = model.Pincode;
+                    company.Email = model.Email;
+                    company.Phone = model.Phone;
+                    company.Fax = model.Fax;
+                    context.Companies.Update(company);
+                    context.SaveChanges();
+
+                    model.CreatedAt = company.CreatedAt;
+                    model.UpdatedAt = company.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new CompanyResponseModel()
+                    {
+                        Message = ex.Message,
                         Status = false
                     });
-                }
-
-                company.Name = model.Name;
-                company.Code = model.Code;
-                company.Address = model.Address;
-                company.City = model.City;
-                company.State = model.State;
-                company.Pincode = model.Pincode;
-                company.Email = model.Email;
-                company.Phone = model.Phone;
-                company.Fax = model.Fax;
-                context.Companies.Update(company);
-                context.SaveChanges();
             }
 
             return Ok(new CompanyResponseModel()

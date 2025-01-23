@@ -56,6 +56,8 @@
     "@mui/x-date-pickers": "^7.21.0",
     "dayjs": "^1.11.13",
     "electron-squirrel-startup": "^1.0.1",
+    "jspdf": "^2.5.2",
+    "jspdf-autotable": "^3.8.4",
     "react-router-dom": "^6.26.1"
   }
 }

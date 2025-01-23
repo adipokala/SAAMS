@@ -32,6 +32,8 @@ namespace Saams.Api.Controllers
                         Id = rolePrivilege.Id,
                         RoleId = rolePrivilege.RoleId,
                         PrivilegeId = rolePrivilege.PrivilegeId,
+                        CreatedAt = rolePrivilege.CreatedAt,
+                        UpdatedAt = rolePrivilege.UpdatedAt,
                     };
                     rolePrivilegeModels.Add(model);
                 }
@@ -69,6 +71,8 @@ namespace Saams.Api.Controllers
                             Id = rolePrivilege.Id,
                             RoleId = rolePrivilege.RoleId,
                             PrivilegeId = rolePrivilege.PrivilegeId,
+                            CreatedAt = rolePrivilege.CreatedAt,
+                            UpdatedAt = rolePrivilege.UpdatedAt,
                         },
                         Message = "Success",
                         Status = true
@@ -95,18 +99,33 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var rolePrivilege = new RolePrivilege()
+                using (var context = new SaamsContext())
                 {
-                    RoleId = model.RoleId,
-                    PrivilegeId = model.PrivilegeId,
-                };
+                    var rolePrivilege = new RolePrivilege()
+                    {
+                        RoleId = model.RoleId,
+                        PrivilegeId = model.PrivilegeId,
+                    };
 
-                context.RolePrivileges.Add(rolePrivilege);
-                context.SaveChanges();
+                    context.RolePrivileges.Add(rolePrivilege);
+                    context.SaveChanges();
 
-                model.Id = rolePrivilege.Id;
+                    model.Id = rolePrivilege.Id;
+                    model.CreatedAt = rolePrivilege.CreatedAt;
+                    model.UpdatedAt = rolePrivilege.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new RolePrivilegeResponseModel()
+                    {
+                        Message = ex.Message,
+                        Status = false
+                    });
             }
 
             return Ok(new RolePrivilegeResponseModel()
@@ -129,22 +148,38 @@ namespace Saams.Api.Controllers
                 });
             }
 
-            using (var context = new SaamsContext())
+            try
             {
-                var rolePrivilege = context.RolePrivileges.FirstOrDefault(d => d.Id == model.Id);
-                if (rolePrivilege == null)
+                using (var context = new SaamsContext())
                 {
-                    return NotFound(new RolePrivilegeResponseModel()
+                    var rolePrivilege = context.RolePrivileges.FirstOrDefault(d => d.Id == model.Id);
+                    if (rolePrivilege == null)
                     {
-                        Message = "Role Privilege not found",
+                        return NotFound(new RolePrivilegeResponseModel()
+                        {
+                            Message = "Role Privilege not found",
+                            Status = false
+                        });
+                    }
+
+                    rolePrivilege.PrivilegeId = model.PrivilegeId;
+                    rolePrivilege.RoleId = model.RoleId;
+                    context.RolePrivileges.Update(rolePrivilege);
+                    context.SaveChanges();
+
+                    model.CreatedAt = rolePrivilege.CreatedAt;
+                    model.UpdatedAt = rolePrivilege.UpdatedAt;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new RolePrivilegeResponseModel()
+                    {
+                        Message = ex.Message,
                         Status = false
                     });
-                }
-
-                rolePrivilege.PrivilegeId = model.PrivilegeId;
-                rolePrivilege.RoleId = model.RoleId;
-                context.RolePrivileges.Update(rolePrivilege);
-                context.SaveChanges();
             }
 
             return Ok(new RolePrivilegeResponseModel()

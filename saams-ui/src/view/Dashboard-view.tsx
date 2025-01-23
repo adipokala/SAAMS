@@ -20,11 +20,13 @@ import IconButton from '@mui/material/IconButton';
 import ListItemButton from "@mui/material/ListItemButton";
 import React from "react";
 import AccountDetailsView from "./AccountDetails-view"; // Ensure correct import path
+import CompanyView from './company-view';
 import DepartmentView from "./Department-view"; // Ensure correct import path
 import DesignationView from "./designation-view"; // Ensure correct import path
 import HomeView from "./home-view"; // Ensure correct import path
 import RoleView from "./role-view"; // Ensure correct import path
 import ShiftView from "./shift-view"; // Ensure correct import path
+import UserReportView from './user-report-view';
 import UserView from "./user-view"; // Ensure correct import path
 
 interface User {
@@ -82,9 +84,15 @@ const switchView = (key: string, user: User): React.JSX.Element => {
       return <RoleView />;
     case 'User':
       return <UserView />;
-    case 'Account Details': {
+    case 'Account Details': 
       return <AccountDetailsView user={user} />; // Pass the whole user object
-    }      
+      
+    case 'Company':
+      return <CompanyView />;
+    
+    case 'User Report':
+      return <UserReportView />
+    
     default:
       return <HomeView />;
   }

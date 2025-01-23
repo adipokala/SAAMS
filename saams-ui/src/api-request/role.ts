@@ -40,7 +40,43 @@ export const getRoles = async () => {
     
         return future;
 }
+export const getRole = async (id: number) => {
+    const future = await new Promise<RoleResponse>((resolve, reject) => {
+        const request =  net.request({
+            method: 'GET',
+            protocol: 'https:',
+            hostname: API_CONFIG.hostname,
+            port: API_CONFIG.port,
+            path: API_ENDPOINTS.role + `/${id}`,
+            headers: API_CONFIG.headers,
+        });
 
+            request.on('response', (response) => {
+                let responseData = '';
+        
+                response.on('data', (chunk) => {
+                responseData += chunk; // Collect all data chunks
+                });
+        
+                response.on('end', () => {
+                    try {
+                        const data = JSON.parse(responseData);
+                        resolve(data); // Resolve the promise with the id
+                    } catch (error) {
+                        reject(error); // Reject if parsing fails
+                    }
+                });
+            });
+        
+            request.on('error', (error) => {
+                reject(error); // Reject the promise if there's a request error
+            });
+        
+            request.end();
+            });
+        
+            return future;
+    }
 export const createRole = async (role: Role) => {
     const future = await new Promise<RoleResponse>((resolve, reject) => {
         const request = net.request({
