@@ -8,7 +8,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Refresh, Add, Delete, Update} from '@mui/icons-material';
+import { Refresh, Add, Delete, Update } from '@mui/icons-material';
 import { Privilege, PrivilegeResponse } from '../model/privilege';
 import { STRINGS } from '../constants';
 
@@ -132,19 +132,19 @@ export default function PrivilegeView() {
 
       {/* Add Modal */}
       <Dialog
-        open={updateModal}
-                onClose={handleClose}
-                PaperProps={{
-                  component: 'form',
-            onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+        open={addModal}
+        onClose={handleClose}
+        PaperProps={{
+          component: 'form',
+          onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries((formData as any).entries());
             if (/\s/.test(formJson.code)) {
-            setMessageTitle("Error");
-            setMessageContent("Code should not contain spaces");
-            setMessageModal(true);
-            return;//added
+              setMessageTitle("Error");
+              setMessageContent("Code should not contain spaces");
+              setMessageModal(true);
+              return;//added
             }
             const privilege: Privilege = {
               name: formJson.name as string,
