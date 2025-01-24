@@ -186,8 +186,8 @@ export default function AreaView() {
             fullWidth
             variant="standard"
             inputProps={{
-              maxLength: 6,
-              minLength: 4,
+              maxLength: 4,
+              minLength: 2,
             }}
           />
         </DialogContent>
@@ -259,8 +259,8 @@ export default function AreaView() {
             variant="standard"
             defaultValue={selectedRows[0]?.code || ''}
             inputProps={{
-              maxLength: 6,
-              minLength: 4,
+              maxLength: 4,
+              minLength: 2,
             }}
           />
         </DialogContent>

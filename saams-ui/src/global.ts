@@ -54,12 +54,12 @@ declare global {
             createCompany: (company: Company) => CompanyResponse;
             updateCompany: (company: Company) => CompanyResponse;
             deleteCompany: (id: number) => CompanyResponse;
-            //area
+            // Area
             getAreas: () => AreaResponse;
+            getArea: (id: number) => AreaResponse; // Added method
             createArea: (area: Area) => AreaResponse;
             updateArea: (area: Area) => AreaResponse;
             deleteArea: (id: number) => AreaResponse;
-
         }
     }
 }

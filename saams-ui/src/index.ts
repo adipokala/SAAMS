@@ -96,6 +96,7 @@ ipcMain.handle('request:deleteCompany', (event, id) => deleteCompany(id));
 
 // Area
 ipcMain.handle('request:getAreas', () => getAreas());
+ipcMain.handle('request:getArea', (event, id) => createArea(id));
 ipcMain.handle('request:createArea', (event, area) => createArea(area));
 ipcMain.handle('request:updateArea', (event, area) => updateArea(area));
 ipcMain.handle('request:deleteArea', (event, id) => deleteArea(id));

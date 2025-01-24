@@ -2,44 +2,73 @@ import { net } from "electron";
 import { Area, AreaResponse } from "../model/area";
 import { API_CONFIG, API_ENDPOINTS } from "../config";
 
-export const getAreas = async () => {
-    const future = await new Promise<AreaResponse>((resolve, reject) => {
-        // Make sure the entry exists
+export const getArea = async (id: number): Promise<AreaResponse> => {
+    return new Promise<AreaResponse>((resolve, reject) => {
+        const request = net.request({
+            method: 'GET',
+            protocol: 'https:',
+            hostname: API_CONFIG.hostname,
+            port: API_CONFIG.port,
+            path: `${API_ENDPOINTS.area}/${id}`,
+            headers: API_CONFIG.headers,
+        });
+
+        request.on('response', (response) => {
+            let responseData = '';
+
+            response.on('data', (chunk) => {
+                responseData += chunk;
+            });
+
+            response.on('end', () => {
+                try {
+                    const data = JSON.parse(responseData);
+                    resolve(data);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        });
+
+        request.on('error', (error) => {
+            reject(error);
+        });
+
+        request.end();
+    });
+};
+
+export const getAreas = async (): Promise<AreaResponse> => {
+    return new Promise<AreaResponse>((resolve, reject) => {
         const request = net.request('https://localhost:7192/api/Area');
 
         request.on('response', (response) => {
             let responseData = '';
 
             response.on('data', (chunk) => {
-                responseData += chunk; // Collect all data chunks
+                responseData += chunk;
             });
 
             response.on('end', () => {
                 try {
-
                     const data = JSON.parse(responseData);
-                    console.log(`${data.id}`);
-                    resolve(data); // Resolve the promise with the id
+                    resolve(data);
                 } catch (error) {
-                    reject(error); // Reject if parsing fails
+                    reject(error);
                 }
-                console.log('no more data');
             });
         });
 
         request.on('error', (error) => {
-            reject(error); // Reject the promise if there's a request error
+            reject(error);
         });
 
         request.end();
     });
+};
 
-    console.log('before the return statement');
-    return future;
-}
-
-export const createArea = async (area: Area) => {
-    const future = await new Promise<AreaResponse>((resolve, reject) => {
+export const createArea = async (area: Area): Promise<AreaResponse> => {
+    return new Promise<AreaResponse>((resolve, reject) => {
         const request = net.request({
             method: 'POST',
             protocol: 'https:',
@@ -53,33 +82,30 @@ export const createArea = async (area: Area) => {
             let responseData = '';
 
             response.on('data', (chunk) => {
-                responseData += chunk; // Collect all data chunks
+                responseData += chunk;
             });
 
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
-                    resolve(data); // Resolve the promise with the id
+                    resolve(data);
                 } catch (error) {
-                    reject(error); // Reject if parsing fails
+                    reject(error);
                 }
-            });
-
-            request.on('error', (error) => {
-                reject(error); // Reject the promise if there's a request error
             });
         });
 
-        request.write(JSON.stringify(area));
+        request.on('error', (error) => {
+            reject(error);
+        });
 
+        request.write(JSON.stringify(area));
         request.end();
     });
+};
 
-    return future;
-}
-
-export const updateArea = async (area: Area) => {
-    const future = await new Promise<AreaResponse>((resolve, reject) => {
+export const updateArea = async (area: Area): Promise<AreaResponse> => {
+    return new Promise<AreaResponse>((resolve, reject) => {
         const request = net.request({
             method: 'PUT',
             protocol: 'https:',
@@ -93,64 +119,59 @@ export const updateArea = async (area: Area) => {
             let responseData = '';
 
             response.on('data', (chunk) => {
-                responseData += chunk; // Collect all data chunks
+                responseData += chunk;
             });
 
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
-                    resolve(data); // Resolve the promise with the id
+                    resolve(data);
                 } catch (error) {
-                    reject(error); // Reject if parsing fails
+                    reject(error);
                 }
-            });
-
-            request.on('error', (error) => {
-                reject(error); // Reject the promise if there's a request error
             });
         });
 
-        request.write(JSON.stringify(area));
+        request.on('error', (error) => {
+            reject(error);
+        });
 
+        request.write(JSON.stringify(area));
         request.end();
     });
+};
 
-    return future;
-}
-
-export const deleteArea = async (id: number) => {
-    const future = await new Promise<AreaResponse>((resolve, reject) => {
+export const deleteArea = async (id: number): Promise<AreaResponse> => {
+    return new Promise<AreaResponse>((resolve, reject) => {
         const request = net.request({
             method: 'DELETE',
             protocol: 'https:',
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
-            path: API_ENDPOINTS.area + `/${id}`,
+            path: `${API_ENDPOINTS.area}/${id}`,
         });
 
         request.on('response', (response) => {
             let responseData = '';
 
             response.on('data', (chunk) => {
-                responseData += chunk; // Collect all data chunks
+                responseData += chunk;
             });
 
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
-                    resolve(data); // Resolve the promise with the id
+                    resolve(data);
                 } catch (error) {
-                    reject(error); // Reject if parsing fails
+                    reject(error);
                 }
             });
+        });
 
-            request.on('error', (error) => {
-                reject(error); // Reject the promise if there's a request error
-            });
+        request.on('error', (error) => {
+            reject(error);
         });
 
         request.end();
     });
-
-    return future;
-}
+};
