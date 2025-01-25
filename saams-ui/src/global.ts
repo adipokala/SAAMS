@@ -5,8 +5,9 @@ import { Role, RoleResponse } from "./model/role";
 import { ShiftResponse, Shift } from "./model/shift";
 import { UserResponse, User } from "./model/user";
 import { CompanyResponse, Company } from "./model/company";
+import { AreaResponse, Area } from "./model/area";
 
-export {};
+export { };
 
 declare global {
     interface Window {
@@ -53,6 +54,12 @@ declare global {
             createCompany: (company: Company) => CompanyResponse;
             updateCompany: (company: Company) => CompanyResponse;
             deleteCompany: (id: number) => CompanyResponse;
+            // Area
+            getAreas: () => AreaResponse;
+            getArea: (id: number) => AreaResponse; // Added method
+            createArea: (area: Area) => AreaResponse;
+            updateArea: (area: Area) => AreaResponse;
+            deleteArea: (id: number) => AreaResponse;
         }
     }
 }

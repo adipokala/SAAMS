@@ -26,6 +26,7 @@ import ShiftView from "./shift-view";
 import RoleView from "./role-view";
 import UserView from "./user-view";
 import CompanyView from "./company-view";
+import AreaView from "./area-view";
 import UserReportView from "./user-report-view";
 
 interface DashboardViewProps {
@@ -44,10 +45,10 @@ const darkTheme = createTheme({
       paper: "#2f3136",
     },
     primary: {
-      main: "#7289da", 
+      main: "#7289da",
     },
     text: {
-      primary: "#ffffff", 
+      primary: "#ffffff",
       secondary: "#b9bbbe",
     },
   },
@@ -56,9 +57,9 @@ const darkTheme = createTheme({
   },
 });
 
-const userManagementItems: string[] = [ 'Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User' ];
-const accessManagementItems: string[] = [ 'Area', 'Channel', 'Reader' ];
-const reportManagementItems: string[] = [ 'User-Report', 'Reader-Report', 'Attendance-Report' ];
+const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User'];
+const accessManagementItems: string[] = ['Area', 'Channel', 'Reader'];
+const reportManagementItems: string[] = ['User Report', 'Reader Report', 'Attendance Report'];
 
 const switchView = (key: string): React.JSX.Element => {
   console.log("Clicked on: " + key);
@@ -81,13 +82,15 @@ const switchView = (key: string): React.JSX.Element => {
 
     case 'User':
       return <UserView />;
-    
+
     case 'Company':
       return <CompanyView />;
-    
-    case 'User-Report':
+
+    case 'User Report':
       return <UserReportView />
-    
+    case 'Area':
+      return <AreaView />;
+
     default:
       return <HomeView />;
   }
@@ -112,27 +115,27 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
     ))}
   </List>;
 
-const accessManagementList = <List>
-{accessManagementItems.map((text, index) => (
-  <ListItemButton>
-    <ListItemText
-      primary={text}
-      sx={{ color: darkTheme.palette.text.primary }}
-      onClick={() => setItem(accessManagementItems[index])} />
-  </ListItemButton>
-))}
-</List>;
+  const accessManagementList = <List>
+    {accessManagementItems.map((text, index) => (
+      <ListItemButton>
+        <ListItemText
+          primary={text}
+          sx={{ color: darkTheme.palette.text.primary }}
+          onClick={() => setItem(accessManagementItems[index])} />
+      </ListItemButton>
+    ))}
+  </List>;
 
-const reportManagementList = <List>
-{reportManagementItems.map((text, index) => (
-  <ListItemButton>
-    <ListItemText
-      primary={text}
-      sx={{ color: darkTheme.palette.text.primary }}
-      onClick={() => setItem(reportManagementItems[index])} />
-  </ListItemButton>
-))}
-</List>;
+  const reportManagementList = <List>
+    {reportManagementItems.map((text, index) => (
+      <ListItemButton>
+        <ListItemText
+          primary={text}
+          sx={{ color: darkTheme.palette.text.primary }}
+          onClick={() => setItem(reportManagementItems[index])} />
+      </ListItemButton>
+    ))}
+  </List>;
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -212,10 +215,10 @@ const reportManagementList = <List>
             height: "100vh",
           }}
         >
-        
+
           {/* Content below AppBar */}
           <Toolbar />
-          { switchView(item) }
+          {switchView(item)}
         </Box>
       </Box>
     </ThemeProvider>
