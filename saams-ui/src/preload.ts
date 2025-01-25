@@ -10,8 +10,6 @@ import { Shift } from "./model/shift";
 import { User } from "./model/user";
 import { Company } from "./model/company";
 import { Area } from "./model/area";
-import { getArea } from "./api-request/area";
-
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
     // Department
