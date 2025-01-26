@@ -19,6 +19,7 @@ import {
 import IconButton from '@mui/material/IconButton';
 import ListItemButton from "@mui/material/ListItemButton";
 import React from "react";
+import { User } from '../model/user'; // Importing User model
 import AccountDetailsView from "./AccountDetails-view"; // Ensure correct import path
 import AreaView from './area-view';
 import CompanyView from './company-view';
@@ -29,14 +30,6 @@ import RoleView from "./role-view"; // Ensure correct import path
 import ShiftView from "./shift-view"; // Ensure correct import path
 import UserReportView from './user-report-view';
 import UserView from "./user-view"; // Ensure correct import path
-
-interface User {
-  firstName: string;
-  lastName: string;
-  email: string;
-  userName: string;
-  phone: string;
-}
 
 interface DashboardViewProps {
   handleLogout: () => void;

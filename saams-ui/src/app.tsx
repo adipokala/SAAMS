@@ -1,15 +1,8 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { User } from './model/user'; // Importing User model
 import DashboardView from './view/Dashboard-view';
 import LoginView from './view/login-view';
-
-interface User {
-    firstName: string;
-    lastName: string;
-    email: string;
-    userName: string;
-    phone: string;
-}
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
