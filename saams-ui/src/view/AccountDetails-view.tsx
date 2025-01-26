@@ -1,16 +1,9 @@
 import { Box, Card, CardContent, Divider, Typography } from "@mui/material";
 import React from "react";
-
-interface User {
-  firstName: string;
-  lastName: string;
-  email: string;
-  userName: string;
-  phone: string;
-}
+import { User } from '../model/user'; // Importing User model
 
 interface AccountDetailsViewProps {
-  user: User;
+  user: User; // Using imported User model
 }
 
 const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ user }) => {
