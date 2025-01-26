@@ -9,4 +9,5 @@ export const STRINGS = {
     refresh: "Refresh",
     update: "Update",
     welcome: "Welcome",
+    ADD_AREA_DESCRIPTION: 'Please enter the details for the new area.',
 }
