@@ -183,7 +183,7 @@ export default function DashboardView({ user, handleLogout }: DashboardViewProps
             component="div"
             sx={{ flexGrow: 1 }}
           >
-            Welcome to {user.userName}
+            Welcome to {user.firstName}
           </Typography>
 
           {/* Profile Icon and Dropdown */}
