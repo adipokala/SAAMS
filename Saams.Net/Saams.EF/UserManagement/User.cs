@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Saams.EF.LeaveManagement;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -66,6 +67,9 @@ namespace Saams.EF.UserManagement
         [Required]
         public required int ShiftId { get; set; }
         public Shift Shift { get; set; } = null!;
+
+        public ICollection<UserLeave> UserLeaves { get; set; } = new List<UserLeave>();
+        public ICollection<LeaveCounter> LeaveCounters { get; set; } = new List<LeaveCounter>();
     }
 
     public enum Sex
