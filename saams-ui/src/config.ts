@@ -1,3 +1,5 @@
+import { Password } from "@mui/icons-material"
+
 export const API_CONFIG = {
     hostname: 'localhost',
     port: 7192,
@@ -7,7 +9,8 @@ export const API_CONFIG = {
 }
 
 export const API_ENDPOINTS = {
-    loginEP: '/api/login',
+    login: '/api/auth/login',
+    Password: '/api/auth/password',
     company: '/api/company',
     department: '/api/department',
     designation: '/api/designation',

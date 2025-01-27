@@ -35,7 +35,7 @@ namespace Saams.Api.Controllers
                         Id = user.Id,
                         UserNumber = user.UserNumber,
                         UserName = user.UserName,
-                        Password = user.Password,
+                        Password = string.Empty,
                         FirstName = user.FirstName,
                         LastName = user.LastName,
                         Email = user.Email,
@@ -88,7 +88,7 @@ namespace Saams.Api.Controllers
                             Id = user.Id,
                             UserNumber = user.UserNumber,
                             UserName = user.UserName,
-                            Password = user.Password,
+                            Password = string.Empty,
                             FirstName = user.FirstName,
                             LastName = user.LastName,
                             Email = user.Email,
@@ -210,7 +210,6 @@ namespace Saams.Api.Controllers
 
                     user.UserNumber = model.UserNumber;
                     user.UserName = model.UserName;
-                    user.Password = AESEncryption.Encrypt(model.Password);
                     user.FirstName = model.FirstName;
                     user.LastName = model.LastName;
                     user.Email = model.Email;
