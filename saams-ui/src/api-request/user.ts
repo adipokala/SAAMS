@@ -4,7 +4,6 @@ import { User, UserResponse } from "../model/user";
 
 export const getUsers = async () => {
     const future = await new Promise<UserResponse>((resolve, reject) => {
-        // Make sure the entry exists
         const request = net.request({
             method: 'GET',
             protocol: 'https:',
@@ -153,6 +152,48 @@ export const deleteUser = async (id: number) => {
             });
         });
 
+        request.end();
+    });
+
+    return future;
+}
+
+// New function to change password
+export const changePassword = async (userId: number, currentPassword: string, newPassword: string) => {
+    const future = await new Promise<UserResponse>((resolve, reject) => {
+        const request = net.request({
+            method: 'POST',
+            protocol: 'https:',
+            hostname: API_CONFIG.hostname,
+            port: API_CONFIG.port,
+            path: API_ENDPOINTS.changePassword, // Ensure this endpoint exists
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+
+        request.on('response', (response) => {
+            let responseData = '';
+
+            response.on('data', (chunk) => {
+                responseData += chunk; 
+            });
+
+            response.on('end', () => {
+                try {
+                    const data = JSON.parse(responseData);
+                    resolve(data); 
+                } catch (error) {
+                    reject(error); 
+                }
+            });
+
+            request.on('error', (error) => {
+                reject(error); 
+            });
+        });
+
+        request.write(JSON.stringify({ userId, currentPassword, newPassword }));
         request.end();
     });
 
