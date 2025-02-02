@@ -6,12 +6,14 @@ import { ShiftResponse, Shift } from "./model/shift";
 import { UserResponse, User } from "./model/user";
 import { CompanyResponse, Company } from "./model/company";
 import { AreaResponse, Area } from "./model/area";
+import { Channel, ChannelResponse } from "./model/channel";
 
 export { };
 
 declare global {
     interface Window {
         electronAPI: {
+            [x: string]: any;
             loginUser: (json: string) => UserResponse;
             // Department
             getDepartments: () => DepartmentResponse;
@@ -60,6 +62,12 @@ declare global {
             createArea: (area: Area) => AreaResponse;
             updateArea: (area: Area) => AreaResponse;
             deleteArea: (id: number) => AreaResponse;
+            // Channel
+            getChannel: (id: number) => ChannelResponse;
+            getChannels: () => ChannelResponse;
+            createChannel: (channel: Channel) => ChannelResponse;
+            updateChannel: (channel: Channel) => ChannelResponse;
+            deleteChannel: (id: number) => ChannelResponse;
         }
     }
 }
