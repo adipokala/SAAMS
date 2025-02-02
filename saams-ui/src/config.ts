@@ -16,4 +16,5 @@ export const API_ENDPOINTS = {
     roleprivilege: '/api/roleprivilege',
     shift: '/api/shift',
     user: '/api/user',
+    changePassword: '/api/change-password', 
 }
