@@ -20,7 +20,8 @@ import IconButton from '@mui/material/IconButton';
 import ListItemButton from "@mui/material/ListItemButton";
 import React from "react";
 import { User } from '../model/user'; // Importing User model
-import AccountDetailsView from "./AccountDetails-view"; // Ensure correct import path
+import AccountDetailsView from "./account-details-view"; // Ensure correct import path
+import AreaView from './area-view';
 import CompanyView from './company-view';
 import DepartmentView from "./Department-view"; // Ensure correct import path
 import DesignationView from "./designation-view"; // Ensure correct import path
@@ -45,10 +46,10 @@ const darkTheme = createTheme({
       paper: "#2f3136",
     },
     primary: {
-      main: "#7289da", 
+      main: "#7289da",
     },
     text: {
-      primary: "#ffffff", 
+      primary: "#ffffff",
       secondary: "#b9bbbe",
     },
   },
@@ -85,7 +86,9 @@ const switchView = (key: string, user: User): React.JSX.Element => {
     
     case 'User Report':
       return <UserReportView />
-    
+    case 'Area':
+      return <AreaView />;
+
     default:
       return <HomeView />;
   }

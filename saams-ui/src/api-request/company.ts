@@ -16,7 +16,7 @@ export const getCompany = async (id: number): Promise<CompanyResponse> => {
 
     request.on('response', (response) => {
       let responseData = '';
-      
+
       response.on('data', (chunk) => {
         responseData += chunk;
       });
@@ -56,7 +56,7 @@ export const getCompanies = async (): Promise<CompanyResponse[]> => {
 
     request.on('response', (response) => {
       let responseData = '';
-      
+
       response.on('data', (chunk) => {
         responseData += chunk;
       });

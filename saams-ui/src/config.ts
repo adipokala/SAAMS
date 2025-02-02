@@ -1,3 +1,4 @@
+
 export const API_CONFIG = {
     hostname: 'localhost',
     port: 7192,
@@ -7,7 +8,8 @@ export const API_CONFIG = {
 }
 
 export const API_ENDPOINTS = {
-    loginEP: '/api/login',
+    login: '/api/auth/login',
+    password: '/api/auth/password',
     company: '/api/company',
     department: '/api/department',
     designation: '/api/designation',
@@ -16,5 +18,5 @@ export const API_ENDPOINTS = {
     roleprivilege: '/api/roleprivilege',
     shift: '/api/shift',
     user: '/api/user',
-    changePassword: '/api/change-password', 
+    area: '/api/area',
 }

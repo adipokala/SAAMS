@@ -9,11 +9,7 @@ import { Role } from "./model/role";
 import { Shift } from "./model/shift";
 import { User } from "./model/user";
 import { Company } from "./model/company";
-import { getShift } from "./api-request/shift";
-import { getRole } from "./api-request/role";
-import { getDesignation } from "./api-request/designation";
-import { getDepartment } from "./api-request/department";
-
+import { Area } from "./model/area";
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
     // Department
@@ -57,4 +53,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createCompany: (company: Company) => ipcRenderer.invoke('request:createCompany', company),
     updateCompany: (company: Company) => ipcRenderer.invoke('request:updateCompany', company),
     deleteCompany: (id: Company) => ipcRenderer.invoke('request:deleteCompany', id),
+    // Area
+    getAreas: () => ipcRenderer.invoke('request:getAreas'),
+    getArea: (id: number) => ipcRenderer.invoke('request:getArea', id),
+    createArea: (area: Area) => ipcRenderer.invoke('request:createArea', area),
+    updateArea: (area: Area) => ipcRenderer.invoke('request:updateArea', area),
+    deleteArea: (id: number) => ipcRenderer.invoke('request:deleteArea', id),
+
+
 });
