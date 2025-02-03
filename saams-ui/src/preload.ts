@@ -9,10 +9,7 @@ import { Role } from "./model/role";
 import { Shift } from "./model/shift";
 import { User } from "./model/user";
 import { Company } from "./model/company";
-import { getShift } from "./api-request/shift";
-import { getRole } from "./api-request/role";
-import { getDesignation } from "./api-request/designation";
-import { getDepartment } from "./api-request/department";
+import { RolePrivilege } from "./model/role-privilege";
 
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
@@ -57,4 +54,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createCompany: (company: Company) => ipcRenderer.invoke('request:createCompany', company),
     updateCompany: (company: Company) => ipcRenderer.invoke('request:updateCompany', company),
     deleteCompany: (id: Company) => ipcRenderer.invoke('request:deleteCompany', id),
+    // RolePrivileges
+    getRolePrivileges: () => ipcRenderer.invoke('request:getRolePrivileges'),
+    createRolePrivilege: (rolePrivilege: RolePrivilege) => ipcRenderer.invoke('request:createRolePrivilege', rolePrivilege),
+    updateRolePrivilege: (rolePrivilege: RolePrivilege) => ipcRenderer.invoke('request:updateRolePrivilege', rolePrivilege),
+    deleteRolePrivilege: (id: number) => ipcRenderer.invoke('request:deleteRolePrivilege', id),
 });

@@ -14,7 +14,6 @@ import { STRINGS } from '../constants';
 import { InputLabel, MenuItem, Select } from '@mui/material';
 import { LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import dayjs, { Dayjs } from 'dayjs';
 
 let selectedRows: Shift[] = [];
