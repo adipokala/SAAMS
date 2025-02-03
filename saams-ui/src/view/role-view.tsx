@@ -14,10 +14,13 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { Role, RoleResponse } from '../model/role';
 import { Privilege } from '../model/privilege';
+import { Privilege } from '../model/privilege';
 import { STRINGS } from '../constants';
 import { RolePrivilege } from '../model/role-privilege';
 
 let selectedRows: Role[] = [];
+
+
 
 export default function RoleView() {
   const [rows, setRows] = React.useState<Role[]>([]);
@@ -38,51 +41,63 @@ export default function RoleView() {
     { field: 'code', headerName: 'Code', width: 110 },
   ];
 
-  const handleRefreshButtonClick = React.useCallback(async () => {
+  const handleRefreshButtonClick = async () => {
     const response = await window.electronAPI.getRoles();
     if (!response.status) {
-      showMessage('Error', 'Error fetching data');
-    } else {
-      setRows(response.roles);
+      setMessageTitle("Error");
+      setMessageContent("Error fetching data");
+      setMessageModal(true);
     }
-  }, []);
+    setRows(response.roles);
+  };
 
-  const fetchPrivileges = React.useCallback(async () => {
+  const fetchPrivileges = async () => {
     const response = await window.electronAPI.getPrivileges();
     if (response.status) {
       setPrivileges(response.privileges);
     }
-  }, []);
+  };
 
+  const handleAddButtonClick = async () => {
+    setSelectedPrivileges([]);
+    await fetchPrivileges();
   const handleAddButtonClick = async () => {
     setSelectedPrivileges([]);
     await fetchPrivileges();
     setAddModal(true);
   };
+  };
 
   const handleUpdateButtonClick = async () => {
     if (selectedRows.length !== 1) {
-      showMessage('Update Role', selectedRows.length === 0 ? 'Select an item to edit.' : 'Select only one item to edit.');
+      setMessageTitle("Update Role");
+      setMessageContent(selectedRows.length === 0 ? "Select an item to edit." : "Select only one item to edit.");
+      setMessageModal(true);
     } else {
       await fetchPrivileges();
       const response = await window.electronAPI.getRolePrivileges();
       if (response.status) {
-        const rolePrivileges = response.rolePrivileges.filter(rp => rp.roleId === selectedRows[0].id);
-        setSelectedPrivileges(rolePrivileges.map(rp => rp.privilegeId));
+        const rolePrivileges = response.rolePrivileges.filter(rp => rp.userRoleId === selectedRows[0].id);
+        setSelectedPrivileges(rolePrivileges.map(rp => rp.userPrivilegeId));
       }
       setUpdateModal(true);
     }
   };
+  };
 
   const handleDeleteButtonClick = async () => {
     if (selectedRows.length === 0) {
-      showMessage('Delete Role', 'Select an item to delete.');
+      setMessageTitle("Delete Role");
+      setMessageContent("Select an item to delete.");
+      setMessageModal(true);
     } else {
+      for (const element of selectedRows) {
       for (const element of selectedRows) {
         const resp = await window.electronAPI.deleteRole(element.id);
         if (!resp) {
           showMessage('Delete Role', `Failed to delete item with ID ${element.id}`);
         }
+      }
       }
       handleRefreshButtonClick();
     }
@@ -93,60 +108,84 @@ export default function RoleView() {
     const formData = new FormData(event.currentTarget);
     const formJson = Object.fromEntries(formData.entries());
 
-    const updatedRole: Role = {
+    let updatedRole: Role = {
       id: selectedRows[0].id,
       name: formJson.name as string,
       code: formJson.code as string,
     };
 
     const updateResp = await window.electronAPI.updateRole(updatedRole);
+
+
     if (!updateResp.status) {
-      showMessage('Error', updateResp.message);
+      setMessageTitle("Error");
+      setMessageContent(updateResp.message);
+      setMessageModal(true);
       return;
     }
 
-    await updateRolePrivileges(updatedRole.id);
-    showMessage('Success', 'Role updated successfully.');
-    handleRefreshButtonClick();
-    handleClose();
-  };
-
-  const updateRolePrivileges = async (roleId: number) => {
+    // Fetch existing role-privilege associations
     const rolePrivilegesResp = await window.electronAPI.getRolePrivileges();
     if (!rolePrivilegesResp.status) return;
 
     const existingRolePrivileges = rolePrivilegesResp.rolePrivileges
-      .filter(rp => rp.roleId === roleId)
-      .map(rp => rp.privilegeId);
+      .filter(rp => rp.userRoleId === updatedRole.id)
+      .map(rp => rp.userPrivilegeId);
 
+    // Determine which privileges to add or remove
     const privilegesToAdd = selectedPrivileges.filter(id => !existingRolePrivileges.includes(id));
     const privilegesToRemove = existingRolePrivileges.filter(id => !selectedPrivileges.includes(id));
 
-    await Promise.all(privilegesToRemove.map(privilegeId => window.electronAPI.deleteRolePrivilege(privilegeId)));
-    await Promise.all(privilegesToAdd.map(privilegeId => window.electronAPI.createRolePrivilege({ roleId, privilegeId })));
+    // Remove unselected privileges
+    for (const privilegeId of privilegesToRemove) {
+      await window.electronAPI.deleteRolePrivilege(privilegeId);
+    }
+
+     // Add new privileges
+    for (const privilegeId of privilegesToAdd) {
+      await window.electronAPI.createRolePrivilege({
+        userRoleId: updatedRole.id,
+        userPrivilegeId: privilegeId,
+      });
+    }
+    setMessageTitle("Success");
+    setMessageContent("Role updated successfully.");
+    setMessageModal(true);
+    handleRefreshButtonClick();
+    handleClose();
   };
 
-  const handleShowPrivileges = async () => {
+  const handleDeleteRole = async () => {
     if (selectedRows.length === 0) {
-      showMessage('Show Privileges', 'Select a role to show privileges.');
+      setMessageTitle("Delete Role");
+      setMessageContent("Select a role to delete.");
+      setMessageModal(true);
       return;
     }
-    const roleId = selectedRows[0].id;
-    await fetchPrivileges();
-    const response = await window.electronAPI.getRolePrivileges();
-    if (response.status) {
-      const rolePrivileges = response.rolePrivileges.filter(rp => rp.roleId === roleId);
-      const privilegesList = privileges.filter(privilege => rolePrivileges.some(rp => rp.privilegeId === privilege.id));
-      setPrivilegesModal(true);
-      setSelectedRolePrivileges(privilegesList);
-      console.log(selectedRolePrivileges);
-    }
-  };
 
-  const showMessage = (title: string, content: string) => {
-    setMessageTitle(title);
-    setMessageContent(content);
+    for (const role of selectedRows) {
+      // Fetch role privileges and delete associations
+      const rolePrivilegesResp = await window.electronAPI.getRolePrivileges();
+      if (rolePrivilegesResp.status) {
+        const rolePrivileges = rolePrivilegesResp.rolePrivileges.filter(rp => rp.userRoleId === role.id);
+        for (const rp of rolePrivileges) {
+          await window.electronAPI.deleteRolePrivilege(rp.id);
+        }
+      }
+
+      // Delete the role
+      const roleResp = await window.electronAPI.deleteRole(role.id);
+      if (!roleResp.status) {
+        setMessageTitle("Error");
+        setMessageContent(`Failed to delete role ID ${role.id}`);
+        setMessageModal(true);
+      }
+    }
+
+    setMessageTitle("Success");
+    setMessageContent("Role(s) deleted successfully.");
     setMessageModal(true);
+    handleRefreshButtonClick();
   };
 
   const handleClose = () => {
@@ -194,27 +233,50 @@ export default function RoleView() {
             event.preventDefault();
             const formData = new FormData(event.currentTarget);
             const formJson = Object.fromEntries(formData.entries());
-            const role: Role = {
+            let role: Role = {
               name: formJson.name as string,
               code: formJson.code as string,
             };
             const resp = await window.electronAPI.createRole(role);
             if (resp.status) {
-              await Promise.all(selectedPrivileges.map(privilegeId => {
-                const rolePrivilege: RolePrivilege = { roleId: resp.role.id, privilegeId };
-                return window.electronAPI.createRolePrivilege(rolePrivilege);
-              }));
-              showMessage("Success", "Role created successfully.");
+              selectedPrivileges.forEach(async (privilegeId) => {
+                console.log(privilegeId +" "+ resp.role.id);
+                let rolePrivilege : RolePrivilege = {
+                  userRoleId: resp.role.id,
+                  userPrivilegeId: privilegeId,
+                };
+                await window.electronAPI.createRolePrivilege(rolePrivilege);
+              });
+              setMessageTitle("Success");
+              setMessageContent("Role created successfully.");
               handleRefreshButtonClick();
             } else {
-              showMessage("Error", resp.message);
+              setMessageTitle("Error");
+              setMessageContent(resp.message);
             }
+            setMessageModal(true);
             handleClose();
           },
         }}
       >
+
         <DialogTitle>Add Role</DialogTitle>
         <DialogContent>
+          <TextField autoFocus required margin="dense" name="name" label="Role Name" fullWidth variant="standard" />
+          <TextField required margin="dense" name="code" label="Role Code" fullWidth variant="standard" />
+          <FormGroup>
+            {privileges.map((privilege) => (
+              <FormControlLabel
+                key={privilege.id}
+                control={<Checkbox checked={selectedPrivileges.includes(privilege.id)} onChange={(e) => {
+                  setSelectedPrivileges(e.target.checked
+                    ? [...selectedPrivileges, privilege.id]
+                    : selectedPrivileges.filter(id => id !== privilege.id));
+                }} />}
+                label={privilege.name}
+              />
+            ))}
+          </FormGroup>
           <TextField autoFocus required margin="dense" name="name" label="Role Name" fullWidth variant="standard" />
           <TextField required margin="dense" name="code" label="Role Code" fullWidth variant="standard" />
           <FormGroup>
@@ -237,16 +299,17 @@ export default function RoleView() {
         </DialogActions>
       </Dialog>
 
-      {/* Update Role Modal */}
       <Dialog
         open={updateModal}
         onClose={handleClose}
+        PaperProps={{ component: 'form', onSubmit: handleUpdateRole }}
         PaperProps={{ component: 'form', onSubmit: handleUpdateRole }}
       >
         <DialogTitle>Update Role</DialogTitle>
         <DialogContent>
           <TextField autoFocus required margin="dense" name="name" label="Role Name" fullWidth variant="standard" defaultValue={selectedRows[0]?.name} />
           <TextField required margin="dense" name="code" label="Role Code" fullWidth variant="standard" defaultValue={selectedRows[0]?.code} />
+
           <FormGroup>
             {privileges.map((privilege) => (
               <FormControlLabel
@@ -289,7 +352,10 @@ export default function RoleView() {
       {/* Message Dialog */}
       <Dialog open={messageModal} onClose={handleClose}>
         <DialogTitle>{messageTitle}</DialogTitle>
+      <Dialog open={messageModal} onClose={handleClose}>
+        <DialogTitle>{messageTitle}</DialogTitle>
         <DialogContent>
+          <DialogContentText>{messageContent}</DialogContentText>
           <DialogContentText>{messageContent}</DialogContentText>
         </DialogContent>
         <DialogActions>

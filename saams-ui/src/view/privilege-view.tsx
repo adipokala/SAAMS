@@ -9,7 +9,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Refresh, Add, Delete, Update } from '@mui/icons-material';
-import { Privilege, PrivilegeResponse } from '../model/privilege';
+import { Privilege } from '../model/privilege';
 import { STRINGS } from '../constants';
 
 let selectedRows: Privilege[] = [];
