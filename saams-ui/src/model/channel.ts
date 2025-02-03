@@ -1,16 +1,22 @@
 import { Base } from "./base";
 import Response from "./response";
 
-export interface Channel extends Base {
-    name: string; // Name of the channel
-    type: string; // Type of the channel (e.g., "email", "sms", etc.)
-    value: string; // Value associated with the channel (e.g., email address, phone number)
-    LTS: boolean; // Long-Term Support flag (true/false)
-    created_at: string; // Timestamp when the channel was created
-    updated_at: string; // Timestamp when the channel was last updated
+// channel.ts
+export interface Channel {
+    id: number;          // Unique ID
+    name: string;        // Channel Name
+    description: string; // Channel Description
+    code: string;        // Unique Code
+    type: string;        // Channel Type (TCPIP/Serial)
+    value: string;       // Value (IP:Port for TCPIP, COM Port for Serial)
+    LTS: boolean;        // Long-Term Support flag
+    created_at: string;  // Timestamp when created
+    updated_at: string;  // Timestamp when updated
 }
 
-export interface ChannelResponse extends Response {
-    channels: Channel[]; // List of channels (for responses that return multiple channels)
-    channel: Channel; // Single channel (for responses that return a single channel)
+export interface ChannelResponse {
+    channels: Channel[]; // List of channels (for fetching multiple)
+    channel: Channel;    // Single channel (for fetching one)
+    message?: string;    // Optional success/error message
+    status?: boolean;    // API response status
 }
