@@ -30,6 +30,7 @@ import AreaView from "./area-view";
 import UserReportView from "./user-report-view";
 import ReaderView from "./reader-view";
 import LeaveView from "./leave-view";
+import ChannelView from "./channel-view";
 
 interface DashboardViewProps {
   handleLogout: any;
@@ -97,7 +98,8 @@ const switchView = (key: string): React.JSX.Element => {
       return <ReaderView />;
     case 'Leave':
       return <LeaveView />;
-
+    case 'Channel':
+      return <ChannelView />;
     default:
       return <HomeView />;
   }

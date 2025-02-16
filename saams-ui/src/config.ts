@@ -10,7 +10,7 @@ export const API_CONFIG = {
 
 export const API_ENDPOINTS = {
     login: '/api/auth/login',
-    Password: '/api/auth/password',
+    password: '/api/auth/password',
     company: '/api/company',
     department: '/api/department',
     designation: '/api/designation',
@@ -21,4 +21,5 @@ export const API_ENDPOINTS = {
     user: '/api/user',
     area: '/api/area',
     reader: '/api/reader',
+    channel: '/api/channel',
 }
