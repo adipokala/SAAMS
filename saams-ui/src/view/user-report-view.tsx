@@ -20,6 +20,7 @@ export default function UserReportView() {
   const [companyNames, setCompanyNames] = useState<Record<number, string>>({});
   const [shiftNames, setShiftNames] = useState<Record<number, string>>({});
   const [designationNames, setDesignationNames] = useState<Record<number, string>>({});
+  const [rolePrivileges, setRolePrivileges] = useState<Record<number, string[]>>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [errorDialog, setErrorDialog] = useState<{ open: boolean; title: string; message: string }>({
     open: false,
@@ -95,7 +96,36 @@ export default function UserReportView() {
       return 'Unknown Designation';
     }
   }
-  // updated code
+
+  // Fetch role privileges for a given role ID using IPC
+  const fetchRolePrivileges = async (roleId: number) => {
+    try {
+      // Fetch all role privileges
+      const response = await window.electronAPI.getRolePrivileges();
+      if (response.status && response.rolePrivileges) {
+        // Filter privileges for the current roleId
+        const filteredPrivileges = response.rolePrivileges.filter(rp => rp.roleId === roleId);
+
+        // Extract unique privilege IDs to minimize API calls
+        const privilegeIds = [...new Set(filteredPrivileges.map(rp => rp.privilegeId))];
+
+        // Fetch all relevant privileges
+        const privilegeNames = await Promise.all(
+          privilegeIds.map(async (id) => {
+            const privilegeResponse = await window.electronAPI.getPrivilege(id);
+            return privilegeResponse?.privilege?.name || 'Unknown Privilege';
+          })
+        );
+
+        return privilegeNames;
+      }
+      return [];
+    } catch (error) {
+      console.error(`Error fetching role privileges for role ID ${roleId}:`, error);
+      return [];
+    }
+  };
+
   // Load role names, department names, and company names for all users
   const loadRoleAndDepartmentNames = async () => {
     const roleMap: Record<number, string> = {};
@@ -103,6 +133,7 @@ export default function UserReportView() {
     const companyMap: Record<number, string> = {};
     const shiftMap: Record<number, string> = {};
     const designationMap: Record<number, string> = {};
+    const rolePrivilegesMap: Record<number, string[]> = {};
 
     for (const user of users) {
       if (!roleMap[user.roleId]) {
@@ -125,6 +156,10 @@ export default function UserReportView() {
         const designationName = await fetchDesignationName(user.designationId);
         designationMap[user.designationId] = designationName;
       }
+      if (!rolePrivilegesMap[user.roleId]) {
+        const privileges = await fetchRolePrivileges(user.roleId);
+        rolePrivilegesMap[user.roleId] = privileges;
+      }      
     }
 
     setRoleNames(roleMap);
@@ -132,6 +167,7 @@ export default function UserReportView() {
     setCompanyNames(companyMap);
     setShiftNames(shiftMap);
     setDesignationNames(designationMap);
+    setRolePrivileges(rolePrivilegesMap);
   };
 
   // Export user to PDF
@@ -147,6 +183,7 @@ export default function UserReportView() {
     const companyName = companyNames[user.companyId] || (await fetchCompanyName(user.companyId));
     const shiftName = shiftNames[user.shiftId] || (await fetchShiftName(user.shiftId));
     const designationName = designationNames[user.designationId] || (await fetchDesignationName(user.designationId));
+    const privileges = rolePrivileges[user.roleId] || (await fetchRolePrivileges(user.roleId));
 
     const doc = new jsPDF();
     const userText = `
@@ -164,6 +201,7 @@ export default function UserReportView() {
       Shift Name: ${shiftName}
       Date of Birth: ${user.dateOfBirth}
       Date of Joining: ${user.dateOfJoining}
+      Privileges: ${privileges.join(', ')}
     `;
     doc.text(userText, 10, 10);
     doc.save(`${user.firstName}-${user.lastName}-report.pdf`);
@@ -219,6 +257,7 @@ export default function UserReportView() {
               const companyName = companyNames[user.companyId] || 'Loading...';
               const shiftName = shiftNames[user.shiftId] || 'Loading...';
               const designationName = designationNames[user.designationId] || 'Loading...';
+              const privileges = rolePrivileges[user.roleId] || [];
               return (
                 <Stack spacing={1}>
                   <Typography>ID: {user.id}</Typography>
@@ -234,6 +273,7 @@ export default function UserReportView() {
                   <Typography>Shift Name: {shiftName}</Typography>
                   <Typography>Date of Birth: {user.dateOfBirth}</Typography>
                   <Typography>Date of Joining: {user.dateOfJoining}</Typography>
+                  <Typography>Privileges: {privileges.length > 0 ? privileges.join(', ') : 'None'}</Typography>
                 </Stack>
               );
             })()}
