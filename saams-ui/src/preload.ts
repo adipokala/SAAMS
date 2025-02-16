@@ -10,6 +10,7 @@ import { Shift } from "./model/shift";
 import { User } from "./model/user";
 import { Company } from "./model/company";
 import { Area } from "./model/area";
+import { Reader } from "./model/reader";
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
     // Department
@@ -59,6 +60,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createArea: (area: Area) => ipcRenderer.invoke('request:createArea', area),
     updateArea: (area: Area) => ipcRenderer.invoke('request:updateArea', area),
     deleteArea: (id: number) => ipcRenderer.invoke('request:deleteArea', id),
+    // Reader
+    getReaders: () => ipcRenderer.invoke('request:getReaders'),
+    getReader: (id: number) => ipcRenderer.invoke('request:getReader', id),
+    createReader: (reader: Reader) => ipcRenderer.invoke('request:createReader', reader),
+    updateReader: (reader: Reader) => ipcRenderer.invoke('request:updateReader', reader),
+    deleteReader: (id: number) => ipcRenderer.invoke('request:deleteReader', id),
+
 
 
 });
