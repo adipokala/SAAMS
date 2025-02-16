@@ -15,8 +15,8 @@ export const getReaders = async () => {
         });
 
         request.on('response', (response) => {
-            let responseData = '';
-
+            let responseData = ''
+                ;
             response.on('data', (chunk) => {
                 responseData += chunk;
             });

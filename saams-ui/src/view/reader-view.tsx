@@ -11,12 +11,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { Refresh, Add, Delete, Update } from '@mui/icons-material';
 import { Reader } from '../model/reader';
 import { Checkbox, FormControlLabel, InputLabel, MenuItem, Select } from '@mui/material';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { STRINGS } from '../constants';
-import { DatePicker } from '@mui/x-date-pickers';
 import { Area } from '../model/area';
 //import { Channel } from '../model/channel';
 
@@ -28,6 +26,7 @@ const handleOnGet = async () => {
     const resp = await window.electronAPI.getReaders();
     return resp;
 };
+
 const getAll = async () => {
     // const resp = await window.electronAPI.getChannels();
     //if (resp.status) {
@@ -71,13 +70,6 @@ export default function ReaderView() {
         { field: 'areaId', headerName: 'Area ID', width: 100 },
     ];
 
-    const getDateDayjs = (hour: string, minute: string): Dayjs => {
-        const value = dayjs().hour(Number(hour)).minute(Number(minute));
-
-        return value;
-    }
-
-
     const handleRefreshButtonClick = async () => {
         const response = await handleOnGet();
         if (!response.status) {
@@ -88,43 +80,6 @@ export default function ReaderView() {
             setRows(response.readers);
         }
     }
-
-    const handleAddButtonClick = () => {
-        setAddModal(true);
-    };
-
-    const handleUpdateButtonClick = () => {
-        if (selectedRows.length > 1) {
-            setMessageTitle('Update Reader');
-            setMessageContent('Select only one item to edit.');
-            setMessageModal(true);
-        } else if (selectedRows.length === 0) {
-            setMessageTitle('Update Reader');
-            setMessageContent('Select an item to edit.');
-            setMessageModal(true);
-        } else {
-            setUpdateModal(true);
-        }
-    };
-
-    const handleDeleteButtonClick = async () => {
-        if (selectedRows.length === 0) {
-            setMessageTitle('Delete Reader');
-            setMessageContent('Select an item to delete.');
-            setMessageModal(true);
-        } else {
-            selectedRows.forEach(async (element) => {
-                const resp = await window.electronAPI.deleteReader(element.id);
-                if (!resp) {
-                    setMessageTitle('Delete Reader');
-                    setMessageContent(`Failed to delete item with ID ${element.id}`);
-                    setMessageModal(true);
-                }
-            });
-            handleRefreshButtonClick();
-        }
-    }
-
     const handleClose = () => {
         setAddModal(false);
         setUpdateModal(false);
@@ -139,227 +94,234 @@ export default function ReaderView() {
     });
 
     return (
-        <Stack spacing={2} direction="column">
-            <Stack spacing={2} direction="row">
-                <Button variant="contained" onClick={handleRefreshButtonClick}>
-                    Refresh <Refresh />
-                </Button>
-                <Button variant="contained" onClick={handleAddButtonClick}>
-                    Add <Add />
-                </Button>
-                <Button variant="contained" onClick={handleUpdateButtonClick}>
-                    Modify <Update />
-                </Button>
-                <Button variant="contained" onClick={handleDeleteButtonClick}>
-                    Delete <Delete />
-                </Button>
-            </Stack>
-            <DataGrid
-                rows={rows}
-                columns={columns}
-                initialState={{
-                    pagination: {
-                        paginationModel: {
-                            pageSize: 5,
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Stack spacing={2} direction="column">
+                <Stack spacing={2} direction="row">
+                    <Button variant="contained" onClick={handleRefreshButtonClick}>
+                        Refresh <Refresh />
+                    </Button>
+                    <Button variant="contained" onClick={() => setAddModal(true)}>
+                        Add <Add />
+                    </Button>
+                    <Button variant="contained" onClick={() => {
+                        if (selectedRows.length === 1) {
+                            setUpdateModal(true);
+                        } else {
+                            setMessageTitle('Update Reader');
+                            setMessageContent('Select only one item to edit.');
+                            setMessageModal(true);
+                        }
+                    }}>
+                        Modify <Update />
+                    </Button>
+                    <Button variant="contained" onClick={async () => {
+                        if (selectedRows.length === 0) {
+                            setMessageTitle('Delete Reader');
+                            setMessageContent('Select an item to delete.');
+                            setMessageModal(true);
+                        } else {
+                            for (const element of selectedRows) {
+                                const resp = await window.electronAPI.deleteReader(element.id);
+                                if (!resp) {
+                                    setMessageTitle('Delete Reader');
+                                    setMessageContent(`Failed to delete item with ID ${element.id}`);
+                                    setMessageModal(true);
+                                }
+                            }
+                            handleRefreshButtonClick();
+                        }
+                    }}>
+                        Delete <Delete />
+                    </Button>
+                </Stack>
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    initialState={{
+                        pagination: {
+                            paginationModel: {
+                                pageSize: 5,
+                            },
                         },
-                    },
-                }}
-                pageSizeOptions={[5]}
-                checkboxSelection
-                disableRowSelectionOnClick
-                onRowSelectionModelChange={(ids) => {
-                    const selectedIds = new Set(ids);
-                    selectedRows = rows.filter((row) => selectedIds.has(row.id));
-                    console.log(selectedRows);
-                }}
-            />
+                    }}
+                    pageSizeOptions={[5]}
+                    checkboxSelection
+                    disableRowSelectionOnClick
+                    onRowSelectionModelChange={(ids) => {
+                        const selectedIds = new Set(ids);
+                        selectedRows = rows.filter((row) => selectedIds.has(row.id));
+                    }}
+                />
 
-            {/* Add Modal */}
-            <Dialog
-                open={addModal}
-                onClose={handleClose}
-                PaperProps={{
-                    component: 'form',
-                    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
-                        event.preventDefault();
-                        const formData = new FormData(event.currentTarget);
-                        const formJson = Object.fromEntries((formData as any).entries());
-                        if (/\s/.test(formJson.code)) {
-                            setMessageTitle("Error");
-                            setMessageContent("Code should not contain spaces");
-                            setMessageModal(true);
-                            return;
-                        }
-                        let reader: Reader = {
-                            name: formJson.name,
-                            code: formJson.code,
-                            serialNumber: formJson.serialNumber,
-                            installationDate: installationDate ? installationDate.format('YYYY-MM-DD') : '',
-                            isAttendanceReader: formJson.isAttendanceReader,
-                            status: formJson.status,
-                            adminPIN: formJson.adminPIN,
-                            dateValidation: formJson.dateValidation,
-                            antiPassback: formJson.antiPassback,
-                            biometrics: formJson.biometrics,
-                            sidControl: formJson.sidControl,
-                            doorMode: formJson.doorMode,
-                            type: formJson.type,
-                            accessControl: formJson.accessControl,
-                            switch: formJson.switch,
-                            display: formJson.display,
-                            unlockDuration: "0." + formJson.unlockDuration + ":00",
-                            doorOpenDuration: "0." + formJson.doorOpenDuration + ":00",
-                            displayDuration: "0." + formJson.displayDuration + ":00",
-                            transactionLog: formJson.transactionLog,
-                            channelId: formJson.channelId,
-                            areaId: formJson.areaId,
-                        };
-                        const resp = await window.electronAPI.createReader(reader);
-                        if (resp) {
-                            setMessageTitle("Success");
-                            setMessageContent(resp.message);
-                            setMessageModal(true);
-                            handleRefreshButtonClick();
-                        } else {
-                            setMessageTitle("Error");
-                            setMessageContent(resp.message);
-                            setMessageModal(true);
-                        }
+                {/* Add Modal */}
+                <Dialog
+                    open={addModal}
+                    onClose={handleClose}
+                    PaperProps={{
+                        component: 'form',
+                        onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+                            event.preventDefault();
+                            const formData = new FormData(event.currentTarget);
+                            const formJson = Object.fromEntries((formData as any).entries());
+                            let reader: Reader = {
+                                name: formJson.name,
+                                code: formJson.code,
+                                serialNumber: formJson.serialNumber,
+                                installationDate: installationDate ? installationDate.format('YYYY-MM-DD') : '',
+                                isAttendanceReader: formJson.isAttendanceReader,
+                                status: formJson.status,
+                                adminPIN: formJson.adminPIN,
+                                dateValidation: formJson.dateValidation,
+                                antiPassback: formJson.antiPassback,
+                                biometrics: formJson.biometrics,
+                                sidControl: formJson.sidControl,
+                                doorMode: formJson.doorMode,
+                                type: formJson.type,
+                                accessControl: formJson.accessControl,
+                                switch: formJson.switch,
+                                display: formJson.display,
+                                unlockDuration: "0." + formJson.unlockDuration + ":00",
+                                doorOpenDuration: "0." + formJson.doorOpenDuration + ":00",
+                                displayDuration: "0." + formJson.displayDuration + ":00",
+                                transactionLog: formJson.transactionLog,
+                                channelId: formJson.channelId,
+                                areaId: formJson.areaId,
+                            };
+                            const resp = await window.electronAPI.createReader(reader);
+                            if (resp) {
+                                setMessageTitle("Success");
+                                setMessageContent(resp.message);
+                                setMessageModal(true);
+                                handleRefreshButtonClick();
+                            } else {
+                                setMessageTitle("Error");
+                                setMessageContent(resp.message);
+                                setMessageModal(true);
+                            }
+                        },
+                    }}
+                >
+                    <DialogTitle>Add Reader</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>Fill in the reader details.</DialogContentText>
 
-                    },
-                }}
-            >
-                <DialogTitle>Add Reader</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>Fill in the reader details.</DialogContentText>
-
-                    <TextField
-                        autoFocus
-                        required
-                        margin="dense"
-                        id="name"
-                        name="name"
-                        label="Reader Name"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <TextField
-                        required
-                        margin="dense"
-                        id="code"
-                        name="code"
-                        label="Reader Code"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        inputProps={{ maxLength: 4, minLength: 2 }}
-                    />
-                    <TextField
-                        required
-                        margin="dense"
-                        id="serialNumber"
-                        name="serialNumber"
-                        label="Serial Number"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <DatePicker
-                        label="Installation Date"
-                        value={installationDate}
-                        onChange={(newValue) => setInstallationDate(newValue)}
-                        format="YYYY-MM-DD"
-                        sx={{ margin: 1 }}
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="isAttendanceReader" />}
-                        label="Is Attendance Reader"
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="status" />}
-                        label="Status"
-                    />
-                    <TextField
-                        margin="dense"
-                        id="adminPIN"
-                        name="adminPIN"
-                        label="Admin PIN"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="dateValidation" />}
-                        label="Date Validation"
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="antiPassback" />}
-                        label="Anti Passback"
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="biometrics" />}
-                        label="Biometrics"
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="sidControl" />}
-                        label="SID Control"
-                    />
-                    <TextField
-                        margin="dense"
-                        id="doorMode"
-                        name="doorMode"
-                        label="Door Mode"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <TextField
-                        margin="dense"
-                        id="type"
-                        name="type"
-                        label="Type"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <TextField
-                        margin="dense"
-                        id="type"
-                        name="type"
-                        label="Type"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <TextField
-                        margin="dense"
-                        id="accessControl"
-                        name="accessControl"
-                        label="Access Control"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <TextField
-                        margin="dense"
-                        id="switch"
-                        name="switch"
-                        label="Switch"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <TextField
-                        margin="dense"
-                        id="display"
-                        name="display"
-                        label="Display"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <TextField
+                            autoFocus
+                            required
+                            margin="dense"
+                            id="name"
+                            name="name"
+                            label="Reader Name"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            required
+                            margin="dense"
+                            id="code"
+                            name="code"
+                            label="Reader Code"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            inputProps={{ maxLength: 4, minLength: 2 }}
+                        />
+                        <TextField
+                            required
+                            margin="dense"
+                            id="serialNumber"
+                            name="serialNumber"
+                            label="Serial Number"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <DatePicker
+                            label="Installation Date"
+                            value={installationDate}
+                            onChange={(newValue) => setInstallationDate(newValue)}
+                            format="YYYY-MM-DD"
+                            sx={{ margin: 1 }}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="isAttendanceReader" />}
+                            label="Is Attendance Reader"
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="status" />}
+                            label="Status"
+                        />
+                        <TextField
+                            margin="dense"
+                            id="adminPIN"
+                            name="adminPIN"
+                            label="Admin PIN"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="dateValidation" />}
+                            label="Date Validation"
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="antiPassback" />}
+                            label="Anti Passback"
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="biometrics" />}
+                            label="Biometrics"
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="sidControl" />}
+                            label="SID Control"
+                        />
+                        <TextField
+                            margin="dense"
+                            id="doorMode"
+                            name="doorMode"
+                            label="Door Mode"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            margin="dense"
+                            id="type"
+                            name="type"
+                            label="Type"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            margin="dense"
+                            id="accessControl"
+                            name="accessControl"
+                            label="Access Control"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            margin="dense"
+                            id="switch"
+                            name="switch"
+                            label="Switch"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            margin="dense"
+                            id="display"
+                            name="display"
+                            label="Display"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
                         <TimePicker
                             label="Unlock Duration"
                             name="unlockDuration"
@@ -378,314 +340,287 @@ export default function ReaderView() {
                             ampm={false}
                             sx={{ margin: 1 }}
                         />
-
-                    </LocalizationProvider>
-
-                    <TextField
-                        margin="dense"
-                        id="transactionLog"
-                        name="transactionLog"
-                        label="Transaction Log"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    {/* <InputLabel id="channelLabel">Channel ID</InputLabel>
-                    <Select
-                        labelId="channelLabel"
-                        id="channelId"
-                        name="channelId"
-                        fullWidth
-                    >
-                        {channels.map((element) => (
-                            <MenuItem key={element.id} value={element.id}>
-                                {element.name}
-                            </MenuItem>
-                        ))}
-                    </Select> */}
-
-                    <InputLabel id="areaLabel">Area ID</InputLabel>
-                    <Select
-                        labelId="areaLabel"
-                        id="areaId"
-                        name="areaId"
-                        fullWidth
-                    >
-                        {areas.map((element) => (
-                            <MenuItem key={element.id} value={element.id}>
-                                {element.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>{STRINGS.cancel} </Button>
-                    <Button type="submit">{STRINGS.add}</Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Update Modal */}
-            <Dialog
-                open={updateModal}
-                onClose={handleClose}
-                PaperProps={{
-                    component: 'form',
-                    onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
-                        event.preventDefault();
-                        const formData = new FormData(event.currentTarget);
-                        const formJson = Object.fromEntries((formData as any).entries());
-                        if (/\s/.test(formJson.code)) {
-                            setMessageTitle("Error");
-                            setMessageContent("Code should not contain spaces");
-                            setMessageModal(true);
-                            return;
-                        }
-                        let reader: Reader = {
-                            name: formJson.name,
-                            code: formJson.code,
-                            serialNumber: formJson.serialNumber,
-                            installationDate: '',
-                            isAttendanceReader: formJson.isAttendanceReader,
-                            status: formJson.status,
-                            adminPIN: formJson.adminPIN,
-                            dateValidation: formJson.dateValidation,
-                            antiPassback: formJson.antiPassback,
-                            biometrics: formJson.biometrics,
-                            sidControl: formJson.sidControl,
-                            doorMode: formJson.doorMode,
-                            type: formJson.type,
-                            accessControl: formJson.accessControl,
-                            switch: formJson.switch,
-                            display: formJson.display,
-                            unlockDuration: "0." + formJson.unlockDuration + ":00",
-                            doorOpenDuration: "0." + formJson.doorOpenDuration + ":00",
-                            displayDuration: "0." + formJson.displayDuration + ":00",
-                            transactionLog: formJson.transactionLog,
-                            channelId: formJson.channelId,
-                            areaId: formJson.areaId,
-                        };
-                        const resp = await window.electronAPI.createReader(reader);
-                        if (resp) {
-                            setMessageTitle("Success");
-                            setMessageContent(resp.message);
-                            setMessageModal(true);
-                            handleRefreshButtonClick();
-                        } else {
-                            setMessageTitle("Error");
-                            setMessageContent(resp.message);
-                            setMessageModal(true);
-                        }
-
-                    },
-                }}
-            >
-                <DialogTitle>Update Reader</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>Update Reader.</DialogContentText>
-
-                    <TextField
-                        autoFocus
-                        required
-                        margin="dense"
-                        id="name"
-                        name="name"
-                        label="Reader Name"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={selectedRows[0] == undefined ? "" : selectedRows[0].name}
-                    />
-                    <TextField
-                        required
-                        margin="dense"
-                        id="code"
-                        name="code"
-                        label="Reader Code"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={selectedRows[0] == undefined ? "" : selectedRows[0].code}
-                        inputProps={{ maxLength: 4, minLength: 2 }}
-                    />
-                    <TextField
-                        required
-                        margin="dense"
-                        id="serialNumber"
-                        name="serialNumber"
-                        label="Serial Number"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={selectedRows[0] == undefined ? "" : selectedRows[0].serialNumber}
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="isAttendanceReader" />}
-                        label="Is Attendance Reader"
-                        defaultChecked={selectedRows[0] == undefined ? false : selectedRows[0].isAttendanceReader}
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="status" />}
-                        label="Status"
-                        defaultChecked={selectedRows[0] == undefined ? false : selectedRows[0].status}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="adminPIN"
-                        name="adminPIN"
-                        label="Admin PIN"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={selectedRows[0] == undefined ? "" : selectedRows[0].adminPIN}
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="dateValidation" />}
-                        label="Date Validation"
-                        defaultChecked={selectedRows[0] == undefined ? false : selectedRows[0].dateValidation}
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="antiPassback" />}
-                        label="Anti Passback"
-                        defaultChecked={selectedRows[0] == undefined ? false : selectedRows[0].antiPassback}
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="biometrics" />}
-                        label="Biometrics"
-                        defaultChecked={selectedRows[0] == undefined ? false : selectedRows[0].biometrics}
-                    />
-                    <FormControlLabel
-                        control={<Checkbox name="sidControl" />}
-                        label="SID Control"
-                        defaultChecked={selectedRows[0] == undefined ? false : selectedRows[0].sidControl}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="doorMode"
-                        name="doorMode"
-                        label="Door Mode"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={selectedRows[0] == undefined ? "" : selectedRows[0].doorMode}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="type"
-                        name="type"
-                        label="Type"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={selectedRows[0] == undefined ? "" : selectedRows[0].type}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="accessControl"
-                        name="accessControl"
-                        label="Access Control"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={selectedRows[0] == undefined ? "" : selectedRows[0].accessControl}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="switch"
-                        name="switch"
-                        label="Switch"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={selectedRows[0] == undefined ? "" : selectedRows[0].switch}
-                    />
-                    <TextField
-                        margin="dense"
-                        id="display"
-                        name="display"
-                        label="Display"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                        defaultValue={selectedRows[0] == undefined ? "" : selectedRows[0].display}
-                    />
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <TimePicker
-                            label="Unlock Duration"
-                            name="unlockDuration"
-                            ampm={false}
-                            sx={{
-                                margin: 1
-                            }}
+                        <TextField
+                            margin="dense"
+                            id="transactionLog"
+                            name="transactionLog"
+                            label="Transaction Log"
+                            type="text"
+                            fullWidth
+                            variant="standard"
                         />
-                        <TimePicker
-                            label="Door Open Duration"
-                            name="doorOpenDuration"
-                            ampm={false}
-                            sx={{ margin: 1 }}
+                        <InputLabel id="areaLabel">Area ID</InputLabel>
+                        <Select
+                            labelId="areaLabel"
+                            id="areaId"
+                            name="areaId"
+                            fullWidth
+                        >
+                            {areas.map((element) => (
+                                <MenuItem key={element.id} value={element.id}>
+                                    {element.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+                        <Button type="submit">{STRINGS.add}</Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* Update Modal */}
+                <Dialog
+                    open={updateModal}
+                    onClose={handleClose}
+                    PaperProps={{
+                        component: 'form',
+                        onSubmit: async (event: React.FormEvent<HTMLFormElement>) => {
+                            event.preventDefault();
+                            const formData = new FormData(event.currentTarget);
+                            const formJson = Object.fromEntries((formData as any).entries());
+                            let reader: Reader = {
+                                id: selectedRows[0].id, // Assuming you have an ID to update
+                                name: formJson.name,
+                                code: formJson.code,
+                                serialNumber: formJson.serialNumber,
+                                installationDate: '',
+                                isAttendanceReader: formJson.isAttendanceReader,
+                                status: formJson.status,
+                                adminPIN: formJson.adminPIN,
+                                dateValidation: formJson.dateValidation,
+                                antiPassback: formJson.antiPassback,
+                                biometrics: formJson.biometrics,
+                                sidControl: formJson.sidControl,
+                                doorMode: formJson.doorMode,
+                                type: formJson.type,
+                                accessControl: formJson.accessControl,
+                                switch: formJson.switch,
+                                display: formJson.display,
+                                unlockDuration: "0." + formJson.unlockDuration + ":00",
+                                doorOpenDuration: "0." + formJson.doorOpenDuration + ":00",
+                                displayDuration: "0." + formJson.displayDuration + ":00",
+                                transactionLog: formJson.transactionLog,
+                                channelId: formJson.channelId,
+                                areaId: formJson.areaId,
+                            };
+                            const resp = await window.electronAPI.updateReader(reader);
+                            if (resp) {
+                                setMessageTitle("Success");
+                                setMessageContent(resp.message);
+                                setMessageModal(true);
+                                handleRefreshButtonClick();
+                            } else {
+                                setMessageTitle("Error");
+                                setMessageContent(resp.message);
+                                setMessageModal(true);
+                            }
+                        },
+                    }}
+                >
+                    <DialogTitle>Update Reader</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>Update Reader.</DialogContentText>
+                        <TextField
+                            autoFocus
+                            required
+                            margin="dense"
+                            id="name"
+                            name="name"
+                            label="Reader Name"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedRows[0]?.name || ""}
                         />
-                        <TimePicker
-                            label="Display Duration"
-                            name="displayDuration"
-                            ampm={false}
-                            sx={{ margin: 1 }}
+                        <TextField
+                            required
+                            margin="dense"
+                            id="code"
+                            name="code"
+                            label="Reader Code"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedRows[0]?.code || ""}
+                            inputProps={{ maxLength: 4, minLength: 2 }}
                         />
-                    </LocalizationProvider>
+                        <TextField
+                            required
+                            margin="dense"
+                            id="serialNumber"
+                            name="serialNumber"
+                            label="Serial Number"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedRows[0]?.serialNumber || ""}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="isAttendanceReader" />}
+                            label="Is Attendance Reader"
+                            defaultChecked={selectedRows[0]?.isAttendanceReader || false}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="status" />}
+                            label="Status"
+                            defaultChecked={selectedRows[0]?.status || false}
+                        />
+                        <TextField
+                            margin="dense"
+                            id="adminPIN"
+                            name="adminPIN"
+                            label="Admin PIN"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedRows[0]?.adminPIN || ""}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="dateValidation" />}
+                            label="Date Validation"
+                            defaultChecked={selectedRows[0]?.dateValidation || false}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="antiPassback" />}
+                            label="Anti Passback"
+                            defaultChecked={selectedRows[0]?.antiPassback || false}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="biometrics" />}
+                            label="Biometrics"
+                            defaultChecked={selectedRows[0]?.biometrics || false}
+                        />
+                        <FormControlLabel
+                            control={<Checkbox name="sidControl" />}
+                            label="SID Control"
+                            defaultChecked={selectedRows[0]?.sidControl || false}
+                        />
+                        <TextField
+                            margin="dense"
+                            id="doorMode"
+                            name="doorMode"
+                            label="Door Mode"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedRows[0]?.doorMode || ""}
+                        />
+                        <TextField
+                            margin="dense"
+                            id="type"
+                            name="type"
+                            label="Type"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedRows[0]?.type || ""}
+                        />
+                        <TextField
+                            margin="dense"
+                            id="accessControl"
+                            name="accessControl"
+                            label="Access Control"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedRows[0]?.accessControl || ""}
+                        />
+                        <TextField
+                            margin="dense"
+                            id="switch"
+                            name="switch"
+                            label="Switch"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedRows[0]?.switch || ""}
+                        />
+                        <TextField
+                            margin="dense"
+                            id="display"
+                            name="display"
+                            label="Display"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                            defaultValue={selectedRows[0]?.display || ""}
+                        />
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimePicker
+                                label="Unlock Duration"
+                                name="unlockDuration"
+                                ampm={false}
+                                sx={{ margin: 1 }}
+                            />
+                            <TimePicker
+                                label="Door Open Duration"
+                                name="doorOpenDuration"
+                                ampm={false}
+                                sx={{ margin: 1 }}
+                            />
+                            <TimePicker
+                                label="Display Duration"
+                                name="displayDuration"
+                                ampm={false}
+                                sx={{ margin: 1 }}
+                            />
+                        </LocalizationProvider>
 
-                    <TextField
-                        margin="dense"
-                        id="transactionLog"
-                        name="transactionLog"
-                        label="Transaction Log"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <TextField
-                        margin="dense"
-                        id="channelId"
-                        name="channelId"
-                        label="Channel ID"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                    <TextField
-                        margin="dense"
-                        id="areaId"
-                        name="areaId"
-                        label="Area ID"
-                        type="text"
-                        fullWidth
-                        variant="standard"
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>{STRINGS.cancel} </Button>
-                    <Button type="submit">{STRINGS.add}</Button>
-                </DialogActions>
-            </Dialog>
+                        <TextField
+                            margin="dense"
+                            id="transactionLog"
+                            name="transactionLog"
+                            label="Transaction Log"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            margin="dense"
+                            id="channelId"
+                            name="channelId"
+                            label="Channel ID"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                        <TextField
+                            margin="dense"
+                            id="areaId"
+                            name="areaId"
+                            label="Area ID"
+                            type="text"
+                            fullWidth
+                            variant="standard"
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+                        <Button type="submit">{STRINGS.update}</Button>
+                    </DialogActions>
+                </Dialog>
 
-
-            {/* Message Dialog */}
-            <Dialog
-                open={messageModal}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">
-                    {messageTitle}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        {messageContent}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>{STRINGS.ok}</Button>
-                </DialogActions>
-            </Dialog>
-        </Stack>
+                {/* Message Dialog */}
+                <Dialog
+                    open={messageModal}
+                    onClose={handleClose}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="alert-dialog-title">
+                        {messageTitle}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            {messageContent}
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleClose}>{STRINGS.ok}</Button>
+                    </DialogActions>
+                </Dialog>
+            </Stack>
+        </LocalizationProvider>
     );
 }
