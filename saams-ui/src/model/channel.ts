@@ -1,13 +1,9 @@
-import { Base } from "./base";
-import Response from "./response";
-
-// channel.ts
 export interface Channel {
     id: number;
     name: string;
     code: string;
-    type: 'tcpip' | 'serial';
-    value: number;
+    type: 'TCPIP' | 'SERIAL';
+    value: string;
     LTS: boolean;
     created_at: string;
     updated_at: string;
@@ -18,8 +14,8 @@ export interface Channel {
 }
 
 export interface ChannelResponse {
-    channels: Channel[]; // List of channels (for fetching multiple)
-    channel: Channel;    // Single channel (for fetching one)
-    message?: string;    // Optional success/error message
-    status?: boolean;    // API response status
+    channel: Channel | null;
+    channels: Channel[];
+    message: string;
+    status: boolean;
 }

@@ -9,10 +9,16 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Refresh, Add, Delete, Update } from '@mui/icons-material';
+import { STRINGS } from '../constants';
 import { Channel } from '../model/channel';
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 
 let selectedRows: Channel[] = [];
+
+const handleOnGet = async () => {
+    const resp = await window.electronAPI.getChannels();
+    return resp;
+}
 
 export default function ChannelView() {
     const [rows, setRows] = React.useState<Channel[]>([]);
@@ -22,215 +28,467 @@ export default function ChannelView() {
     const [messageModal, setMessageModal] = React.useState<boolean>(false);
     const [messageTitle, setMessageTitle] = React.useState<string>("");
     const [messageContent, setMessageContent] = React.useState<string>("");
-    const [channelType, setChannelType] = React.useState<'tcpip' | 'serial'>('tcpip');
+    const [channelType, setChannelType] = React.useState<'TCPIP' | 'SERIAL'>('TCPIP'); // Default type
+    const [LTS, setLTS] = React.useState<boolean>(false); // State for LTS checkbox
+    const [ipError, setIpError] = React.useState<string>("");
+    const [portError, setPortError] = React.useState<string>("");
 
-    const columns: GridColDef[] = [
-        { field: 'id', headerName: 'ID', width: 80 },
+    const columns: GridColDef<(typeof rows)[number]>[] = [
+        { field: 'id', headerName: 'ID', width: 90 },
         { field: 'name', headerName: 'Name', width: 150 },
-        { field: 'code', headerName: 'Code', width: 100 },
+        { field: 'code', headerName: 'Code', width: 110 },
         { field: 'type', headerName: 'Type', width: 110 },
-        { field: 'value', headerName: 'Value', width: 150 },
-        { field: 'LTS', headerName: 'LTS', width: 90, type: 'boolean' },
+        { field: 'value', headerName: 'Value', width: 150 }, // This will now show the combined value
+        { field: 'LTS', headerName: 'LTS', width: 110 },
         { field: 'created_at', headerName: 'Created At', width: 150 },
         { field: 'updated_at', headerName: 'Updated At', width: 150 },
+        { field: 'ipAddress', headerName: 'IP Address', width: 150 },
+        { field: 'port', headerName: 'Port', width: 110 },
+        { field: 'comPort', headerName: 'COM Port', width: 110 },
+        { field: 'baudRate', headerName: 'Baud Rate', width: 110 },
     ];
 
-    const handleRefresh = async () => {
-        const response = await window.electronAPI.getChannels();
+    const handleRefreshButtonClick = async () => {
+        const response = await handleOnGet();
         if (!response.status) {
             setMessageTitle("Error");
             setMessageContent("Error fetching data");
             setMessageModal(true);
-        } else {
-            setRows(response.channels);
         }
-    };
+        setRows(response.channels);
+    }
 
-    const handleAdd = () => {
+    const handleAddButtonClick = () => {
         setAddModal(true);
-    };
+        setChannelType('TCPIP'); // Reset type to default when opening modal
+        setLTS(false); // Reset LTS checkbox
+        setIpError("");
+        setPortError("");
+    }
 
-    const handleUpdate = () => {
-        if (selectedRows.length !== 1) {
+    const handleUpdateButtonClick = () => {
+        if (selectedRows.length > 1) {
             setMessageTitle("Update Channel");
-            setMessageContent("Select exactly one channel to update.");
+            setMessageContent("Select only one item to edit.");
+            setMessageModal(true);
+        } else if (selectedRows.length == 0) {
+            setMessageTitle("Update Channel");
+            setMessageContent("Select an item to edit.");
             setMessageModal(true);
         } else {
             setUpdateModal(true);
+            setChannelType(selectedRows[0].type); // Set type based on selected row
+            setLTS(selectedRows[0].LTS); // Set LTS based on selected row
+            setIpError("");
+            setPortError("");
         }
-    };
+    }
 
-    const handleDelete = async () => {
-        if (selectedRows.length === 0) {
+    const handleDeleteButtonClick = async () => {
+        if (selectedRows.length == 0) {
             setMessageTitle("Delete Channel");
-            setMessageContent("Select a channel to delete.");
+            setMessageContent("Select an item to delete.");
             setMessageModal(true);
         } else {
-            for (const channel of selectedRows) {
-                await window.electronAPI.deleteChannel(channel.id);
-            }
-            handleRefresh();
+            selectedRows.forEach(async (element) => {
+                const resp = await window.electronAPI.deleteChannel(element.id);
+                if (!resp) {
+                    setMessageTitle("Delete Channel");
+                    setMessageContent(`Failed to delete item with ID ${element.id}`);
+                    setMessageModal(true);
+                }
+            });
+            handleRefreshButtonClick();
         }
-    };
+    }
 
     const handleClose = () => {
         setAddModal(false);
         setUpdateModal(false);
         setMessageModal(false);
-    };
+    }
+
+    const validateIpAddress = (ip: string) => {
+        const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+        return ipRegex.test(ip);
+    }
+
+    const validatePort = (port: string) => {
+        const portRegex = /^[0-9]+$/;
+        return portRegex.test(port);
+    }
+
+    const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>, isUpdate: boolean) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        const formJson = Object.fromEntries((formData as any).entries());
+
+        if (channelType === 'TCPIP') {
+            if (!validateIpAddress(formJson.ipAddress)) {
+                setIpError("Invalid IP address format");
+                return;
+            } else {
+                setIpError("");
+            }
+
+            if (!validatePort(formJson.port)) {
+                setPortError("Port must be a number");
+                return;
+            } else {
+                setPortError("");
+            }
+        }
+
+        if (channelType === 'SERIAL') {
+            if (!validatePort(formJson.baudRate)) {
+                setPortError("Baud rate must be a number");
+                return;
+            } else {
+                setPortError("");
+            }
+        }
+
+        let channel: Channel = {
+            name: formJson.name,
+            code: formJson.code,
+            type: channelType,
+            value: channelType === 'TCPIP' ? `${formJson.port}:${formJson.ipAddress}` : `${formJson.comPort}:${formJson.baudRate}`,
+            LTS: LTS,
+            created_at: isUpdate ? selectedRows[0].created_at : new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            ipAddress: channelType === 'TCPIP' ? formJson.ipAddress : undefined,
+            port: channelType === 'TCPIP' ? Number(formJson.port) : undefined,
+            comPort: channelType === 'SERIAL' ? formJson.comPort : undefined,
+            baudRate: channelType === 'SERIAL' ? Number(formJson.baudRate) : undefined,
+            id: isUpdate ? selectedRows[0].id : 0
+        };
+
+        const resp = isUpdate ? await window.electronAPI.updateChannel(channel) : await window.electronAPI.createChannel(channel);
+        if (resp) {
+            setMessageTitle("Success");
+            setMessageContent(resp.message);
+            setMessageModal(true);
+            handleRefreshButtonClick();
+        } else {
+            setMessageTitle("Error");
+            setMessageContent(resp.message);
+            setMessageModal(true);
+        }
+    }
 
     React.useEffect(() => {
         if (initialLoad) {
-            handleRefresh();
+            handleRefreshButtonClick();
             setInitialLoad(false);
         }
-    }, [initialLoad]);
+    });
 
     return (
         <Stack spacing={2} direction="column">
             <Stack spacing={2} direction="row">
-                <Button variant="contained" onClick={handleRefresh}>Refresh <Refresh /></Button>
-                <Button variant="contained" onClick={handleAdd}>Add <Add /></Button>
-                <Button variant="contained" onClick={handleUpdate}>Modify <Update /></Button>
-                <Button variant="contained" onClick={handleDelete}>Delete <Delete /></Button>
+                <Button variant="contained" onClick={handleRefreshButtonClick}>Refresh <Refresh /></Button>
+                <Button variant="contained" onClick={handleAddButtonClick}>Add <Add /></Button>
+                <Button variant="contained" onClick={handleUpdateButtonClick}>Modify <Update /></Button>
+                <Button variant="contained" onClick={handleDeleteButtonClick}>Delete <Delete /></Button>
             </Stack>
             <DataGrid
                 rows={rows}
                 columns={columns}
+                initialState={{
+                    pagination: {
+                        paginationModel: {
+                            pageSize: 5,
+                        },
+                    },
+                }}
                 pageSizeOptions={[5]}
                 checkboxSelection
                 disableRowSelectionOnClick
                 onRowSelectionModelChange={(ids) => {
                     const selectedIds = new Set(ids);
                     selectedRows = rows.filter((row) => selectedIds.has(row.id));
+                    console.log(selectedRows);
                 }}
             />
 
             {/* Add Modal */}
-            <Dialog open={addModal} onClose={handleClose}>
+            <Dialog
+                open={addModal}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: (event: React.FormEvent<HTMLFormElement>) => handleFormSubmit(event, false),
+                }}
+            >
                 <DialogTitle>Add Channel</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>Enter the channel details:</DialogContentText>
-                    <TextField autoFocus required margin="dense" id="name" name="name" label="Channel Name" fullWidth />
-                    <TextField required margin="dense" id="code" name="code" label="Channel Code" fullWidth />
-                    <FormControl fullWidth margin="dense">
-                        <InputLabel id="type-label">Type</InputLabel>
-                        <Select
-                            labelId="type-label"
-                            id="type"
-                            name="type"
-                            value={channelType}
-                            onChange={(e) => setChannelType(e.target.value as 'tcpip' | 'serial')}
-                            label="Type"
-                        >
-                            <MenuItem value="tcpip">TCP/IP</MenuItem>
-                            <MenuItem value="serial">Serial</MenuItem>
-                        </Select>
-                    </FormControl>
-                    {channelType === 'tcpip' && (
+                    <DialogContentText>
+                        Fill in Channel details.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        required
+                        margin="dense"
+                        id="name"
+                        name="name"
+                        label="Channel Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                    />
+                    <TextField
+                        required
+                        margin="dense"
+                        id="code"
+                        name="code"
+                        label="Channel Code"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                    />
+                    <TextField
+                        select
+                        required
+                        margin="dense"
+                        id="type"
+                        name="type"
+                        label="Channel Type"
+                        value={channelType}
+                        onChange={(e) => setChannelType(e.target.value as 'TCPIP' | 'SERIAL')}
+                        fullWidth
+                        variant="standard"
+                        SelectProps={{
+                            native: true,
+                        }}
+                    >
+                        <option value="TCPIP">TCP/IP</option>
+                        <option value="SERIAL">Serial</option>
+                    </TextField>
+                    {channelType === 'TCPIP' && (
                         <>
-                            <TextField required margin="dense" id="ipAddress" name="ipAddress" label="IP Address" fullWidth />
-                            <TextField required margin="dense" id="port" name="port" label="Port" type="number" fullWidth />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="ipAddress"
+                                name="ipAddress"
+                                label="IP Address"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                error={!!ipError}
+                                helperText={ipError}
+                            />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="port"
+                                name="port"
+                                label="Port"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                error={!!portError}
+                                helperText={portError}
+                            />
                         </>
                     )}
-                    {channelType === 'serial' && (
+                    {channelType === 'SERIAL' && (
                         <>
-                            <TextField required margin="dense" id="comPort" name="comPort" label="COM Port" fullWidth />
-                            <TextField required margin="dense" id="baudRate" name="baudRate" label="Baud Rate" type="number" fullWidth />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="comPort"
+                                name="comPort"
+                                label="COM Port"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                            />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="baudRate"
+                                name="baudRate"
+                                label="Baud Rate"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                error={!!portError}
+                                helperText={portError}
+                            />
                         </>
                     )}
-                    <TextField required margin="dense" id="value" name="value" label="Value" type="number" fullWidth />
-                    <TextField required margin="dense" id="LTS" name="LTS" label="LTS" type="text" fullWidth />
+                    <FormGroup row>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={LTS}
+                                    onChange={(e) => setLTS(e.target.checked)}
+                                    name="LTS"
+                                    color="primary"
+                                />
+                            }
+                            label="LTS"
+                        />
+                    </FormGroup>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={async () => {
-                        const newChannel: Channel = {
-                            id: 0, // Auto-generated
-                            name: (document.getElementById('name') as HTMLInputElement).value,
-                            code: (document.getElementById('code') as HTMLInputElement).value,
-                            type: channelType,
-                            ipAddress: channelType === 'tcpip' ? (document.getElementById('ipAddress') as HTMLInputElement).value : undefined,
-                            port: channelType === 'tcpip' ? parseInt((document.getElementById('port') as HTMLInputElement).value) : undefined,
-                            comPort: channelType === 'serial' ? (document.getElementById('comPort') as HTMLInputElement).value : undefined,
-                            baudRate: channelType === 'serial' ? parseInt((document.getElementById('baudRate') as HTMLInputElement).value) : undefined,
-                            value: parseFloat((document.getElementById('value') as HTMLInputElement).value),
-                            LTS: (document.getElementById('LTS') as HTMLInputElement).value === 'true',
-                            created_at: new Date().toISOString(),
-                            updated_at: new Date().toISOString(),
-                        };
-                        await window.electronAPI.addChannel(newChannel);
-                        handleClose();
-                        handleRefresh();
-                    }}>Add</Button>
+                    <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+                    <Button type="submit">{STRINGS.add}</Button>
                 </DialogActions>
             </Dialog>
 
             {/* Update Modal */}
-            <Dialog open={updateModal} onClose={handleClose}>
+            <Dialog
+                open={updateModal}
+                onClose={handleClose}
+                PaperProps={{
+                    component: 'form',
+                    onSubmit: (event: React.FormEvent<HTMLFormElement>) => handleFormSubmit(event, true),
+                }}
+            >
                 <DialogTitle>Update Channel</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>Modify the channel details:</DialogContentText>
-                    <TextField autoFocus required margin="dense" id="name" name="name" label="Channel Name" fullWidth defaultValue={selectedRows[0]?.name || ""} />
-                    <TextField required margin="dense" id="code" name="code" label="Channel Code" fullWidth defaultValue={selectedRows[0]?.code || ""} />
-                    <FormControl fullWidth margin="dense">
-                        <InputLabel id="type-label">Type</InputLabel>
-                        <Select
-                            labelId="type-label"
-                            id="type"
-                            name="type"
-                            value={channelType}
-                            onChange={(e) => setChannelType(e.target.value as 'tcpip' | 'serial')}
-                            label="Type"
-                            defaultValue={selectedRows[0]?.type || 'tcpip'}
-                        >
-                            <MenuItem value="tcpip">TCP/IP</MenuItem>
-                            <MenuItem value="serial">Serial</MenuItem>
-                        </Select>
-                    </FormControl>
-                    {channelType === 'tcpip' && (
+                    <DialogContentText>
+                        Update Channel details.
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        required
+                        margin="dense"
+                        id="name"
+                        name="name"
+                        label="Channel Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        defaultValue={selectedRows[0]?.name}
+                    />
+                    <TextField
+                        required
+                        margin="dense"
+                        id="code"
+                        name="code"
+                        label="Channel Code"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        defaultValue={selectedRows[0]?.code}
+                    />
+                    <TextField
+                        select
+                        required
+                        margin="dense"
+                        id="type"
+                        name="type"
+                        label="Channel Type"
+                        value={channelType}
+                        onChange={(e) => setChannelType(e.target.value as 'TCPIP' | 'SERIAL')}
+                        fullWidth
+                        variant="standard"
+                        SelectProps={{
+                            native: true,
+                        }}
+                    >
+                        <option value="TCPIP">TCP/IP</option>
+                        <option value="SERIAL">Serial</option>
+                    </TextField>
+                    {channelType === 'TCPIP' && (
                         <>
-                            <TextField required margin="dense" id="ipAddress" name="ipAddress" label="IP Address" fullWidth defaultValue={selectedRows[0]?.ipAddress || ""} />
-                            <TextField required margin="dense" id="port" name="port" label="Port" type="number" fullWidth defaultValue={selectedRows[0]?.port || ""} />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="ipAddress"
+                                name="ipAddress"
+                                label="IP Address"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                defaultValue={selectedRows[0]?.ipAddress}
+                                error={!!ipError}
+                                helperText={ipError}
+                            />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="port"
+                                name="port"
+                                label="Port"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                defaultValue={selectedRows[0]?.port}
+                                error={!!portError}
+                                helperText={portError}
+                            />
                         </>
                     )}
-                    {channelType === 'serial' && (
+                    {channelType === 'SERIAL' && (
                         <>
-                            <TextField required margin="dense" id="comPort" name="comPort" label="COM Port" fullWidth defaultValue={selectedRows[0]?.comPort || ""} />
-                            <TextField required margin="dense" id="baudRate" name="baudRate" label="Baud Rate" type="number" fullWidth defaultValue={selectedRows[0]?.baudRate || ""} />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="comPort"
+                                name="comPort"
+                                label="COM Port"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                defaultValue={selectedRows[0]?.comPort}
+                            />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="baudRate"
+                                name="baudRate"
+                                label="Baud Rate"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                defaultValue={selectedRows[0]?.baudRate}
+                                error={!!portError}
+                                helperText={portError}
+                            />
                         </>
                     )}
-                    <TextField required margin="dense" id="value" name="value" label="Value" type="number" fullWidth defaultValue={selectedRows[0]?.value || ""} />
-                    <TextField required margin="dense" id="LTS" name="LTS" label="LTS" type="text" fullWidth defaultValue={selectedRows[0]?.LTS || ""} />
+                    <FormGroup row>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={LTS}
+                                    onChange={(e) => setLTS(e.target.checked)}
+                                    name="LTS"
+                                    color="primary"
+                                />
+                            }
+                            label="LTS"
+                        />
+                    </FormGroup>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button onClick={async () => {
-                        const updatedChannel = {
-                            ...selectedRows[0],
-                            name: (document.getElementById('name') as HTMLInputElement).value,
-                            code: (document.getElementById('code') as HTMLInputElement).value,
-                            type: channelType,
-                            ipAddress: channelType === 'tcpip' ? (document.getElementById('ipAddress') as HTMLInputElement).value : undefined,
-                            port: channelType === 'tcpip' ? parseInt((document.getElementById('port') as HTMLInputElement).value) : undefined,
-                            comPort: channelType === 'serial' ? (document.getElementById('comPort') as HTMLInputElement).value : undefined,
-                            baudRate: channelType === 'serial' ? parseInt((document.getElementById('baudRate') as HTMLInputElement).value) : undefined,
-                            value: parseFloat((document.getElementById('value') as HTMLInputElement).value),
-                            LTS: (document.getElementById('LTS') as HTMLInputElement).value === 'true',
-                            updated_at: new Date().toISOString(),
-                        };
-                        await window.electronAPI.updateChannel(updatedChannel);
-                        handleClose();
-                        handleRefresh();
-                    }}>Update</Button>
+                    <Button onClick={handleClose}>{STRINGS.cancel}</Button>
+                    <Button type="submit">{STRINGS.update}</Button>
                 </DialogActions>
             </Dialog>
 
             {/* Message Dialog */}
-            <Dialog open={messageModal} onClose={handleClose}>
-                <DialogTitle>{messageTitle}</DialogTitle>
-                <DialogContent><DialogContentText>{messageContent}</DialogContentText></DialogContent>
-                <DialogActions><Button onClick={handleClose}>OK</Button></DialogActions>
+            <Dialog
+                open={messageModal}
+                onClose={handleClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {messageTitle}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        {messageContent}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>{STRINGS.ok}</Button>
+                </DialogActions>
             </Dialog>
         </Stack>
     );
