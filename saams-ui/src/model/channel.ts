@@ -3,15 +3,18 @@ import Response from "./response";
 
 // channel.ts
 export interface Channel {
-    id: number;          // Unique ID
-    name: string;        // Channel Name
-    description: string; // Channel Description
-    code: string;        // Unique Code
-    type: string;        // Channel Type (TCPIP/Serial)
-    value: string;       // Value (IP:Port for TCPIP, COM Port for Serial)
-    LTS: boolean;        // Long-Term Support flag
-    created_at: string;  // Timestamp when created
-    updated_at: string;  // Timestamp when updated
+    id: number;
+    name: string;
+    code: string;
+    type: 'tcpip' | 'serial';
+    value: number;
+    LTS: boolean;
+    created_at: string;
+    updated_at: string;
+    ipAddress?: string;
+    port?: number;
+    comPort?: string;
+    baudRate?: number;
 }
 
 export interface ChannelResponse {
