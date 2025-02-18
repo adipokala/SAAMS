@@ -20,4 +20,5 @@ export const API_ENDPOINTS = {
     user: '/api/user',
     changePassword: '/api/change-password', 
     area: '/api/area',
+    changePassword: '/change-password',
 }
