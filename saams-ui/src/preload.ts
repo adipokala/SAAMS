@@ -2,14 +2,15 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
 import { contextBridge, ipcRenderer } from "electron";
+import { Area } from "./model/area";
+import { Company } from "./model/company";
 import { Department } from "./model/department";
 import { Designation } from "./model/designation";
 import { Privilege } from "./model/privilege";
 import { Role } from "./model/role";
 import { Shift } from "./model/shift";
 import { User } from "./model/user";
-import { Company } from "./model/company";
-import { Area } from "./model/area";
+
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
     // Department
@@ -47,18 +48,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createUser: (user: User) => ipcRenderer.invoke('request:createUser', user),
     updateUser: (user: User) => ipcRenderer.invoke('request:updateUser', user),
     deleteUser: (id: number) => ipcRenderer.invoke('request:deleteUser', id),
+    changePassword: (userId: number, currentPassword: string, newPassword: string) => ipcRenderer.invoke('request:changePassword', userId, currentPassword, newPassword),
     // Company
     getCompanies: () => ipcRenderer.invoke('request:getCompanies'),
     getCompany: (id: number) => ipcRenderer.invoke('request:getCompany', id),
     createCompany: (company: Company) => ipcRenderer.invoke('request:createCompany', company),
     updateCompany: (company: Company) => ipcRenderer.invoke('request:updateCompany', company),
-    deleteCompany: (id: Company) => ipcRenderer.invoke('request:deleteCompany', id),
+    deleteCompany: (id: number) => ipcRenderer.invoke('request:deleteCompany', id),
     // Area
     getAreas: () => ipcRenderer.invoke('request:getAreas'),
     getArea: (id: number) => ipcRenderer.invoke('request:getArea', id),
     createArea: (area: Area) => ipcRenderer.invoke('request:createArea', area),
     updateArea: (area: Area) => ipcRenderer.invoke('request:updateArea', area),
     deleteArea: (id: number) => ipcRenderer.invoke('request:deleteArea', id),
-
-
 });
