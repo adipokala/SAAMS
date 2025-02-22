@@ -131,15 +131,15 @@ export default function RoleView() {
       showMessage('Show Privileges', 'Select a role to show privileges.');
       return;
     }
-
     const roleId = selectedRows[0].id;
     await fetchPrivileges();
     const response = await window.electronAPI.getRolePrivileges();
     if (response.status) {
       const rolePrivileges = response.rolePrivileges.filter(rp => rp.roleId === roleId);
       const privilegesList = privileges.filter(privilege => rolePrivileges.some(rp => rp.privilegeId === privilege.id));
-      setSelectedRolePrivileges(privilegesList);
       setPrivilegesModal(true);
+      setSelectedRolePrivileges(privilegesList);
+      console.log(selectedRolePrivileges);
     }
   };
 
