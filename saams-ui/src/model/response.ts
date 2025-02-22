@@ -1,6 +1,8 @@
 interface Response {
     message: string,
-    status: boolean
+    status: boolean,
+    success: boolean,
+    error?: string
 }
 
 export default Response;

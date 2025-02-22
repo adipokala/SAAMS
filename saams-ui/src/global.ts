@@ -1,11 +1,11 @@
+import { Area, AreaResponse } from "./model/area";
+import { Company, CompanyResponse } from "./model/company";
 import { Department, DepartmentResponse } from "./model/department";
 import { Designation, DesignationResponse } from "./model/designation";
-import { PrivilegeResponse, Privilege } from "./model/privilege";
+import { Privilege, PrivilegeResponse } from "./model/privilege";
 import { Role, RoleResponse } from "./model/role";
-import { ShiftResponse, Shift } from "./model/shift";
-import { UserResponse, User } from "./model/user";
-import { CompanyResponse, Company } from "./model/company";
-import { AreaResponse, Area } from "./model/area";
+import { Shift, ShiftResponse } from "./model/shift";
+import { User, UserResponse } from "./model/user";
 
 export { };
 
@@ -48,6 +48,7 @@ declare global {
             createUser: (user: User) => UserResponse;
             updateUser: (user: User) => UserResponse;
             deleteUser: (id: number) => UserResponse;
+            changePassword: (userId: number, currentPassword: string, newPassword: string) => UserResponse;
             //Company
             getCompanies: () => CompanyResponse;
             getCompany: (id: number) => CompanyResponse;
@@ -56,7 +57,7 @@ declare global {
             deleteCompany: (id: number) => CompanyResponse;
             // Area
             getAreas: () => AreaResponse;
-            getArea: (id: number) => AreaResponse; // Added method
+            getArea: (id: number) => AreaResponse;
             createArea: (area: Area) => AreaResponse;
             updateArea: (area: Area) => AreaResponse;
             deleteArea: (id: number) => AreaResponse;

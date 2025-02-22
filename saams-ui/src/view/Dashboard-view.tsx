@@ -1,42 +1,43 @@
-import React from "react";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import MenuIcon from '@mui/icons-material/Menu';
 import {
   AppBar,
+  Box,
+  CssBaseline,
+  Divider,
   Drawer,
   List,
   ListItemText,
+  ListSubheader,
+  Menu,
+  MenuItem,
+  ThemeProvider,
   Toolbar,
   Typography,
-  Grid,
-  Box,
-  CssBaseline,
-  ThemeProvider,
-  createTheme,
-  Button,
-  Divider,
-  ListSubheader,
+  createTheme
 } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
 import ListItemButton from "@mui/material/ListItemButton";
-import DepartmentView from "./Department-view";
-import DesignationView from "./designation-view";
-import HomeView from "./home-view";
-import { Logout } from "@mui/icons-material";
-import ShiftView from "./shift-view";
-import RoleView from "./role-view";
-import UserView from "./user-view";
-import CompanyView from "./company-view";
-import AreaView from "./area-view";
-import UserReportView from "./user-report-view";
+import React from "react";
+import { User } from '../model/user'; // Importing User model
+import AccountDetailsView from "./AccountDetails-view"; // Ensure correct import path
+import AreaView from './area-view';
+import CompanyView from './company-view';
+import DepartmentView from "./Department-view"; // Ensure correct import path
+import DesignationView from "./designation-view"; // Ensure correct import path
+import HomeView from "./home-view"; // Ensure correct import path
+import RoleView from "./role-view"; // Ensure correct import path
+import ShiftView from "./shift-view"; // Ensure correct import path
+import UserReportView from './user-report-view';
+import UserView from "./user-view"; // Ensure correct import path
 
 interface DashboardViewProps {
-  handleLogout: any;
-  userNameForDashboard: string;
+  handleLogout: () => void;
+  user: User; // Updated to pass the whole user object
 }
 
 const drawerWidth = 240;
 
-// Create a custom dark theme that mimics Discord's color palette
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
@@ -61,31 +62,28 @@ const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Depart
 const accessManagementItems: string[] = ['Area', 'Channel', 'Reader'];
 const reportManagementItems: string[] = ['User Report', 'Reader Report', 'Attendance Report'];
 
-const switchView = (key: string): React.JSX.Element => {
+const switchView = (key: string, user: User): React.JSX.Element => {
   console.log("Clicked on: " + key);
 
   switch (key) {
     case 'Home':
       return <HomeView />;
-
     case 'Designation':
       return <DesignationView />;
-
     case 'Department':
       return <DepartmentView />;
-
     case 'Shift':
       return <ShiftView />;
-
     case 'Role':
       return <RoleView />;
-
     case 'User':
       return <UserView />;
-
+    case 'Account Details': 
+      return <AccountDetailsView user={user} />; // Pass the whole user object
+      
     case 'Company':
       return <CompanyView />;
-
+    
     case 'User Report':
       return <UserReportView />
     case 'Area':
@@ -94,48 +92,71 @@ const switchView = (key: string): React.JSX.Element => {
     default:
       return <HomeView />;
   }
-}
+};
 
-export default function DashboardView({ userNameForDashboard, handleLogout }: DashboardViewProps) {
+export default function DashboardView({ user, handleLogout }: DashboardViewProps) {
   const [item, setItem] = React.useState<string>('Home');
   const [open, setOpen] = React.useState<boolean>(true);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const toggleMenuOpen = () => {
     setOpen(!open);
-  }
+  };
 
-  const userManagementList = <List>
-    {userManagementItems.map((text, index) => (
-      <ListItemButton>
-        <ListItemText
-          primary={text}
-          sx={{ color: darkTheme.palette.text.primary }}
-          onClick={() => setItem(userManagementItems[index])} />
-      </ListItemButton>
-    ))}
-  </List>;
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-  const accessManagementList = <List>
-    {accessManagementItems.map((text, index) => (
-      <ListItemButton>
-        <ListItemText
-          primary={text}
-          sx={{ color: darkTheme.palette.text.primary }}
-          onClick={() => setItem(accessManagementItems[index])} />
-      </ListItemButton>
-    ))}
-  </List>;
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
-  const reportManagementList = <List>
-    {reportManagementItems.map((text, index) => (
-      <ListItemButton>
-        <ListItemText
-          primary={text}
-          sx={{ color: darkTheme.palette.text.primary }}
-          onClick={() => setItem(reportManagementItems[index])} />
-      </ListItemButton>
-    ))}
-  </List>;
+  const handleAccountDetails = () => {
+    setItem("Account Details");
+    handleMenuClose();
+  };
+  
+  const userManagementList = (
+    <List>
+      {userManagementItems.map((text, index) => (
+        <ListItemButton key={index}>
+          <ListItemText
+            primary={text}
+            sx={{ color: darkTheme.palette.text.primary }}
+            onClick={() => setItem(userManagementItems[index])}
+          />
+        </ListItemButton>
+      ))}
+    </List>
+  );
+
+  const accessManagementList = (
+    <List>
+      {accessManagementItems.map((text, index) => (
+        <ListItemButton key={index}>
+          <ListItemText
+            primary={text}
+            sx={{ color: darkTheme.palette.text.primary }}
+            onClick={() => setItem(accessManagementItems[index])}
+          />
+        </ListItemButton>
+      ))}
+    </List>
+  );
+
+  const reportManagementList = (
+    <List>
+      {reportManagementItems.map((text, index) => (
+        <ListItemButton key={index}>
+          <ListItemText
+            primary={text}
+            sx={{ color: darkTheme.palette.text.primary }}
+            onClick={() => setItem(reportManagementItems[index])}
+          />
+        </ListItemButton>
+      ))}
+    </List>
+  );
 
   return (
     <ThemeProvider theme={darkTheme}>
@@ -165,17 +186,33 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
             component="div"
             sx={{ flexGrow: 1 }}
           >
-            Welcome to {userNameForDashboard}
+            Welcome to {user.firstName}
           </Typography>
 
-          <Button color="inherit" onClick={handleLogout}>Logout <Logout /></Button>
+          {/* Profile Icon and Dropdown */}
+          <IconButton
+            color="inherit"
+            onClick={handleMenuOpen}
+            size="large"
+          >
+            <AccountCircleIcon />
+          </IconButton>
+
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={handleAccountDetails}>Account Details</MenuItem>
+            <MenuItem onClick={handleLogout}>Logout</MenuItem>
+          </Menu>
         </Toolbar>
       </AppBar>
 
       <Box sx={{ display: "flex" }}>
         <Drawer
           sx={{
-            visibility: open ? "visible" : "collapse",
+            display: open ? "block" : "none",  
             flexShrink: 0,
             "& .MuiDrawer-paper": {
               width: drawerWidth,
@@ -204,6 +241,7 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
             {reportManagementList}
           </Box>
         </Drawer>
+
         {/* Main content area */}
         <Box
           component="main"
@@ -215,10 +253,9 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
             height: "100vh",
           }}
         >
-
           {/* Content below AppBar */}
           <Toolbar />
-          {switchView(item)}
+          {switchView(item, user)} {/* Pass the whole user object */}
         </Box>
       </Box>
     </ThemeProvider>
