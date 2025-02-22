@@ -18,6 +18,7 @@ const darkTheme = createTheme({
       primary: "#ffffff", // White text
       secondary: "#b9bbbe", // Grayish text for secondary information
     },
+    ///////
   },
   typography: {
     fontFamily: "Arial, sans-serif",
