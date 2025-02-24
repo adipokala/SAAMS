@@ -14,7 +14,6 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { Role, RoleResponse } from '../model/role';
 import { Privilege } from '../model/privilege';
-import { Privilege } from '../model/privilege';
 import { STRINGS } from '../constants';
 import { RolePrivilege } from '../model/role-privilege';
 
@@ -58,11 +57,7 @@ export default function RoleView() {
   const handleAddButtonClick = async () => {
     setSelectedPrivileges([]);
     await fetchPrivileges();
-  const handleAddButtonClick = async () => {
-    setSelectedPrivileges([]);
-    await fetchPrivileges();
     setAddModal(true);
-  };
   };
 
   const handleUpdateButtonClick = async () => {
@@ -78,19 +73,16 @@ export default function RoleView() {
       setUpdateModal(true);
     }
   };
-  };
 
   const handleDeleteButtonClick = async () => {
     if (selectedRows.length === 0) {
       showMessage('Delete Role', 'Select an item to delete.');
     } else {
       for (const element of selectedRows) {
-      for (const element of selectedRows) {
         const resp = await window.electronAPI.deleteRole(element.id);
         if (!resp) {
           showMessage('Delete Role', `Failed to delete item with ID ${element.id}`);
         }
-      }
       }
       handleRefreshButtonClick();
     }
@@ -238,21 +230,6 @@ export default function RoleView() {
               />
             ))}
           </FormGroup>
-          <TextField autoFocus required margin="dense" name="name" label="Role Name" fullWidth variant="standard" />
-          <TextField required margin="dense" name="code" label="Role Code" fullWidth variant="standard" />
-          <FormGroup>
-            {privileges.map((privilege) => (
-              <FormControlLabel
-                key={privilege.id}
-                control={<Checkbox checked={selectedPrivileges.includes(privilege.id)} onChange={(e) => {
-                  setSelectedPrivileges(e.target.checked
-                    ? [...selectedPrivileges, privilege.id]
-                    : selectedPrivileges.filter(id => id !== privilege.id));
-                }} />}
-                label={privilege.name}
-              />
-            ))}
-          </FormGroup>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>{STRINGS.cancel}</Button>
@@ -264,7 +241,6 @@ export default function RoleView() {
       <Dialog
         open={updateModal}
         onClose={handleClose}
-        PaperProps={{ component: 'form', onSubmit: handleUpdateRole }}
         PaperProps={{ component: 'form', onSubmit: handleUpdateRole }}
       >
         <DialogTitle>Update Role</DialogTitle>
@@ -313,10 +289,7 @@ export default function RoleView() {
       {/* Message Dialog */}
       <Dialog open={messageModal} onClose={handleClose}>
         <DialogTitle>{messageTitle}</DialogTitle>
-      <Dialog open={messageModal} onClose={handleClose}>
-        <DialogTitle>{messageTitle}</DialogTitle>
         <DialogContent>
-          <DialogContentText>{messageContent}</DialogContentText>
           <DialogContentText>{messageContent}</DialogContentText>
         </DialogContent>
         <DialogActions>

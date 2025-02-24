@@ -44,16 +44,21 @@ export default function UserReportView() {
     }
   };
 
-  // Fetch role name for a given ID using IPC
-  const fetchRoleName = async (roleId: number) => {
-    try {
-      const response = await window.electronAPI.getRole(roleId);
-      return response?.role?.name || 'Unknown Role';
-    } catch (error) {
-      console.error(`Error fetching role name for ID ${roleId}:`, error);
-      return 'Unknown Role';
+ // Fetch role details for a given ID using IPC
+const fetchRoleDetails = async (roleId: number) => {
+  try {
+    const response = await window.electronAPI.getRole(roleId);
+    if (response?.role) {
+      const { name, privileges } = response.role;
+      const privilegeNames = privileges.map((privilege: { name: string }) => privilege.name);
+      return { name, privileges: privilegeNames };
     }
-  };
+    return { name: 'Unknown Role', privileges: [] };
+  } catch (error) {
+    console.error(`Error fetching role details for ID ${roleId}:`, error);
+    return { name: 'Unknown Role', privileges: [] };
+  }
+};
 
   // Fetch department name for a given ID using IPC
   const fetchDepartmentName = async (departmentId: number) => {
@@ -97,35 +102,6 @@ export default function UserReportView() {
     }
   }
 
-  // Fetch role privileges for a given role ID using IPC
-  const fetchRolePrivileges = async (roleId: number) => {
-    try {
-      // Fetch all role privileges
-      const response = await window.electronAPI.getRolePrivileges();
-      if (response.status && response.rolePrivileges) {
-        // Filter privileges for the current roleId
-        const filteredPrivileges = response.rolePrivileges.filter(rp => rp.roleId === roleId);
-
-        // Extract unique privilege IDs to minimize API calls
-        const privilegeIds = [...new Set(filteredPrivileges.map(rp => rp.privilegeId))];
-
-        // Fetch all relevant privileges
-        const privilegeNames = await Promise.all(
-          privilegeIds.map(async (id) => {
-            const privilegeResponse = await window.electronAPI.getPrivilege(id);
-            return privilegeResponse?.privilege?.name || 'Unknown Privilege';
-          })
-        );
-
-        return privilegeNames;
-      }
-      return [];
-    } catch (error) {
-      console.error(`Error fetching role privileges for role ID ${roleId}:`, error);
-      return [];
-    }
-  };
-
   // Load role names, department names, and company names for all users
   const loadRoleAndDepartmentNames = async () => {
     const roleMap: Record<number, string> = {};
@@ -137,8 +113,9 @@ export default function UserReportView() {
 
     for (const user of users) {
       if (!roleMap[user.roleId]) {
-        const roleName = await fetchRoleName(user.roleId);
-        roleMap[user.roleId] = roleName;
+        const { name, privileges } = await fetchRoleDetails(user.roleId);
+        roleMap[user.roleId] = name;
+        rolePrivilegesMap[user.roleId] = privileges;
       }
       if (!departmentMap[user.departmentId]) {
         const departmentName = await fetchDepartmentName(user.departmentId);
@@ -156,10 +133,6 @@ export default function UserReportView() {
         const designationName = await fetchDesignationName(user.designationId);
         designationMap[user.designationId] = designationName;
       }
-      if (!rolePrivilegesMap[user.roleId]) {
-        const privileges = await fetchRolePrivileges(user.roleId);
-        rolePrivilegesMap[user.roleId] = privileges;
-      }      
     }
 
     setRoleNames(roleMap);
@@ -177,14 +150,14 @@ export default function UserReportView() {
       alert('User not found!');
       return;
     }
-
-    const roleName = roleNames[user.roleId] || (await fetchRoleName(user.roleId));
+  
+    const roleName = roleNames[user.roleId] || (await fetchRoleDetails(user.roleId)).name;
     const departmentName = departmentNames[user.departmentId] || (await fetchDepartmentName(user.departmentId));
     const companyName = companyNames[user.companyId] || (await fetchCompanyName(user.companyId));
     const shiftName = shiftNames[user.shiftId] || (await fetchShiftName(user.shiftId));
     const designationName = designationNames[user.designationId] || (await fetchDesignationName(user.designationId));
-    const privileges = rolePrivileges[user.roleId] || (await fetchRolePrivileges(user.roleId));
-
+    const privileges = rolePrivileges[user.roleId] || (await fetchRoleDetails(user.roleId)).privileges;
+  
     const doc = new jsPDF();
     const userText = `
       User Report:
@@ -202,8 +175,12 @@ export default function UserReportView() {
       Date of Birth: ${user.dateOfBirth}
       Date of Joining: ${user.dateOfJoining}
       Privileges: ${privileges.join(', ')}
-    `;
-    doc.text(userText, 10, 10);
+    `.trim(); // Trim to remove leading/trailing whitespace
+  
+    // Split the text into lines and add to PDF
+    const lines = userText.split('\n');
+    doc.text(lines, 10, 10);
+  
     doc.save(`${user.firstName}-${user.lastName}-report.pdf`);
   };
 
