@@ -1,10 +1,11 @@
 import { Base } from "./base";
+import { Privilege } from "./privilege";
 import Response from "./response";
 
 export interface Role extends Base {
     name: string;
     code: string;
-    privileges: { id: number; name: string }[]; // Add this line
+    privileges?: Privilege[];
 }
 export interface RoleResponse extends Response {
     role: Role;

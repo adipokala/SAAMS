@@ -14,7 +14,7 @@ import { STRINGS } from '../constants';
 
 export default function UserReportView() {
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<number | ''>(''); // Change initial value to ''
   const [roleNames, setRoleNames] = useState<Record<number, string>>({});
   const [departmentNames, setDepartmentNames] = useState<Record<number, string>>({});
   const [companyNames, setCompanyNames] = useState<Record<number, string>>({});
@@ -44,21 +44,21 @@ export default function UserReportView() {
     }
   };
 
- // Fetch role details for a given ID using IPC
-const fetchRoleDetails = async (roleId: number) => {
-  try {
-    const response = await window.electronAPI.getRole(roleId);
-    if (response?.role) {
-      const { name, privileges } = response.role;
-      const privilegeNames = privileges.map((privilege: { name: string }) => privilege.name);
-      return { name, privileges: privilegeNames };
+  // Fetch role details for a given ID using IPC
+  const fetchRoleDetails = async (roleId: number) => {
+    try {
+      const response = await window.electronAPI.getRole(roleId);
+      if (response?.role) {
+        const { name, privileges } = response.role;
+        const privilegeNames = privileges.map((privilege: { name: string }) => privilege.name);
+        return { name, privileges: privilegeNames };
+      }
+      return { name: 'Unknown Role', privileges: [] };
+    } catch (error) {
+      console.error(`Error fetching role details for ID ${roleId}:`, error);
+      return { name: 'Unknown Role', privileges: [] };
     }
-    return { name: 'Unknown Role', privileges: [] };
-  } catch (error) {
-    console.error(`Error fetching role details for ID ${roleId}:`, error);
-    return { name: 'Unknown Role', privileges: [] };
-  }
-};
+  };
 
   // Fetch department name for a given ID using IPC
   const fetchDepartmentName = async (departmentId: number) => {
@@ -74,7 +74,7 @@ const fetchRoleDetails = async (roleId: number) => {
   // Fetch company name for a given ID using IPC
   const fetchCompanyName = async (companyId: number) => {
     try {
-      const response = await window.electronAPI.getCompany(companyId); // Ensure this is exposed in the main process
+      const response = await window.electronAPI.getCompany(companyId);
       return response?.company?.name || 'Unknown Company';
     } catch (error) {
       console.error(`Error fetching company name for ID ${companyId}:`, error);
@@ -90,7 +90,7 @@ const fetchRoleDetails = async (roleId: number) => {
       console.error(`Error fetching shift name for ID ${shiftId}:`, error);
       return 'Unknown Shift';
     }
-  }
+  };
 
   const fetchDesignationName = async (designationId: number) => {
     try {
@@ -100,7 +100,7 @@ const fetchRoleDetails = async (roleId: number) => {
       console.error(`Error fetching designation name for ID ${designationId}:`, error);
       return 'Unknown Designation';
     }
-  }
+  };
 
   // Load role names, department names, and company names for all users
   const loadRoleAndDepartmentNames = async () => {
@@ -150,14 +150,14 @@ const fetchRoleDetails = async (roleId: number) => {
       alert('User not found!');
       return;
     }
-  
+
     const roleName = roleNames[user.roleId] || (await fetchRoleDetails(user.roleId)).name;
     const departmentName = departmentNames[user.departmentId] || (await fetchDepartmentName(user.departmentId));
     const companyName = companyNames[user.companyId] || (await fetchCompanyName(user.companyId));
     const shiftName = shiftNames[user.shiftId] || (await fetchShiftName(user.shiftId));
     const designationName = designationNames[user.designationId] || (await fetchDesignationName(user.designationId));
     const privileges = rolePrivileges[user.roleId] || (await fetchRoleDetails(user.roleId)).privileges;
-  
+
     const doc = new jsPDF();
     const userText = `
       User Report:
@@ -168,19 +168,17 @@ const fetchRoleDetails = async (roleId: number) => {
       Email: ${user.email}
       Phone: ${user.phone}
       Role Name: ${roleName}
+      Privileges: ${privileges.join(', ')}
       Department Name: ${departmentName}
       Company Name: ${companyName}
       Designation Name: ${designationName}
       Shift Name: ${shiftName}
       Date of Birth: ${user.dateOfBirth}
       Date of Joining: ${user.dateOfJoining}
-      Privileges: ${privileges.join(', ')}
-    `.trim(); // Trim to remove leading/trailing whitespace
-  
-    // Split the text into lines and add to PDF
+    `.trim();
+
     const lines = userText.split('\n');
     doc.text(lines, 10, 10);
-  
     doc.save(`${user.firstName}-${user.lastName}-report.pdf`);
   };
 
@@ -202,13 +200,13 @@ const fetchRoleDetails = async (roleId: number) => {
       <Stack spacing={2} direction="row" alignItems="center">
         <Typography>Select a User:</Typography>
         <Select
-          value={selectedUserId ?? undefined}
-          onChange={(e) => setSelectedUserId(Number(e.target.value))}
+          value={selectedUserId === '' ? '' : selectedUserId} // Ensure value is either a number or ''
+          onChange={(e) => setSelectedUserId(e.target.value === '' ? '' : Number(e.target.value))}
           displayEmpty
           style={{ minWidth: '200px' }}
         >
-          <MenuItem value="" disabled>
-            Select a user
+          <MenuItem value="">
+            <em>Select a user</em>
           </MenuItem>
           {users.map((user) => (
             <MenuItem key={user.id} value={user.id}>
@@ -222,7 +220,7 @@ const fetchRoleDetails = async (roleId: number) => {
       </Stack>
 
       {/* Display Selected User Information */}
-      {selectedUserId && (
+      {selectedUserId !== '' && (
         <Card variant="outlined">
           <CardContent>
             <Typography variant="h6">User Information</Typography>
@@ -244,13 +242,13 @@ const fetchRoleDetails = async (roleId: number) => {
                   <Typography>Email: {user.email}</Typography>
                   <Typography>Phone: {user.phone}</Typography>
                   <Typography>Role Name: {roleName}</Typography>
+                  <Typography>Privileges: {privileges.length > 0 ? privileges.join(', ') : 'None'}</Typography>
                   <Typography>Department Name: {departmentName}</Typography>
                   <Typography>Company Name: {companyName}</Typography>
                   <Typography>Designation Name: {designationName}</Typography>
                   <Typography>Shift Name: {shiftName}</Typography>
                   <Typography>Date of Birth: {user.dateOfBirth}</Typography>
                   <Typography>Date of Joining: {user.dateOfJoining}</Typography>
-                  <Typography>Privileges: {privileges.length > 0 ? privileges.join(', ') : 'None'}</Typography>
                 </Stack>
               );
             })()}
@@ -261,8 +259,8 @@ const fetchRoleDetails = async (roleId: number) => {
       {/* Export to PDF Button */}
       <Button
         variant="contained"
-        onClick={() => selectedUserId && exportUserToPDF(selectedUserId)}
-        disabled={!selectedUserId}
+        onClick={() => selectedUserId !== '' && exportUserToPDF(selectedUserId)}
+        disabled={selectedUserId === ''}
       >
         Export Selected User to PDF
       </Button>

@@ -19,6 +19,7 @@ import { RolePrivilege } from '../model/role-privilege';
 
 let selectedRows: Role[] = [];
 
+
 export default function RoleView() {
   const [rows, setRows] = React.useState<Role[]>([]);
   const [privileges, setPrivileges] = React.useState<Privilege[]>([]);
@@ -51,6 +52,9 @@ export default function RoleView() {
     const response = await window.electronAPI.getPrivileges();
     if (response.status) {
       setPrivileges(response.privileges);
+      console.log('Privileges fetched and set:', response.privileges);
+    } else {
+      console.log('Failed to fetch privileges:', response);
     }
   }, []);
 
@@ -112,18 +116,54 @@ export default function RoleView() {
   };
 
   const updateRolePrivileges = async (roleId: number) => {
-    const rolePrivilegesResp = await window.electronAPI.getRolePrivileges();
-    if (!rolePrivilegesResp.status) return;
-
-    const existingRolePrivileges = rolePrivilegesResp.rolePrivileges
-      .filter(rp => rp.roleId === roleId)
-      .map(rp => rp.privilegeId);
-
-    const privilegesToAdd = selectedPrivileges.filter(id => !existingRolePrivileges.includes(id));
-    const privilegesToRemove = existingRolePrivileges.filter(id => !selectedPrivileges.includes(id));
-
-    await Promise.all(privilegesToRemove.map(privilegeId => window.electronAPI.deleteRolePrivilege(privilegeId)));
-    await Promise.all(privilegesToAdd.map(privilegeId => window.electronAPI.createRolePrivilege({ roleId, privilegeId })));
+    try {
+      // Get current role privileges from backend
+      const rolePrivilegesResp = await window.electronAPI.getRolePrivileges();
+      if (!rolePrivilegesResp.status) {
+        showMessage('Error', 'Failed to fetch current role privileges');
+        return;
+      }
+  
+      // Get existing privilege mappings with their full RolePrivilege objects
+      const existingRolePrivileges = rolePrivilegesResp.rolePrivileges
+        .filter(rp => rp.roleId === roleId);
+  
+      // Extract just the privilege IDs for comparison
+      const existingPrivilegeIds = existingRolePrivileges.map(rp => rp.privilegeId);
+  
+      // Determine privileges to add and remove
+      const privilegesToAdd = selectedPrivileges.filter(id => !existingPrivilegeIds.includes(id));
+      const privilegesToRemove = existingRolePrivileges.filter(rp => !selectedPrivileges.includes(rp.privilegeId));
+  
+      // Remove unselected privileges using their unique IDs
+      if (privilegesToRemove.length > 0) {
+        const deletePromises = privilegesToRemove.map(async (rolePrivilege) => {
+          // Use the full RolePrivilege id (assuming it has an 'id' field)
+          const response = await window.electronAPI.deleteRolePrivilege(rolePrivilege.id);
+          if (!response.status) {
+            throw new Error(`Failed to delete privilege ${rolePrivilege.privilegeId} for role ${roleId}`);
+          }
+        });
+  
+        await Promise.all(deletePromises);
+      }
+  
+      // Add new privileges
+      if (privilegesToAdd.length > 0) {
+        const addPromises = privilegesToAdd.map(async (privilegeId) => {
+          const rolePrivilege: RolePrivilege = { roleId, privilegeId };
+          const response = await window.electronAPI.createRolePrivilege(rolePrivilege);
+          if (!response.status) {
+            throw new Error(`Failed to add privilege ${privilegeId} to role ${roleId}`);
+          }
+        });
+  
+        await Promise.all(addPromises);
+      }
+    } catch (error) {
+      showMessage('Error', `Failed to update role privileges: ${error.message}`);
+      throw error;
+    }
   };
 
   const handleShowPrivileges = async () => {
@@ -131,15 +171,29 @@ export default function RoleView() {
       showMessage('Show Privileges', 'Select a role to show privileges.');
       return;
     }
+    if (selectedRows.length > 1) {
+      showMessage('Show Privileges', 'Select only one role to show privileges.');
+      return;
+    }
+    
+    if (privileges.length === 0) {
+      showMessage('Loading', 'Please wait while privileges are being loaded...');
+      await fetchPrivileges(); // Fetch privileges if not loaded
+    }
+  
     const roleId = selectedRows[0].id;
-    await fetchPrivileges();
     const response = await window.electronAPI.getRolePrivileges();
     if (response.status) {
       const rolePrivileges = response.rolePrivileges.filter(rp => rp.roleId === roleId);
-      const privilegesList = privileges.filter(privilege => rolePrivileges.some(rp => rp.privilegeId === privilege.id));
-      setPrivilegesModal(true);
+      // console.log('Filtered Role Privileges:', rolePrivileges);
+      const privilegesList = privileges.filter(privilege => 
+        rolePrivileges.some(rp => rp.privilegeId === privilege.id)
+      );
+      // console.log('Computed Privileges List:', privilegesList);
       setSelectedRolePrivileges(privilegesList);
-      console.log(selectedRolePrivileges);
+      setPrivilegesModal(true);
+    } else {
+      showMessage('Error', 'Failed to fetch role privileges');
     }
   };
 
@@ -158,11 +212,14 @@ export default function RoleView() {
 
   React.useEffect(() => {
     if (initialLoad) {
-      handleRefreshButtonClick();
-      setInitialLoad(false);
+      const loadData = async () => {
+        await fetchPrivileges(); // Fetch privileges first
+        await handleRefreshButtonClick(); // Then fetch roles
+        setInitialLoad(false);
+      };
+      loadData();
     }
   }, [initialLoad, handleRefreshButtonClick]);
-
   return (
     <Stack spacing={2} direction="column">
       <Stack spacing={2} direction="row">
