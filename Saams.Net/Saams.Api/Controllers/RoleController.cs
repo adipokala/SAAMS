@@ -64,8 +64,10 @@ namespace Saams.Api.Controllers
                 if (role != null)
                 {
                     var privileges = new List<PrivilegeModel>();
-                    foreach (var rp in role.RolePrivileges)
+                    var roleprivileges = context.RolePrivileges.Where(x => x.RoleId == role.Id).ToList();
+                    foreach (var rp in roleprivileges)
                     {
+                        var privilege = context.Privileges.FirstOrDefault(x => x.Id == rp.PrivilegeId);
                         privileges.Add(new PrivilegeModel()
                         {
                             Id = rp.Privilege.Id,
