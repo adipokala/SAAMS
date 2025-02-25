@@ -28,8 +28,8 @@ export default function ChannelView() {
     const [messageModal, setMessageModal] = React.useState<boolean>(false);
     const [messageTitle, setMessageTitle] = React.useState<string>("");
     const [messageContent, setMessageContent] = React.useState<string>("");
-    const [channelType, setChannelType] = React.useState<'TCPIP' | 'SERIAL'>('TCPIP'); // Default type
-    const [LTS, setLTS] = React.useState<boolean>(false); // State for LTS checkbox
+    const [channelType, setChannelType] = React.useState<'TCPIP' | 'SERIAL'>('TCPIP');
+    const [LTS, setLTS] = React.useState<boolean>(false);
     const [ipError, setIpError] = React.useState<string>("");
     const [portError, setPortError] = React.useState<string>("");
 
@@ -38,14 +38,8 @@ export default function ChannelView() {
         { field: 'name', headerName: 'Name', width: 150 },
         { field: 'code', headerName: 'Code', width: 110 },
         { field: 'type', headerName: 'Type', width: 110 },
-        { field: 'value', headerName: 'Value', width: 150 }, // This will now show the combined value
+        { field: 'value', headerName: 'Value', width: 150 },
         { field: 'LTS', headerName: 'LTS', width: 110 },
-        { field: 'created_at', headerName: 'Created At', width: 150 },
-        { field: 'updated_at', headerName: 'Updated At', width: 150 },
-        { field: 'ipAddress', headerName: 'IP Address', width: 150 },
-        { field: 'port', headerName: 'Port', width: 110 },
-        { field: 'comPort', headerName: 'COM Port', width: 110 },
-        { field: 'baudRate', headerName: 'Baud Rate', width: 110 },
     ];
 
     const handleRefreshButtonClick = async () => {
@@ -60,8 +54,8 @@ export default function ChannelView() {
 
     const handleAddButtonClick = () => {
         setAddModal(true);
-        setChannelType('TCPIP'); // Reset type to default when opening modal
-        setLTS(false); // Reset LTS checkbox
+        setChannelType('TCPIP');
+        setLTS(false);
         setIpError("");
         setPortError("");
     }
@@ -71,33 +65,33 @@ export default function ChannelView() {
             setMessageTitle("Update Channel");
             setMessageContent("Select only one item to edit.");
             setMessageModal(true);
-        } else if (selectedRows.length == 0) {
+        } else if (selectedRows.length === 0) {
             setMessageTitle("Update Channel");
             setMessageContent("Select an item to edit.");
             setMessageModal(true);
         } else {
             setUpdateModal(true);
-            setChannelType(selectedRows[0].type); // Set type based on selected row
-            setLTS(selectedRows[0].LTS); // Set LTS based on selected row
+            setChannelType(selectedRows[0].type);
+            setLTS(selectedRows[0].LTS);
             setIpError("");
             setPortError("");
         }
     }
 
     const handleDeleteButtonClick = async () => {
-        if (selectedRows.length == 0) {
+        if (selectedRows.length === 0) {
             setMessageTitle("Delete Channel");
             setMessageContent("Select an item to delete.");
             setMessageModal(true);
         } else {
-            selectedRows.forEach(async (element) => {
+            for (const element of selectedRows) {
                 const resp = await window.electronAPI.deleteChannel(element.id);
-                if (!resp) {
+                if (!resp.status) {
                     setMessageTitle("Delete Channel");
                     setMessageContent(`Failed to delete item with ID ${element.id}`);
                     setMessageModal(true);
                 }
-            });
+            }
             handleRefreshButtonClick();
         }
     }
@@ -154,21 +148,16 @@ export default function ChannelView() {
             type: channelType,
             value: channelType === 'TCPIP' ? `${formJson.port}:${formJson.ipAddress}` : `${formJson.comPort}:${formJson.baudRate}`,
             LTS: LTS,
-            created_at: isUpdate ? selectedRows[0].created_at : new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            ipAddress: channelType === 'TCPIP' ? formJson.ipAddress : undefined,
-            port: channelType === 'TCPIP' ? Number(formJson.port) : undefined,
-            comPort: channelType === 'SERIAL' ? formJson.comPort : undefined,
-            baudRate: channelType === 'SERIAL' ? Number(formJson.baudRate) : undefined,
             id: isUpdate ? selectedRows[0].id : 0
         };
 
         const resp = isUpdate ? await window.electronAPI.updateChannel(channel) : await window.electronAPI.createChannel(channel);
-        if (resp) {
+        if (resp.status) {
             setMessageTitle("Success");
             setMessageContent(resp.message);
             setMessageModal(true);
             handleRefreshButtonClick();
+            handleClose();
         } else {
             setMessageTitle("Error");
             setMessageContent(resp.message);
@@ -181,7 +170,7 @@ export default function ChannelView() {
             handleRefreshButtonClick();
             setInitialLoad(false);
         }
-    });
+    }, [initialLoad]);
 
     return (
         <Stack spacing={2} direction="column">
@@ -257,27 +246,13 @@ export default function ChannelView() {
                         onChange={(e) => setChannelType(e.target.value as 'TCPIP' | 'SERIAL')}
                         fullWidth
                         variant="standard"
-                        SelectProps={{
-                            native: true,
-                        }}
+                        SelectProps={{ native: true }}
                     >
                         <option value="TCPIP">TCP/IP</option>
                         <option value="SERIAL">Serial</option>
                     </TextField>
                     {channelType === 'TCPIP' && (
                         <>
-                            <TextField
-                                required
-                                margin="dense"
-                                id="ipAddress"
-                                name="ipAddress"
-                                label="IP Address"
-                                type="text"
-                                fullWidth
-                                variant="standard"
-                                error={!!ipError}
-                                helperText={ipError}
-                            />
                             <TextField
                                 required
                                 margin="dense"
@@ -289,6 +264,18 @@ export default function ChannelView() {
                                 variant="standard"
                                 error={!!portError}
                                 helperText={portError}
+                            />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="ipAddress"
+                                name="ipAddress"
+                                label="IP Address"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                error={!!ipError}
+                                helperText={ipError}
                             />
                         </>
                     )}
@@ -386,9 +373,7 @@ export default function ChannelView() {
                         onChange={(e) => setChannelType(e.target.value as 'TCPIP' | 'SERIAL')}
                         fullWidth
                         variant="standard"
-                        SelectProps={{
-                            native: true,
-                        }}
+                        SelectProps={{ native: true }}
                     >
                         <option value="TCPIP">TCP/IP</option>
                         <option value="SERIAL">Serial</option>
@@ -398,28 +383,28 @@ export default function ChannelView() {
                             <TextField
                                 required
                                 margin="dense"
-                                id="ipAddress"
-                                name="ipAddress"
-                                label="IP Address"
-                                type="text"
-                                fullWidth
-                                variant="standard"
-                                defaultValue={selectedRows[0]?.ipAddress}
-                                error={!!ipError}
-                                helperText={ipError}
-                            />
-                            <TextField
-                                required
-                                margin="dense"
                                 id="port"
                                 name="port"
                                 label="Port"
                                 type="text"
                                 fullWidth
                                 variant="standard"
-                                defaultValue={selectedRows[0]?.port}
+                                defaultValue={selectedRows[0]?.value.split(":")[0]}
                                 error={!!portError}
                                 helperText={portError}
+                            />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="ipAddress"
+                                name="ipAddress"
+                                label="IP Address"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                defaultValue={selectedRows[0]?.value.split(":")[1]}
+                                error={!!ipError}
+                                helperText={ipError}
                             />
                         </>
                     )}
@@ -434,7 +419,7 @@ export default function ChannelView() {
                                 type="text"
                                 fullWidth
                                 variant="standard"
-                                defaultValue={selectedRows[0]?.comPort}
+                                defaultValue={selectedRows[0]?.value.split(":")[0]}
                             />
                             <TextField
                                 required
@@ -445,7 +430,7 @@ export default function ChannelView() {
                                 type="text"
                                 fullWidth
                                 variant="standard"
-                                defaultValue={selectedRows[0]?.baudRate}
+                                defaultValue={selectedRows[0]?.value.split(":")[1]}
                                 error={!!portError}
                                 helperText={portError}
                             />

@@ -3,14 +3,8 @@ export interface Channel {
     name: string;
     code: string;
     type: 'TCPIP' | 'SERIAL';
-    value: string;
+    value: string; // Format: "port:ipAddress" for TCPIP, "comPort:baudRate" for SERIAL
     LTS: boolean;
-    created_at: string;
-    updated_at: string;
-    ipAddress?: string;
-    port?: number;
-    comPort?: string;
-    baudRate?: number;
 }
 
 export interface ChannelResponse {
