@@ -10,6 +10,8 @@ import { Shift } from "./model/shift";
 import { User } from "./model/user";
 import { Company } from "./model/company";
 import { Area } from "./model/area";
+import { RolePrivilege } from "./model/role-privilege";
+
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
     // Department
@@ -59,6 +61,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createArea: (area: Area) => ipcRenderer.invoke('request:createArea', area),
     updateArea: (area: Area) => ipcRenderer.invoke('request:updateArea', area),
     deleteArea: (id: number) => ipcRenderer.invoke('request:deleteArea', id),
-
+    // RolePrivilege
+    getRolePrivileges: () => ipcRenderer.invoke('request:getRolePrivileges'),
+    createRolePrivilege: (rolePrivilege: RolePrivilege) => ipcRenderer.invoke('request:createRolePrivilege', rolePrivilege),
+    modifyRolePrivilege: (rolePrivilege: RolePrivilege) => ipcRenderer.invoke('request:modifyRolePrivilege', rolePrivilege),
+    deleteRolePrivilege: (id: number) => ipcRenderer.invoke('request:deleteRolePrivilege', id),
 
 });

@@ -14,12 +14,13 @@ import { STRINGS } from '../constants';
 
 export default function UserReportView() {
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<number | ''>(''); // Change initial value to ''
   const [roleNames, setRoleNames] = useState<Record<number, string>>({});
   const [departmentNames, setDepartmentNames] = useState<Record<number, string>>({});
   const [companyNames, setCompanyNames] = useState<Record<number, string>>({});
   const [shiftNames, setShiftNames] = useState<Record<number, string>>({});
   const [designationNames, setDesignationNames] = useState<Record<number, string>>({});
+  const [rolePrivileges, setRolePrivileges] = useState<Record<number, string[]>>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [errorDialog, setErrorDialog] = useState<{ open: boolean; title: string; message: string }>({
     open: false,
@@ -43,14 +44,19 @@ export default function UserReportView() {
     }
   };
 
-  // Fetch role name for a given ID using IPC
-  const fetchRoleName = async (roleId: number) => {
+  // Fetch role details for a given ID using IPC
+  const fetchRoleDetails = async (roleId: number) => {
     try {
       const response = await window.electronAPI.getRole(roleId);
-      return response?.role?.name || 'Unknown Role';
+      if (response?.role) {
+        const { name, privileges } = response.role;
+        const privilegeNames = Array.isArray(privileges) ? privileges.map((privilege: { name: string }) => privilege.name) : [];
+        return { name, privileges: privilegeNames };
+      }
+      return { name: 'Unknown Role', privileges: [] };
     } catch (error) {
-      console.error(`Error fetching role name for ID ${roleId}:`, error);
-      return 'Unknown Role';
+      console.error(`Error fetching role details for ID ${roleId}:`, error);
+      return { name: 'Unknown Role', privileges: [] };
     }
   };
 
@@ -68,7 +74,7 @@ export default function UserReportView() {
   // Fetch company name for a given ID using IPC
   const fetchCompanyName = async (companyId: number) => {
     try {
-      const response = await window.electronAPI.getCompany(companyId); // Ensure this is exposed in the main process
+      const response = await window.electronAPI.getCompany(companyId);
       return response?.company?.name || 'Unknown Company';
     } catch (error) {
       console.error(`Error fetching company name for ID ${companyId}:`, error);
@@ -84,7 +90,7 @@ export default function UserReportView() {
       console.error(`Error fetching shift name for ID ${shiftId}:`, error);
       return 'Unknown Shift';
     }
-  }
+  };
 
   const fetchDesignationName = async (designationId: number) => {
     try {
@@ -94,8 +100,8 @@ export default function UserReportView() {
       console.error(`Error fetching designation name for ID ${designationId}:`, error);
       return 'Unknown Designation';
     }
-  }
-  // updated code
+  };
+
   // Load role names, department names, and company names for all users
   const loadRoleAndDepartmentNames = async () => {
     const roleMap: Record<number, string> = {};
@@ -103,11 +109,13 @@ export default function UserReportView() {
     const companyMap: Record<number, string> = {};
     const shiftMap: Record<number, string> = {};
     const designationMap: Record<number, string> = {};
+    const rolePrivilegesMap: Record<number, string[]> = {};
 
     for (const user of users) {
       if (!roleMap[user.roleId]) {
-        const roleName = await fetchRoleName(user.roleId);
-        roleMap[user.roleId] = roleName;
+        const { name, privileges } = await fetchRoleDetails(user.roleId);
+        roleMap[user.roleId] = name;
+        rolePrivilegesMap[user.roleId] = privileges;
       }
       if (!departmentMap[user.departmentId]) {
         const departmentName = await fetchDepartmentName(user.departmentId);
@@ -132,6 +140,7 @@ export default function UserReportView() {
     setCompanyNames(companyMap);
     setShiftNames(shiftMap);
     setDesignationNames(designationMap);
+    setRolePrivileges(rolePrivilegesMap);
   };
 
   // Export user to PDF
@@ -142,11 +151,12 @@ export default function UserReportView() {
       return;
     }
 
-    const roleName = roleNames[user.roleId] || (await fetchRoleName(user.roleId));
+    const roleName = roleNames[user.roleId] || (await fetchRoleDetails(user.roleId)).name;
     const departmentName = departmentNames[user.departmentId] || (await fetchDepartmentName(user.departmentId));
     const companyName = companyNames[user.companyId] || (await fetchCompanyName(user.companyId));
     const shiftName = shiftNames[user.shiftId] || (await fetchShiftName(user.shiftId));
     const designationName = designationNames[user.designationId] || (await fetchDesignationName(user.designationId));
+    const privileges = rolePrivileges[user.roleId] || (await fetchRoleDetails(user.roleId)).privileges;
 
     const doc = new jsPDF();
     const userText = `
@@ -158,14 +168,17 @@ export default function UserReportView() {
       Email: ${user.email}
       Phone: ${user.phone}
       Role Name: ${roleName}
+      Privileges: ${privileges.join(', ')}
       Department Name: ${departmentName}
       Company Name: ${companyName}
       Designation Name: ${designationName}
       Shift Name: ${shiftName}
       Date of Birth: ${user.dateOfBirth}
       Date of Joining: ${user.dateOfJoining}
-    `;
-    doc.text(userText, 10, 10);
+    `.trim();
+
+    const lines = userText.split('\n');
+    doc.text(lines, 10, 10);
     doc.save(`${user.firstName}-${user.lastName}-report.pdf`);
   };
 
@@ -187,13 +200,13 @@ export default function UserReportView() {
       <Stack spacing={2} direction="row" alignItems="center">
         <Typography>Select a User:</Typography>
         <Select
-          value={selectedUserId ?? undefined}
-          onChange={(e) => setSelectedUserId(Number(e.target.value))}
+          value={selectedUserId === '' ? '' : selectedUserId} // Ensure value is either a number or ''
+          onChange={(e) => setSelectedUserId(e.target.value === '' ? '' : Number(e.target.value))}
           displayEmpty
           style={{ minWidth: '200px' }}
         >
-          <MenuItem value="" disabled>
-            Select a user
+          <MenuItem value="">
+            <em>Select a user</em>
           </MenuItem>
           {users.map((user) => (
             <MenuItem key={user.id} value={user.id}>
@@ -207,7 +220,7 @@ export default function UserReportView() {
       </Stack>
 
       {/* Display Selected User Information */}
-      {selectedUserId && (
+      {selectedUserId !== '' && (
         <Card variant="outlined">
           <CardContent>
             <Typography variant="h6">User Information</Typography>
@@ -219,6 +232,7 @@ export default function UserReportView() {
               const companyName = companyNames[user.companyId] || 'Loading...';
               const shiftName = shiftNames[user.shiftId] || 'Loading...';
               const designationName = designationNames[user.designationId] || 'Loading...';
+              const privileges = rolePrivileges[user.roleId] || [];
               return (
                 <Stack spacing={1}>
                   <Typography>ID: {user.id}</Typography>
@@ -228,6 +242,7 @@ export default function UserReportView() {
                   <Typography>Email: {user.email}</Typography>
                   <Typography>Phone: {user.phone}</Typography>
                   <Typography>Role Name: {roleName}</Typography>
+                  <Typography>Privileges: {privileges.length > 0 ? privileges.join(', ') : 'None'}</Typography>
                   <Typography>Department Name: {departmentName}</Typography>
                   <Typography>Company Name: {companyName}</Typography>
                   <Typography>Designation Name: {designationName}</Typography>
@@ -244,8 +259,8 @@ export default function UserReportView() {
       {/* Export to PDF Button */}
       <Button
         variant="contained"
-        onClick={() => selectedUserId && exportUserToPDF(selectedUserId)}
-        disabled={!selectedUserId}
+        onClick={() => selectedUserId !== '' && exportUserToPDF(selectedUserId)}
+        disabled={selectedUserId === ''}
       >
         Export Selected User to PDF
       </Button>
