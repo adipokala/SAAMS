@@ -146,7 +146,7 @@ export default function ChannelView() {
             name: formJson.name,
             code: formJson.code,
             type: channelType,
-            value: channelType === 'TCPIP' ? `${formJson.port}:${formJson.ipAddress}` : `${formJson.comPort}:${formJson.baudRate}`,
+            value: channelType === 'TCPIP' ? `${formJson.ipAddress}:${formJson.port}` : `${formJson.baudRate}:${formJson.comPort}`,
             LTS: LTS,
             id: isUpdate ? selectedRows[0].id : 0
         };
@@ -256,18 +256,6 @@ export default function ChannelView() {
                             <TextField
                                 required
                                 margin="dense"
-                                id="port"
-                                name="port"
-                                label="Port"
-                                type="text"
-                                fullWidth
-                                variant="standard"
-                                error={!!portError}
-                                helperText={portError}
-                            />
-                            <TextField
-                                required
-                                margin="dense"
                                 id="ipAddress"
                                 name="ipAddress"
                                 label="IP Address"
@@ -277,20 +265,22 @@ export default function ChannelView() {
                                 error={!!ipError}
                                 helperText={ipError}
                             />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="port"
+                                name="port"
+                                label="Port"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                error={!!portError}
+                                helperText={portError}
+                            />
                         </>
                     )}
                     {channelType === 'SERIAL' && (
                         <>
-                            <TextField
-                                required
-                                margin="dense"
-                                id="comPort"
-                                name="comPort"
-                                label="COM Port"
-                                type="text"
-                                fullWidth
-                                variant="standard"
-                            />
                             <TextField
                                 required
                                 margin="dense"
@@ -302,6 +292,16 @@ export default function ChannelView() {
                                 variant="standard"
                                 error={!!portError}
                                 helperText={portError}
+                            />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="comPort"
+                                name="comPort"
+                                label="COM Port"
+                                type="text"
+                                fullWidth
+                                variant="standard"
                             />
                         </>
                     )}
@@ -383,44 +383,33 @@ export default function ChannelView() {
                             <TextField
                                 required
                                 margin="dense"
-                                id="port"
-                                name="port"
-                                label="Port"
-                                type="text"
-                                fullWidth
-                                variant="standard"
-                                defaultValue={selectedRows[0]?.value.split(":")[0]}
-                                error={!!portError}
-                                helperText={portError}
-                            />
-                            <TextField
-                                required
-                                margin="dense"
                                 id="ipAddress"
                                 name="ipAddress"
                                 label="IP Address"
                                 type="text"
                                 fullWidth
                                 variant="standard"
-                                defaultValue={selectedRows[0]?.value.split(":")[1]}
+                                defaultValue={selectedRows[0]?.value.split(":")[0]}
                                 error={!!ipError}
                                 helperText={ipError}
+                            />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="port"
+                                name="port"
+                                label="Port"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                defaultValue={selectedRows[0]?.value.split(":")[1]}
+                                error={!!portError}
+                                helperText={portError}
                             />
                         </>
                     )}
                     {channelType === 'SERIAL' && (
                         <>
-                            <TextField
-                                required
-                                margin="dense"
-                                id="comPort"
-                                name="comPort"
-                                label="COM Port"
-                                type="text"
-                                fullWidth
-                                variant="standard"
-                                defaultValue={selectedRows[0]?.value.split(":")[0]}
-                            />
                             <TextField
                                 required
                                 margin="dense"
@@ -430,9 +419,20 @@ export default function ChannelView() {
                                 type="text"
                                 fullWidth
                                 variant="standard"
-                                defaultValue={selectedRows[0]?.value.split(":")[1]}
+                                defaultValue={selectedRows[0]?.value.split(":")[0]}
                                 error={!!portError}
                                 helperText={portError}
+                            />
+                            <TextField
+                                required
+                                margin="dense"
+                                id="comPort"
+                                name="comPort"
+                                label="COM Port"
+                                type="text"
+                                fullWidth
+                                variant="standard"
+                                defaultValue={selectedRows[0]?.value.split(":")[1]}
                             />
                         </>
                     )}
