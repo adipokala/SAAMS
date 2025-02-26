@@ -27,6 +27,6 @@
  */
 
 // import './index.css';
+import { ipcRenderer } from 'electron';
 import './app';
 
-console.log('👋 This message is being logged by "renderer.js", included via webpack');
