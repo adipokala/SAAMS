@@ -1,7 +1,7 @@
 import { Base } from './base';
 import Response from './response';
 
-export interface Channel {
+export interface Channel extends Base {
     id: number;
     name: string;
     code: string;
@@ -10,7 +10,7 @@ export interface Channel {
     LTS: boolean;
 }
 
-export interface ChannelResponse {
+export interface ChannelResponse extends Response {
     channel: Channel | null;
     channels: Channel[];
     message: string;
