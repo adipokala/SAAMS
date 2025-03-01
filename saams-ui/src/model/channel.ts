@@ -1,3 +1,6 @@
+import { Base } from './base';
+import Response from './response';
+
 export interface Channel {
     id: number;
     name: string;
