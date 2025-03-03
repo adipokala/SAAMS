@@ -2,7 +2,6 @@ import { Base } from './base';
 import Response from './response';
 
 export interface Channel extends Base {
-    id: number;
     name: string;
     code: string;
     type: 'TCPIP' | 'SERIAL';
@@ -13,6 +12,4 @@ export interface Channel extends Base {
 export interface ChannelResponse extends Response {
     channel: Channel | null;
     channels: Channel[];
-    message: string;
-    status: boolean;
 }
