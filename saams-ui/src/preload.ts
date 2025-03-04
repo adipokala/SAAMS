@@ -10,6 +10,7 @@ import { Shift } from "./model/shift";
 import { User } from "./model/user";
 import { Company } from "./model/company";
 import { Area } from "./model/area";
+import { Channel } from "./model/channel";
 contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
     // Department
@@ -59,6 +60,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createArea: (area: Area) => ipcRenderer.invoke('request:createArea', area),
     updateArea: (area: Area) => ipcRenderer.invoke('request:updateArea', area),
     deleteArea: (id: number) => ipcRenderer.invoke('request:deleteArea', id),
-
+    // Channel 
+    getChannels: () => ipcRenderer.invoke('request:getChannels'),
+    getChannel: (id: number) => ipcRenderer.invoke('request:getChannel', id),
+    createChannel: (channel: Channel) => ipcRenderer.invoke('request:createChannel', channel),
+    updateChannel: (channel: Channel) => ipcRenderer.invoke('request:updateChannel', channel),
+    deleteChannel: (id: number) => ipcRenderer.invoke('request:deleteChannel', id),
 
 });
