@@ -7,6 +7,7 @@ import { UserResponse, User } from "./model/user";
 import { CompanyResponse, Company } from "./model/company";
 import { AreaResponse, Area } from "./model/area";
 import { RolePrivilegeResponse, RolePrivilege } from "./model/role-privilege";
+import { Channel, ChannelResponse } from "./model/channel";
 
 export { };
 
@@ -66,6 +67,12 @@ declare global {
             createRolePrivilege: (rolePrivilege: RolePrivilege) => RolePrivilegeResponse;
             updateRolePrivilege: (rolePrivilege: RolePrivilege) => RolePrivilegeResponse;
             deleteRolePrivilege: (id: number) => RolePrivilegeResponse;
+            //channel
+            getChannels: () => ChannelResponse;
+            getChannel: (id: number) => ChannelResponse;
+            createChannel: (channel: Channel) => ChannelResponse;
+            updateChannel: (channel: Channel) => ChannelResponse;
+            deleteChannel: (id: number) => ChannelResponse;
         }
     }
 }
