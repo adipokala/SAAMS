@@ -48,7 +48,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createUser: (user: User) => ipcRenderer.invoke('request:createUser', user),
     updateUser: (user: User) => ipcRenderer.invoke('request:updateUser', user),
     deleteUser: (id: number) => ipcRenderer.invoke('request:deleteUser', id),
-    changePassword: (userId: number, currentPassword: string, newPassword: string) => ipcRenderer.invoke('request:changePassword', userId, currentPassword, newPassword),
+    changePassword: (userName: string, currentPassword: string, newPassword: string, confirmPassword: string) => ipcRenderer.invoke('request:changePassword', userName, currentPassword, newPassword, confirmPassword),
+
     // Company
     getCompanies: () => ipcRenderer.invoke('request:getCompanies'),
     getCompany: (id: number) => ipcRenderer.invoke('request:getCompany', id),

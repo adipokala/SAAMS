@@ -87,7 +87,8 @@ ipcMain.handle('request:getUsers', () => getUsers());
 ipcMain.handle('request:createUser', (event, user) => createUser(user));
 ipcMain.handle('request:updateUser', (event, user) => updateUser(user));
 ipcMain.handle('request:deleteUser', (event, id) => deleteUser(id));
-ipcMain.handle('request:changePassword', (event, userId, currentPassword, newPassword) => changePassword(userId, currentPassword, newPassword));
+ipcMain.handle('request:changePassword', (event, userName, currentPassword, newPassword, confirmPassword) => changePassword(userName, currentPassword, newPassword, confirmPassword));
+
 
 // Company
 ipcMain.handle('request:getCompanies', () => getCompanies());

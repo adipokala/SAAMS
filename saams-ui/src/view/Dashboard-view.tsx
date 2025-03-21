@@ -20,7 +20,7 @@ import IconButton from '@mui/material/IconButton';
 import ListItemButton from "@mui/material/ListItemButton";
 import React from "react";
 import { User } from '../model/user'; // Importing User model
-import AccountDetailsView from "./AccountDetails-view"; // Ensure correct import path
+import AccountDetailsView from "./account-details-view"; // Ensure correct import path
 import AreaView from './area-view';
 import CompanyView from './company-view';
 import DepartmentView from "./Department-view"; // Ensure correct import path
@@ -58,11 +58,16 @@ const darkTheme = createTheme({
   },
 });
 
-const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User'];
+const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Department', 'Role', 'Shift', 'User', 'Change Password'];
+
 const accessManagementItems: string[] = ['Area', 'Channel', 'Reader'];
 const reportManagementItems: string[] = ['User Report', 'Reader Report', 'Attendance Report'];
 
 const switchView = (key: string, user: User): React.JSX.Element => {
+    if (key === 'Change Password') {
+        return <AccountDetailsView user={user} />; // Assuming this view handles password change
+    }
+
   console.log("Clicked on: " + key);
 
   switch (key) {
@@ -203,7 +208,9 @@ export default function DashboardView({ user, handleLogout }: DashboardViewProps
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
           >
-            <MenuItem onClick={handleAccountDetails}>Account Details</MenuItem>
+<MenuItem onClick={handleAccountDetails}>Account Details</MenuItem>
+<MenuItem onClick={() => setItem("Change Password")}>Change Password</MenuItem>
+
             <MenuItem onClick={handleLogout}>Logout</MenuItem>
           </Menu>
         </Toolbar>

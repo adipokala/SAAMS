@@ -48,7 +48,8 @@ declare global {
             createUser: (user: User) => UserResponse;
             updateUser: (user: User) => UserResponse;
             deleteUser: (id: number) => UserResponse;
-            changePassword: (userId: number, currentPassword: string, newPassword: string) => UserResponse;
+            changePassword: (userName: string, currentPassword: string, newPassword: string) => UserResponse;
+
             //Company
             getCompanies: () => CompanyResponse;
             getCompany: (id: number) => CompanyResponse;

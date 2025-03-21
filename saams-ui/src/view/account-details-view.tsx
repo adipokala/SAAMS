@@ -17,7 +17,7 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ user }) => {
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [message, setMessage] = useState<string>('');
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   // Fetch role name
   const fetchRoleName = async (roleId: number) => {
@@ -70,18 +70,30 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ user }) => {
   }, [user]);
 
   const handleChangePassword = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        setMessage({ text: "All fields are required.", type: "error" });
+        return;
+    }
+
     if (newPassword !== confirmPassword) {
-      setMessage("New passwords do not match.");
-      return;
+        setMessage({ text: "New passwords do not match.", type: "error" });
+        return;
     }
-    // Call the API to change the password
-    const response = await window.electronAPI.changePassword(user.id, currentPassword, newPassword);
-    if (response.success) {
-      setMessage("Password changed successfully.");
-    } else {
-      setMessage("Error changing password: " + response.error);
+
+    try {
+        const response = await window.electronAPI.changePassword(user.userName, currentPassword, newPassword);
+        if (response?.success) {
+            setMessage({ text: "Password changed successfully.", type: "success" });
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+        } else {
+            setMessage({ text: response?.error || "Failed to change password.", type: "error" });
+        }
+    } catch (error) {
+        setMessage({ text: "An error occurred. Please try again.", type: "error" });
     }
-  };
+};
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -131,6 +143,7 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ user }) => {
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
           />
+
           <TextField
             label="New Password"
             type="password"
@@ -150,11 +163,14 @@ const AccountDetailsView: React.FC<AccountDetailsViewProps> = ({ user }) => {
           <Button variant="contained" color="primary" onClick={handleChangePassword}>
             Change Password
           </Button>
-          {message && <Typography color="error">{message}</Typography>}
+          {message && (
+            <Typography sx={{ marginTop: 2, color: message.type === "success" ? "green" : "red" }}>
+              {message.text}
+            </Typography>
+          )}
         </CardContent>
       </Card>
     </Box>
   );
 };
-
 export default AccountDetailsView;
