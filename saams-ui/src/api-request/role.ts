@@ -13,14 +13,14 @@ export const getRoles = async () => {
             path: API_ENDPOINTS.role,
             headers: API_CONFIG.headers,
         });
-    
+
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -30,19 +30,19 @@ export const getRoles = async () => {
                 }
             });
         });
-    
+
         request.on('error', (error) => {
             reject(error); // Reject the promise if there's a request error
         });
-    
+
         request.end();
-        });
-    
-        return future;
+    });
+
+    return future;
 }
 export const getRole = async (id: number) => {
     const future = await new Promise<RoleResponse>((resolve, reject) => {
-        const request =  net.request({
+        const request = net.request({
             method: 'GET',
             protocol: 'https:',
             hostname: API_CONFIG.hostname,
@@ -51,32 +51,32 @@ export const getRole = async (id: number) => {
             headers: API_CONFIG.headers,
         });
 
-            request.on('response', (response) => {
-                let responseData = '';
-        
-                response.on('data', (chunk) => {
+        request.on('response', (response) => {
+            let responseData = '';
+
+            response.on('data', (chunk) => {
                 responseData += chunk; // Collect all data chunks
-                });
-        
-                response.on('end', () => {
-                    try {
-                        const data = JSON.parse(responseData);
-                        resolve(data); // Resolve the promise with the id
-                    } catch (error) {
-                        reject(error); // Reject if parsing fails
-                    }
-                });
             });
-        
-            request.on('error', (error) => {
-                reject(error); // Reject the promise if there's a request error
+
+            response.on('end', () => {
+                try {
+                    const data = JSON.parse(responseData);
+                    resolve(data); // Resolve the promise with the id
+                } catch (error) {
+                    reject(error); // Reject if parsing fails
+                }
             });
-        
-            request.end();
-            });
-        
-            return future;
-    }
+        });
+
+        request.on('error', (error) => {
+            reject(error); // Reject the promise if there's a request error
+        });
+
+        request.end();
+    });
+
+    return future;
+}
 export const createRole = async (role: Role) => {
     const future = await new Promise<RoleResponse>((resolve, reject) => {
         const request = net.request({
@@ -90,11 +90,11 @@ export const createRole = async (role: Role) => {
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -104,14 +104,14 @@ export const createRole = async (role: Role) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
 
         request.write(JSON.stringify(role));
-    
+
         request.end();
     });
 
@@ -131,11 +131,11 @@ export const updateRole = async (role: Role) => {
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -144,14 +144,14 @@ export const updateRole = async (role: Role) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
 
         request.write(JSON.stringify(role));
-    
+
         request.end();
     });
 
@@ -166,26 +166,27 @@ export const deleteRole = async (id: number) => {
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
             path: API_ENDPOINTS.role + `/${id}`,
+            
         });
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
-                    resolve(data); // Resolve the promise with the id
+                    resolve(data);
                 } catch (error) {
-                    reject(error); // Reject if parsing fails
+                    reject(new Error('Failed to parse channel deletion response')); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
-                reject(error); // Reject the promise if there's a request error
+                reject(new Error('Request failed during channel deletion')); // Reject the promise if there's a request error
             });
         });
 

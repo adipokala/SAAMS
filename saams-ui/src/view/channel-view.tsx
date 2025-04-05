@@ -43,14 +43,18 @@ export default function ChannelView() {
     ];
 
     const handleRefreshButtonClick = async () => {
-        const response = await handleOnGet();
-        if (!response.status) {
+        try {
+            const response = await handleOnGet();
+            if (!response.status) {
+                throw new Error("Error fetching data from backend");
+            }
+            setRows(response.channels);
+        } catch (error) {
             setMessageTitle("Error");
-            setMessageContent("Error fetching data");
+            setMessageContent("Backend is not responding. Please try again later.");
             setMessageModal(true);
         }
-        setRows(response.channels);
-    }
+    };
 
     const handleAddButtonClick = () => {
         setAddModal(true);
@@ -83,18 +87,24 @@ export default function ChannelView() {
             setMessageTitle("Delete Channel");
             setMessageContent("Select an item to delete.");
             setMessageModal(true);
-        } else {
+            return;
+        }
+
+        try {
             for (const element of selectedRows) {
                 const resp = await window.electronAPI.deleteChannel(element.id);
                 if (!resp.status) {
-                    setMessageTitle("Delete Channel");
-                    setMessageContent(`Failed to delete item with ID ${element.id}`);
-                    setMessageModal(true);
+                    throw new Error(`Failed to delete item with ID ${element.id}`);
                 }
             }
             handleRefreshButtonClick();
+        } catch (error) {
+            setMessageTitle("Error");
+            setMessageContent("Backend is not responding. Please try again later.");
+            setMessageModal(true);
         }
-    }
+    };
+
 
     const handleClose = () => {
         setAddModal(false);
@@ -142,28 +152,32 @@ export default function ChannelView() {
             }
         }
 
-        let channel: Channel = {
-            name: formJson.name,
-            code: formJson.code,
-            type: channelType,
-            value: channelType === 'TCPIP' ? `${formJson.ipAddress}:${formJson.port}` : `${formJson.baudRate}:${formJson.comPort}`,
-            LTS: LTS,
-            id: isUpdate ? selectedRows[0].id : 0
-        };
+        try {
+            let channel: Channel = {
+                name: formJson.name,
+                code: formJson.code,
+                type: channelType,
+                value: channelType === 'TCPIP' ? `${formJson.ipAddress}:${formJson.port}` : `${formJson.baudRate}:${formJson.comPort}`,
+                LTS: LTS,
+                id: isUpdate ? selectedRows[0].id : 0
+            };
 
-        const resp = isUpdate ? await window.electronAPI.updateChannel(channel) : await window.electronAPI.createChannel(channel);
-        if (resp.status) {
+            const resp = isUpdate ? await window.electronAPI.updateChannel(channel) : await window.electronAPI.createChannel(channel);
+            if (!resp.status) {
+                throw new Error(resp.message);
+            }
+
             setMessageTitle("Success");
             setMessageContent(resp.message);
             setMessageModal(true);
             handleRefreshButtonClick();
             handleClose();
-        } else {
+        } catch (error) {
             setMessageTitle("Error");
-            setMessageContent(resp.message);
+            setMessageContent("Backend is not responding. Please try again later.");
             setMessageModal(true);
         }
-    }
+    };
 
     React.useEffect(() => {
         if (initialLoad) {

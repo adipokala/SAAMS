@@ -35,33 +35,80 @@ export default function DesignationView() {
     { field: 'code', headerName: 'Code', width: 110 },
   ];
 
-  const handleRefreshButtonClick = async () => {
-    const response = await handleOnGet();
-    if (!response.status) {
-      setMessageTitle("Error");
-      setMessageContent("Error fetching data");
-      setMessageModal(true);
-    }
-    setRows(response.designations);
-  }
+  const showErrorMessage = (title: string, message: string) => {
+    setMessageTitle(title);
+    setMessageContent(message);
+    setMessageModal(true);
+  };
 
-  const handleAddButtonClick = () => {
-    setAddModal(true);
-  }
-
-  const handleUpdateButtonClick = () => {
-    if (selectedRows.length > 1) {
-      setMessageTitle("Update Designation");
-      setMessageContent("Select only one item to edit.");
-      setMessageModal(true);
-    } else if (selectedRows.length == 0) {
-      setMessageTitle("Update Designation");
-      setMessageContent("Select an item to edit.");
-      setMessageModal(true);
-    } else {
-      setUpdateModal(true);
+const handleRefreshButtonClick = async () => {
+    try {
+      const response = await window.electronAPI.getDesignations();
+      setRows(response.designations);
+    } catch (error) {
+      showErrorMessage("Error", "Backend is not responding. Please try again later.");
     }
-  }
+  };
+
+  const handleAddButtonClick = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      const formData = new FormData(event.currentTarget);
+      const formJson = Object.fromEntries((formData as any).entries());
+
+      if (/\s/.test(formJson.code)) {
+        showErrorMessage("Error", "Code should not contain spaces.");
+        return;
+      }
+
+      let designation: Designation = {
+        name: formJson.name,
+        code: formJson.code,
+      };
+
+      const resp = await window.electronAPI.createDesignation(designation);
+      if (resp) {
+        showErrorMessage("Success", resp.message);
+        handleRefreshButtonClick();
+      } else {
+        showErrorMessage("Error", resp.message);
+      }
+    } catch (error) {
+      showErrorMessage("Error", "Backend is not responding. Please try again later.");
+    }
+    setAddModal(false);
+  };
+
+  const handleUpdateButtonClick = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      if (selectedRows.length !== 1) {
+        showErrorMessage("Update Designation", "Select only one item to edit.");
+        return;
+      }
+
+      const formData = new FormData(event.currentTarget);
+      const formJson = Object.fromEntries((formData as any).entries());
+
+      let designation: Designation = {
+        id: selectedRows[0].id,
+        name: formJson.name,
+        code: formJson.code,
+      };
+
+      const resp = await window.electronAPI.updateDesignation(designation);
+      if (resp) {
+        showErrorMessage("Success", resp.message);
+        handleRefreshButtonClick();
+      } else {
+        showErrorMessage("Error", resp.message);
+      }
+    } catch (error) {
+      showErrorMessage("Error", "Backend is not responding. Please try again later.");
+    }
+    setUpdateModal(false);
+  };
+
 
   const handleDeleteButtonClick = async () => {
     if (selectedRows.length == 0) {
