@@ -14,7 +14,6 @@ export { };
 declare global {
     interface Window {
         electronAPI: {
-            getChannels(): unknown;
             addReader(reader: any): unknown;
             [x: string]: any;
             loginUser: (json: string) => UserResponse;

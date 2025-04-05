@@ -99,7 +99,6 @@ export const createReader = async (reader: Reader) => {
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
-                    console.log(data);
                     resolve(data); // Resolve the promise with the id
                 } catch (error) {
                     reject(error); // Reject if parsing fails
@@ -143,16 +142,19 @@ export const updateReader = async (reader: Reader) => {
                     const data = JSON.parse(responseData);
                     console.log(data);
                     resolve(data); // Resolve the promise with the id
+
                 } catch (error) {
                     reject(error); // Reject if parsing fails
                 }
             });
+
 
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
 
+        console.log(reader);
         request.write(JSON.stringify(reader));
 
         request.end();

@@ -11,7 +11,7 @@ export const getChannel = async (id: number): Promise<ChannelResponse> => {
       hostname: API_CONFIG.hostname,
       port: API_CONFIG.port,
       path: `${API_ENDPOINTS.channel}/${id}`,
-      headers: API_CONFIG.headers
+      headers: API_CONFIG.headers,
     });
 
     request.on('response', (response) => {
@@ -208,4 +208,4 @@ export const deleteChannel = async (id: number): Promise<ChannelResponse> => {
 
     request.end();
   });
-}; 6
+};

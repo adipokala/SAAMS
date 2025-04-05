@@ -10,16 +10,16 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Refresh, Add, Delete, Update } from '@mui/icons-material';
 import { Reader } from '../model/reader';
-import { Checkbox, FormControlLabel, InputLabel, MenuItem, Select } from '@mui/material';
+import { Checkbox, FormControlLabel, FormGroup, InputLabel, MenuItem, Select } from '@mui/material';
 import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import { STRINGS } from '../constants';
 import { Area } from '../model/area';
-//import { Channel } from '../model/channel';
+import { Channel } from '../model/channel';
 
 let selectedRows: Reader[] = [];
-//let channels: Channel[] = [];
+let channels: Channel[] = [];
 let areas: Area[] = [];
 
 const handleOnGet = async () => {
@@ -28,13 +28,13 @@ const handleOnGet = async () => {
 };
 
 const getAll = async () => {
-    // const resp = await window.electronAPI.getChannels();
-    //if (resp.status) {
-    //  channels = resp.channels;
-    //}
-    const resp2 = await window.electronAPI.getAreas();
-    if (resp2.status) {
-        areas = resp2.areas;
+    const respCha = await window.electronAPI.getChannels();
+    if (respCha.status) {
+        channels = respCha.channels;
+    }
+    const respAre = await window.electronAPI.getAreas();
+    if (respAre.status) {
+        areas = respAre.areas;
     }
 }
 
@@ -47,6 +47,15 @@ export default function ReaderView() {
     const [messageTitle, setMessageTitle] = React.useState<string>('');
     const [messageContent, setMessageContent] = React.useState<string>('');
     const [installationDate, setInstallationDate] = React.useState<Dayjs | null>(null);
+    const [isAttendanceReader, setIsAttendanceReader] = React.useState<boolean>(false);
+    const [status, setStatus] = React.useState<boolean>(false);
+    const [dateValidation, setDateValidation] = React.useState<boolean>(false);
+    const [antiPassback, setAntiPassback] = React.useState<boolean>(false);
+    const [biometrics, setBiometrics] = React.useState<boolean>(false);
+    const [sidControl, setSidControl] = React.useState<boolean>(false);
+    const [unlockDuration, setUnlockDuration] = React.useState<Dayjs | null>(dayjs().minute(0).second(0));
+    const [doorOpenDuration, setDoorOpenDuration] = React.useState<Dayjs | null>(dayjs().minute(0).second(0));
+    const [displayDuration, setDisplayDuration] = React.useState<Dayjs | null>(dayjs().minute(0).second(0));
 
     const columns: GridColDef<(typeof rows)[number]>[] = [
         { field: 'id', headerName: 'ID', width: 90 },
@@ -54,14 +63,18 @@ export default function ReaderView() {
         { field: 'code', headerName: 'Code', width: 110 },
         { field: 'serialNumber', headerName: 'Serial Number', width: 150 },
         { field: 'installationDate', headerName: 'Installation Date', width: 150 },
-        { field: 'isAttendanceReader', headerName: 'Attendance Reader', width: 150, type: 'boolean' },
+        { field: 'isAttendanceReader', headerName: 'isAttendance Reader', width: 150, type: 'boolean' },
         { field: 'status', headerName: 'Status', width: 100, type: 'boolean' },
         { field: 'adminPIN', headerName: 'Admin PIN', width: 100 },
         { field: 'dateValidation', headerName: 'Date Validation', width: 150, type: 'boolean' },
         { field: 'antiPassback', headerName: 'Anti Passback', width: 150, type: 'boolean' },
         { field: 'biometrics', headerName: 'Biometrics', width: 100, type: 'boolean' },
         { field: 'sidControl', headerName: 'SID Control', width: 100, type: 'boolean' },
-        { field: 'display', headerName: 'Display', width: 100 },
+        { field: 'doorMode', headerName: 'Door Mode', width: 100 },
+        { field: 'type', headerName: 'Reader Type', width: 100 },
+        { field: 'accessControl', headerName: 'Access Control', width: 150 },
+        { field: 'switch', headerName: 'Reader Switch', width: 150 },
+        { field: 'display', headerName: 'Reader Display', width: 150 },
         { field: 'unlockDuration', headerName: 'Unlock Duration', width: 150 },
         { field: 'doorOpenDuration', headerName: 'Door Open Duration', width: 150 },
         { field: 'displayDuration', headerName: 'Display Duration', width: 150 },
@@ -69,6 +82,11 @@ export default function ReaderView() {
         { field: 'channelId', headerName: 'Channel ID', width: 100 },
         { field: 'areaId', headerName: 'Area ID', width: 100 },
     ];
+    const getDateDayjs = (minute: string, second: string): dayjs.Dayjs => {
+        const value = dayjs().set('minute', Number(minute)).set('second', Number(second));
+        return value;
+    };
+
 
     const handleRefreshButtonClick = async () => {
         const response = await handleOnGet();
@@ -86,8 +104,10 @@ export default function ReaderView() {
         setMessageModal(false);
     };
 
+
     React.useEffect(() => {
         if (initialLoad) {
+            getAll();
             handleRefreshButtonClick();
             setInitialLoad(false);
         }
@@ -153,7 +173,7 @@ export default function ReaderView() {
                     }}
                 />
 
-                {/* Add Modal */}
+                {/* Add Dialog */}
                 <Dialog
                     open={addModal}
                     onClose={handleClose}
@@ -164,28 +184,29 @@ export default function ReaderView() {
                             const formData = new FormData(event.currentTarget);
                             const formJson = Object.fromEntries((formData as any).entries());
                             let reader: Reader = {
-                                name: formJson.name,
-                                code: formJson.code,
-                                serialNumber: formJson.serialNumber,
+                                id: 0,
+                                name: formJson.name as string,
+                                code: formJson.code as string,
+                                serialNumber: formJson.serialNumber as string,
                                 installationDate: installationDate ? installationDate.format('YYYY-MM-DD') : '',
-                                isAttendanceReader: formJson.isAttendanceReader,
-                                status: formJson.status,
-                                adminPIN: formJson.adminPIN,
-                                dateValidation: formJson.dateValidation,
-                                antiPassback: formJson.antiPassback,
-                                biometrics: formJson.biometrics,
-                                sidControl: formJson.sidControl,
-                                doorMode: formJson.doorMode,
-                                type: formJson.type,
-                                accessControl: formJson.accessControl,
-                                switch: formJson.switch,
-                                display: formJson.display,
-                                unlockDuration: "0." + formJson.unlockDuration + ":00",
-                                doorOpenDuration: "0." + formJson.doorOpenDuration + ":00",
-                                displayDuration: "0." + formJson.displayDuration + ":00",
-                                transactionLog: formJson.transactionLog,
-                                channelId: formJson.channelId,
-                                areaId: formJson.areaId,
+                                isAttendanceReader: isAttendanceReader,
+                                status: status,
+                                adminPIN: formJson.adminPIN as string,
+                                dateValidation: dateValidation,
+                                antiPassback: antiPassback,
+                                biometrics: biometrics,
+                                sidControl: sidControl,
+                                doorMode: formJson.doorMode as string,
+                                type: formJson.readerType as string,
+                                accessControl: formJson.accessControl as string,
+                                switch: formJson.readerSwitch as string,
+                                display: formJson.readerDisplay as string,
+                                unlockDuration: "0." + unlockDuration?.format('mm:ss') + ":00",
+                                doorOpenDuration: "0." + doorOpenDuration?.format('mm:ss') + ":00",
+                                displayDuration: "0." + displayDuration?.format('mm:ss') + ":00",
+                                transactionLog: formJson.transactionLog as string,
+                                channelId: parseInt(formJson.channelId as string) || 0,
+                                areaId: parseInt(formJson.areaId as string) || 0,
                             };
                             const resp = await window.electronAPI.createReader(reader);
                             if (resp) {
@@ -244,15 +265,8 @@ export default function ReaderView() {
                             format="YYYY-MM-DD"
                             sx={{ margin: 1 }}
                         />
-                        <FormControlLabel
-                            control={<Checkbox name="isAttendanceReader" />}
-                            label="Is Attendance Reader"
-                        />
-                        <FormControlLabel
-                            control={<Checkbox name="status" />}
-                            label="Status"
-                        />
                         <TextField
+                            required
                             margin="dense"
                             id="adminPIN"
                             name="adminPIN"
@@ -261,94 +275,124 @@ export default function ReaderView() {
                             fullWidth
                             variant="standard"
                         />
-                        <FormControlLabel
-                            control={<Checkbox name="dateValidation" />}
-                            label="Date Validation"
-                        />
-                        <FormControlLabel
-                            control={<Checkbox name="antiPassback" />}
-                            label="Anti Passback"
-                        />
-                        <FormControlLabel
-                            control={<Checkbox name="biometrics" />}
-                            label="Biometrics"
-                        />
-                        <FormControlLabel
-                            control={<Checkbox name="sidControl" />}
-                            label="SID Control"
-                        />
-                        <TextField
-                            margin="dense"
+                        <FormGroup row>
+                            <FormControlLabel
+                                control={<Checkbox checked={isAttendanceReader} onChange={(e) => setIsAttendanceReader(e.target.checked)} />}
+                                label="Is Attendance Reader"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={status} onChange={(e) => setStatus(e.target.checked)} />}
+                                label="Status"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={dateValidation} onChange={(e) => setDateValidation(e.target.checked)} />}
+                                label="Date Validation"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={antiPassback} onChange={(e) => setAntiPassback(e.target.checked)} />}
+                                label="Anti Passback"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={biometrics} onChange={(e) => setBiometrics(e.target.checked)} />}
+                                label="Biometrics"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={sidControl} onChange={(e) => setSidControl(e.target.checked)} />}
+                                label="SID Control"
+                            />
+                        </FormGroup>
+                        <InputLabel id="doorMode">Door Mode</InputLabel>
+                        <Select
+                            labelId="doorMode"
                             id="doorMode"
                             name="doorMode"
-                            label="Door Mode"
-                            type="text"
                             fullWidth
-                            variant="standard"
-                        />
-                        <TextField
-                            margin="dense"
-                            id="type"
-                            name="type"
-                            label="Type"
-                            type="text"
+                        >
+                            <MenuItem value="SINGLE">SINGLE</MenuItem>
+                            <MenuItem value="FREE">FREE</MenuItem>
+                            <MenuItem value="LOCKED">LOCKED</MenuItem>
+                        </Select>
+                        <InputLabel id="readerType">Reader Type</InputLabel>
+                        <Select
+                            labelId="readerType"
+                            id="readerType"
+                            name="readerType"
                             fullWidth
-                            variant="standard"
-                        />
-                        <TextField
-                            margin="dense"
+                        >
+                            <MenuItem value="IN">IN</MenuItem>
+                            <MenuItem value="OUT">OUT</MenuItem>
+                        </Select>
+                        <InputLabel id="accessControl">Access Control</InputLabel>
+                        <Select
+                            labelId="accessControl"
                             id="accessControl"
                             name="accessControl"
-                            label="Access Control"
-                            type="text"
                             fullWidth
-                            variant="standard"
-                        />
-                        <TextField
-                            margin="dense"
-                            id="switch"
-                            name="switch"
-                            label="Switch"
-                            type="text"
+                        >
+                            <MenuItem value="DOOR">DOOR</MenuItem>
+                            <MenuItem value="TURNSTILE">TURNSTILE</MenuItem>
+                        </Select>
+                        <InputLabel id="readerSwitch">Reader Switch</InputLabel>
+                        <Select
+                            labelId="readerSwitch"
+                            id="readerSwitch"
+                            name="readerSwitch"
                             fullWidth
-                            variant="standard"
-                        />
-                        <TextField
-                            margin="dense"
-                            id="display"
-                            name="display"
-                            label="Display"
-                            type="text"
+                        >
+                            <MenuItem value="NONE">NONE</MenuItem>
+                            <MenuItem value="BYPASS">BYPASS</MenuItem>
+                            <MenuItem value="EMERGENCY">EMERGENCY</MenuItem>
+                        </Select>
+                        <InputLabel id="readerDisplay">Reader Display</InputLabel>
+                        <Select
+                            labelId="readerDisplay"
+                            id="readerDisplay"
+                            name="readerDisplay"
                             fullWidth
-                            variant="standard"
-                        />
-                        <TimePicker
-                            label="Unlock Duration"
-                            name="unlockDuration"
-                            ampm={false}
-                            sx={{ margin: 1 }}
-                        />
-                        <TimePicker
-                            label="Door Open Duration"
-                            name="doorOpenDuration"
-                            ampm={false}
-                            sx={{ margin: 1 }}
-                        />
-                        <TimePicker
-                            label="Display Duration"
-                            name="displayDuration"
-                            ampm={false}
-                            sx={{ margin: 1 }}
-                        />
-                        <TextField
-                            margin="dense"
+                        >
+                            <MenuItem value="NAME">NAME</MenuItem>
+                            <MenuItem value="CARDNO">CARDNO</MenuItem>
+                        </Select>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <TimePicker
+                                label="Unlock Duration"
+                                value={unlockDuration}
+                                onChange={(newValue) => setUnlockDuration(newValue)}
+                                ampm={false}
+                                views={['minutes', 'seconds']}
+                                format="mm:ss"
+                                sx={{ margin: 1 }}
+                            />
+                            <TimePicker
+                                label="Door Open Duration"
+                                value={doorOpenDuration}
+                                onChange={(newValue) => setDoorOpenDuration(newValue)}
+                                ampm={false}
+                                views={['minutes', 'seconds']}
+                                format="mm:ss"
+                                sx={{ margin: 1 }}
+                            />
+                            <TimePicker
+                                label="Display Duration"
+                                value={displayDuration}
+                                onChange={(newValue) => setDisplayDuration(newValue)}
+                                ampm={false}
+                                views={['minutes', 'seconds']}
+                                format="mm:ss"
+                                sx={{ margin: 1 }}
+                            />
+                        </LocalizationProvider>
+                        <InputLabel id="transactionLog">Transaction Log</InputLabel>
+                        <Select
+                            labelId="transactionLog"
                             id="transactionLog"
                             name="transactionLog"
-                            label="Transaction Log"
-                            type="text"
                             fullWidth
-                            variant="standard"
-                        />
+                        >
+                            <MenuItem value="BLOCK_AND_WARNING">BLOCK AND WARNING</MenuItem>
+                            <MenuItem value="CIRCULAR">CIRCULAR</MenuItem>
+                        </Select>
+
                         <InputLabel id="areaLabel">Area ID</InputLabel>
                         <Select
                             labelId="areaLabel"
@@ -362,14 +406,25 @@ export default function ReaderView() {
                                 </MenuItem>
                             ))}
                         </Select>
+                        <InputLabel id="channelLabel">Channel ID</InputLabel>
+                        <Select
+                            labelId="channelLabel"
+                            id="channelId"
+                            name="channelId"
+                            fullWidth
+                        >
+                            {channels.map((element) => (
+                                <MenuItem key={element.id} value={element.id}>
+                                    {element.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose}>{STRINGS.cancel}</Button>
                         <Button type="submit">{STRINGS.add}</Button>
                     </DialogActions>
                 </Dialog>
-
-                {/* Update Modal */}
                 <Dialog
                     open={updateModal}
                     onClose={handleClose}
@@ -381,28 +436,28 @@ export default function ReaderView() {
                             const formJson = Object.fromEntries((formData as any).entries());
                             let reader: Reader = {
                                 id: selectedRows[0].id, // Assuming you have an ID to update
-                                name: formJson.name,
-                                code: formJson.code,
-                                serialNumber: formJson.serialNumber,
-                                installationDate: '',
-                                isAttendanceReader: formJson.isAttendanceReader,
-                                status: formJson.status,
-                                adminPIN: formJson.adminPIN,
-                                dateValidation: formJson.dateValidation,
-                                antiPassback: formJson.antiPassback,
-                                biometrics: formJson.biometrics,
-                                sidControl: formJson.sidControl,
-                                doorMode: formJson.doorMode,
-                                type: formJson.type,
-                                accessControl: formJson.accessControl,
-                                switch: formJson.switch,
-                                display: formJson.display,
-                                unlockDuration: "0." + formJson.unlockDuration + ":00",
-                                doorOpenDuration: "0." + formJson.doorOpenDuration + ":00",
-                                displayDuration: "0." + formJson.displayDuration + ":00",
-                                transactionLog: formJson.transactionLog,
-                                channelId: formJson.channelId,
-                                areaId: formJson.areaId,
+                                name: formJson.name as string,
+                                code: formJson.code as string,
+                                serialNumber: formJson.serialNumber as string,
+                                installationDate: installationDate ? installationDate.format('YYYY-MM-DD') : '',
+                                isAttendanceReader: isAttendanceReader,
+                                status: status,
+                                adminPIN: formJson.adminPIN as string,
+                                dateValidation: dateValidation,
+                                antiPassback: antiPassback,
+                                biometrics: biometrics,
+                                sidControl: sidControl,
+                                doorMode: formJson.doorMode as string,
+                                type: formJson.readerType as string,
+                                accessControl: formJson.accessControl as string,
+                                switch: formJson.readerSwitch as string,
+                                display: formJson.readerDisplay as string,
+                                unlockDuration: "0." + unlockDuration?.format('mm:ss') + ":00",
+                                doorOpenDuration: "0." + doorOpenDuration?.format('mm:ss') + ":00",
+                                displayDuration: "0." + displayDuration?.format('mm:ss') + ":00",
+                                transactionLog: formJson.transactionLog as string,
+                                channelId: parseInt(formJson.channelId as string) || 0,
+                                areaId: parseInt(formJson.areaId as string) || 0,
                             };
                             const resp = await window.electronAPI.updateReader(reader);
                             if (resp) {
@@ -456,17 +511,16 @@ export default function ReaderView() {
                             variant="standard"
                             defaultValue={selectedRows[0]?.serialNumber || ""}
                         />
-                        <FormControlLabel
-                            control={<Checkbox name="isAttendanceReader" />}
-                            label="Is Attendance Reader"
-                            defaultChecked={selectedRows[0]?.isAttendanceReader || false}
-                        />
-                        <FormControlLabel
-                            control={<Checkbox name="status" />}
-                            label="Status"
-                            defaultChecked={selectedRows[0]?.status || false}
+                        <DatePicker
+                            label="Installation Date"
+                            value={installationDate}
+                            onChange={(newValue) => setInstallationDate(newValue)}
+                            format="YYYY-MM-DD"
+                            sx={{ margin: 1 }}
+                            defaultValue={dayjs(selectedRows[0]?.installationDate)}
                         />
                         <TextField
+                            required
                             margin="dense"
                             id="adminPIN"
                             name="adminPIN"
@@ -476,124 +530,166 @@ export default function ReaderView() {
                             variant="standard"
                             defaultValue={selectedRows[0]?.adminPIN || ""}
                         />
-                        <FormControlLabel
-                            control={<Checkbox name="dateValidation" />}
-                            label="Date Validation"
-                            defaultChecked={selectedRows[0]?.dateValidation || false}
-                        />
-                        <FormControlLabel
-                            control={<Checkbox name="antiPassback" />}
-                            label="Anti Passback"
-                            defaultChecked={selectedRows[0]?.antiPassback || false}
-                        />
-                        <FormControlLabel
-                            control={<Checkbox name="biometrics" />}
-                            label="Biometrics"
-                            defaultChecked={selectedRows[0]?.biometrics || false}
-                        />
-                        <FormControlLabel
-                            control={<Checkbox name="sidControl" />}
-                            label="SID Control"
-                            defaultChecked={selectedRows[0]?.sidControl || false}
-                        />
-                        <TextField
-                            margin="dense"
+                        <FormGroup row>
+                            <FormControlLabel
+                                control={<Checkbox checked={isAttendanceReader} onChange={(e) => setIsAttendanceReader(e.target.checked)} />}
+                                label="Is Attendance Reader"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={status} onChange={(e) => setStatus(e.target.checked)} />}
+                                label="Status"
+                                defaultChecked={selectedRows[0]?.status || false}
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={dateValidation} onChange={(e) => setDateValidation(e.target.checked)} />}
+                                label="Date Validation"
+                                defaultChecked={selectedRows[0]?.dateValidation || false}
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={antiPassback} onChange={(e) => setAntiPassback(e.target.checked)} />}
+                                label="Anti Passback"
+                                defaultChecked={selectedRows[0]?.antiPassback || false}
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={biometrics} onChange={(e) => setBiometrics(e.target.checked)} />}
+                                label="Biometrics"
+                                defaultChecked={selectedRows[0]?.biometrics || false}
+                            />
+                            <FormControlLabel
+                                control={<Checkbox checked={sidControl} onChange={(e) => setSidControl(e.target.checked)} />}
+                                label="SID Control"
+                                defaultChecked={selectedRows[0]?.sidControl || false}
+                            />
+                        </FormGroup>
+                        <InputLabel id="doorMode">Door Mode</InputLabel>
+                        <Select
+                            labelId="doorMode"
                             id="doorMode"
                             name="doorMode"
-                            label="Door Mode"
-                            type="text"
                             fullWidth
-                            variant="standard"
                             defaultValue={selectedRows[0]?.doorMode || ""}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="type"
-                            name="type"
-                            label="Type"
-                            type="text"
+                        >
+                            <MenuItem value="SINGLE">SINGLE</MenuItem>
+                            <MenuItem value="FREE">FREE</MenuItem>
+                            <MenuItem value="LOCKED">LOCKED</MenuItem>
+                        </Select>
+                        <InputLabel id="readerType">Reader Type</InputLabel>
+                        <Select
+                            labelId="readerType"
+                            id="readerType"
+                            name="readerType"
                             fullWidth
-                            variant="standard"
                             defaultValue={selectedRows[0]?.type || ""}
-                        />
-                        <TextField
-                            margin="dense"
+                        >
+                            <MenuItem value="IN">IN</MenuItem>
+                            <MenuItem value="OUT">OUT</MenuItem>
+                        </Select>
+                        <InputLabel id="accessControl">Access Control</InputLabel>
+                        <Select
+                            labelId="accessControl"
                             id="accessControl"
                             name="accessControl"
-                            label="Access Control"
-                            type="text"
                             fullWidth
-                            variant="standard"
                             defaultValue={selectedRows[0]?.accessControl || ""}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="switch"
-                            name="switch"
-                            label="Switch"
-                            type="text"
+                        >
+                            <MenuItem value="DOOR">DOOR</MenuItem>
+                            <MenuItem value="TURNSTILE">TURNSTILE</MenuItem>
+                        </Select>
+                        <InputLabel id="readerSwitch">Reader Switch</InputLabel>
+                        <Select
+                            labelId="readerSwitch"
+                            id="readerSwitch"
+                            name="readerSwitch"
                             fullWidth
-                            variant="standard"
                             defaultValue={selectedRows[0]?.switch || ""}
-                        />
-                        <TextField
-                            margin="dense"
-                            id="display"
-                            name="display"
-                            label="Display"
-                            type="text"
+                        >
+                            <MenuItem value="NONE">NONE</MenuItem>
+                            <MenuItem value="BYPASS">BYPASS</MenuItem>
+                            <MenuItem value="EMERGENCY">EMERGENCY</MenuItem>
+                        </Select>
+                        <InputLabel id="readerDisplay">Reader Display</InputLabel>
+                        <Select
+                            labelId="readerDisplay"
+                            id="readerDisplay"
+                            name="readerDisplay"
                             fullWidth
-                            variant="standard"
                             defaultValue={selectedRows[0]?.display || ""}
-                        />
+                        >
+                            <MenuItem value="NAME">NAME</MenuItem>
+                            <MenuItem value="CARDNO">CARDNO</MenuItem>
+                        </Select>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimePicker
                                 label="Unlock Duration"
-                                name="unlockDuration"
+                                value={unlockDuration}
+                                onChange={(newValue) => setUnlockDuration(newValue)}
                                 ampm={false}
+                                views={['minutes', 'seconds']}
+                                format="mm:ss"
                                 sx={{ margin: 1 }}
+                                defaultValue={getDateDayjs(selectedRows[0]?.unlockDuration.split('.')[1], selectedRows[0]?.unlockDuration.split('.')[2])}
                             />
                             <TimePicker
                                 label="Door Open Duration"
-                                name="doorOpenDuration"
+                                value={doorOpenDuration}
+                                onChange={(newValue) => setDoorOpenDuration(newValue)}
                                 ampm={false}
+                                views={['minutes', 'seconds']}
+                                format="mm:ss"
                                 sx={{ margin: 1 }}
+                                defaultValue={getDateDayjs(selectedRows[0]?.doorOpenDuration.split('.')[1], selectedRows[0]?.doorOpenDuration.split('.')[2])}
                             />
                             <TimePicker
                                 label="Display Duration"
-                                name="displayDuration"
+                                value={displayDuration}
+                                onChange={(newValue) => setDisplayDuration(newValue)}
                                 ampm={false}
+                                views={['minutes', 'seconds']}
+                                format="mm:ss"
                                 sx={{ margin: 1 }}
+                                defaultValue={getDateDayjs(selectedRows[0]?.displayDuration.split('.')[1], selectedRows[0]?.displayDuration.split('.')[2])}
                             />
                         </LocalizationProvider>
-
-                        <TextField
-                            margin="dense"
+                        <InputLabel id="transactionLog">Transaction Log</InputLabel>
+                        <Select
+                            labelId="transactionLog"
                             id="transactionLog"
                             name="transactionLog"
-                            label="Transaction Log"
-                            type="text"
                             fullWidth
-                            variant="standard"
-                        />
-                        <TextField
-                            margin="dense"
-                            id="channelId"
-                            name="channelId"
-                            label="Channel ID"
-                            type="text"
-                            fullWidth
-                            variant="standard"
-                        />
-                        <TextField
-                            margin="dense"
+                            defaultValue={selectedRows[0]?.transactionLog || ""}
+                        >
+                            <MenuItem value="BLOCK_AND_WARNING">BLOCK AND WARNING</MenuItem>
+                            <MenuItem value="CIRCULAR">CIRCULAR</MenuItem>
+                        </Select>
+
+                        <InputLabel id="areaLabel">Area ID</InputLabel>
+                        <Select
+                            labelId="areaLabel"
                             id="areaId"
                             name="areaId"
-                            label="Area ID"
-                            type="text"
                             fullWidth
-                            variant="standard"
-                        />
+                            defaultValue={selectedRows[0]?.areaId || ""}
+                        >
+                            {areas.map((element) => (
+                                <MenuItem key={element.id} value={element.id}>
+                                    {element.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                        <InputLabel id="channelLabel">Channel ID</InputLabel>
+                        <Select
+                            labelId="channelLabel"
+                            id="channelId"
+                            name="channelId"
+                            fullWidth
+                            defaultValue={selectedRows[0]?.channelId || ""}
+                        >
+                            {channels.map((element) => (
+                                <MenuItem key={element.id} value={element.id}>
+                                    {element.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleClose}>{STRINGS.cancel}</Button>

@@ -2,6 +2,7 @@ import { Base } from './base';
 import Response from './response';
 
 export interface Reader extends Base {
+
     name: string;
 
     code: string;
@@ -26,13 +27,13 @@ export interface Reader extends Base {
 
     doorMode: string;
 
-    type: string;
-
     accessControl: string;
+
+    display: string;
 
     switch: string;
 
-    display: string;
+    type: string;
 
     unlockDuration: string;
 
