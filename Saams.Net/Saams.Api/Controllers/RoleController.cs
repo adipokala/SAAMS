@@ -63,6 +63,21 @@ namespace Saams.Api.Controllers
                 var role = context.Roles.FirstOrDefault(d => d.Id == id);
                 if (role != null)
                 {
+                    var privileges = new List<PrivilegeModel>();
+                    var roleprivileges = context.RolePrivileges.Where(x => x.RoleId == role.Id).ToList();
+                    foreach (var rp in roleprivileges)
+                    {
+                        var privilege = context.Privileges.FirstOrDefault(x => x.Id == rp.PrivilegeId);
+                        privileges.Add(new PrivilegeModel()
+                        {
+                            Id = rp.Privilege.Id,
+                            Code = rp.Privilege.Code,
+                            Name = rp.Privilege.Name,
+                            CreatedAt= rp.Privilege.CreatedAt,
+                            UpdatedAt = rp.Privilege.UpdatedAt,
+                        });
+                    }
+
                     return Ok(new RoleResponseModel()
                     {
                         Role = new RoleModel()
@@ -70,6 +85,7 @@ namespace Saams.Api.Controllers
                             Id = role.Id,
                             Code = role.Code,
                             Name = role.Name,
+                            Privileges = privileges,
                             CreatedAt = role.CreatedAt,
                             UpdatedAt = role.UpdatedAt,
                         },

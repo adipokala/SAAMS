@@ -11,8 +11,10 @@ import { User } from "./model/user";
 import { Company } from "./model/company";
 import { Area } from "./model/area";
 import { Reader } from "./model/reader";
+import { RolePrivilege } from "./model/role-privilege";
 import { Channel } from "./model/channel";
 contextBridge.exposeInMainWorld('electronAPI', {
+
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
     // Department
     getDepartments: () => ipcRenderer.invoke('request:getDepartments'),
@@ -68,7 +70,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     updateReader: (reader: Reader) => ipcRenderer.invoke('request:updateReader', reader),
     deleteReader: (id: number) => ipcRenderer.invoke('request:deleteReader', id),
 
-    // Channel 
+    // RolePrivilege
+    getRolePrivileges: () => ipcRenderer.invoke('request:getRolePrivileges'),
+    createRolePrivilege: (rolePrivilege: RolePrivilege) => ipcRenderer.invoke('request:createRolePrivilege', rolePrivilege),
+    modifyRolePrivilege: (rolePrivilege: RolePrivilege) => ipcRenderer.invoke('request:modifyRolePrivilege', rolePrivilege),
+    deleteRolePrivilege: (id: number) => ipcRenderer.invoke('request:deleteRolePrivilege', id),    // Channel 
     getChannels: () => ipcRenderer.invoke('request:getChannels'),
     getChannel: (id: number) => ipcRenderer.invoke('request:getChannel', id),
     createChannel: (channel: Channel) => ipcRenderer.invoke('request:createChannel', channel),

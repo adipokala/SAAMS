@@ -7,6 +7,7 @@ import { UserResponse, User } from "./model/user";
 import { CompanyResponse, Company } from "./model/company";
 import { AreaResponse, Area } from "./model/area";
 import { ReaderResponse, Reader } from "./model/reader";
+import { RolePrivilegeResponse, RolePrivilege } from "./model/role-privilege";
 import { Channel, ChannelResponse } from "./model/channel";
 
 export { };
@@ -15,7 +16,6 @@ declare global {
     interface Window {
         electronAPI: {
             addReader(reader: any): unknown;
-            [x: string]: any;
             loginUser: (json: string) => UserResponse;
             // Department
             getDepartments: () => DepartmentResponse;
@@ -71,9 +71,14 @@ declare global {
             updateReader: (reader: Reader) => ReaderResponse;
             deleteReader: (id: number) => ReaderResponse;
 
-            // Channel
-            getChannel: (id: number) => ChannelResponse;
+            // RolePrivilege
+            getRolePrivileges: () => RolePrivilegeResponse;
+            createRolePrivilege: (rolePrivilege: RolePrivilege) => RolePrivilegeResponse;
+            updateRolePrivilege: (rolePrivilege: RolePrivilege) => RolePrivilegeResponse;
+            deleteRolePrivilege: (id: number) => RolePrivilegeResponse;
+            //channel
             getChannels: () => ChannelResponse;
+            getChannel: (id: number) => ChannelResponse;
             createChannel: (channel: Channel) => ChannelResponse;
             updateChannel: (channel: Channel) => ChannelResponse;
             deleteChannel: (id: number) => ChannelResponse;

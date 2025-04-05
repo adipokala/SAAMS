@@ -439,7 +439,7 @@ export default function UserView() {
       </Dialog>
 
       {/* Update Modal */}
-      <Dialog
+      {/* <Dialog
         open={updateModal}
         onClose={handleClose}
         PaperProps={{
@@ -463,7 +463,9 @@ export default function UserView() {
               departmentId: formJson.departmentId,
               shiftId: formJson.shiftId,
               dateOfBirth: '',
-              dateOfJoining: ''
+              dateOfJoining: '',
+              userNumber: '',
+              reportsTo: 0
             };
             const resp = await window.electronAPI.updateUser(user);
             if (resp) {
@@ -629,7 +631,7 @@ export default function UserView() {
           <Button onClick={handleClose}>{STRINGS.cancel}</Button>
           <Button type="submit">{STRINGS.update}</Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
 
       {/* Message Dialog */}
       <Dialog
