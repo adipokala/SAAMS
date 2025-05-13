@@ -122,7 +122,7 @@ export const createReader = async (reader: Reader) => {
 export const updateReader = async (reader: Reader) => {
     const future = await new Promise<ReaderResponse>((resolve, reject) => {
         const request = net.request({
-            method: 'POST',
+            method: 'PUT',
             protocol: 'https:',
             hostname: API_CONFIG.hostname,
             port: API_CONFIG.port,
@@ -140,7 +140,6 @@ export const updateReader = async (reader: Reader) => {
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
-                    console.log(data);
                     resolve(data); // Resolve the promise with the id
 
                 } catch (error) {
@@ -153,8 +152,6 @@ export const updateReader = async (reader: Reader) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
-
-        console.log(reader);
         request.write(JSON.stringify(reader));
 
         request.end();

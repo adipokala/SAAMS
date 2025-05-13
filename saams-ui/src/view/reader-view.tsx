@@ -46,7 +46,7 @@ export default function ReaderView() {
     const [messageModal, setMessageModal] = React.useState<boolean>(false);
     const [messageTitle, setMessageTitle] = React.useState<string>('');
     const [messageContent, setMessageContent] = React.useState<string>('');
-    const [installationDate, setInstallationDate] = React.useState<Dayjs | null>(null);
+    const [installationDate, setInstallationDate] = React.useState<string | null>(null);
     const [isAttendanceReader, setIsAttendanceReader] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<boolean>(false);
     const [dateValidation, setDateValidation] = React.useState<boolean>(false);
@@ -82,11 +82,9 @@ export default function ReaderView() {
         { field: 'channelId', headerName: 'Channel ID', width: 100 },
         { field: 'areaId', headerName: 'Area ID', width: 100 },
     ];
-    const getDateDayjs = (minute: string, second: string): dayjs.Dayjs => {
-        const value = dayjs().set('minute', Number(minute)).set('second', Number(second));
-        return value;
+    const getDurationDayjs = (minute: string, second: string): Dayjs => {
+        return dayjs().minute(Number(minute)).second(Number(second));
     };
-
 
     const handleRefreshButtonClick = async () => {
         const response = await handleOnGet();
@@ -111,7 +109,23 @@ export default function ReaderView() {
             handleRefreshButtonClick();
             setInitialLoad(false);
         }
-    });
+    }, [initialLoad]);
+
+
+    React.useEffect(() => {
+        if (selectedRows.length > 0) {
+            const row = selectedRows[0];
+            setInstallationDate(row.installationDate ?? dayjs().format('YYYY-MM-DD')); // or convert to dayjs(row.installationDate)
+            setIsAttendanceReader(row.isAttendanceReader ?? false);
+            setStatus(row.status ?? false);
+            setDateValidation(row.dateValidation ?? false);
+            setAntiPassback(row.antiPassback ?? false);
+            setBiometrics(row.biometrics ?? false);
+            setSidControl(row.sidControl ?? false);
+        }
+
+    }, [selectedRows]);
+
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -188,7 +202,7 @@ export default function ReaderView() {
                                 name: formJson.name as string,
                                 code: formJson.code as string,
                                 serialNumber: formJson.serialNumber as string,
-                                installationDate: installationDate ? installationDate.format('YYYY-MM-DD') : '',
+                                installationDate: installationDate ? dayjs(installationDate).format('YYYY-MM-DD') : '',
                                 isAttendanceReader: isAttendanceReader,
                                 status: status,
                                 adminPIN: formJson.adminPIN as string,
@@ -260,8 +274,11 @@ export default function ReaderView() {
                         />
                         <DatePicker
                             label="Installation Date"
-                            value={installationDate}
-                            onChange={(newValue) => setInstallationDate(newValue)}
+                            value={installationDate ? dayjs(installationDate) : null}
+                            onChange={(newValue) => {
+                                const formattedDate = newValue ? dayjs(newValue).format('YYYY-MM-DD') : null;
+                                setInstallationDate(formattedDate);
+                            }}
                             format="YYYY-MM-DD"
                             sx={{ margin: 1 }}
                         />
@@ -356,32 +373,32 @@ export default function ReaderView() {
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimePicker
                                 label="Unlock Duration"
-                                value={unlockDuration}
-                                onChange={(newValue) => setUnlockDuration(newValue)}
+                                name="unlockDuration"
                                 ampm={false}
                                 views={['minutes', 'seconds']}
                                 format="mm:ss"
                                 sx={{ margin: 1 }}
                             />
+
                             <TimePicker
                                 label="Door Open Duration"
-                                value={doorOpenDuration}
-                                onChange={(newValue) => setDoorOpenDuration(newValue)}
+                                name="doorOpenDuration"
                                 ampm={false}
                                 views={['minutes', 'seconds']}
                                 format="mm:ss"
                                 sx={{ margin: 1 }}
                             />
+
                             <TimePicker
                                 label="Display Duration"
-                                value={displayDuration}
-                                onChange={(newValue) => setDisplayDuration(newValue)}
+                                name="displayDuration"
                                 ampm={false}
                                 views={['minutes', 'seconds']}
                                 format="mm:ss"
                                 sx={{ margin: 1 }}
                             />
                         </LocalizationProvider>
+
                         <InputLabel id="transactionLog">Transaction Log</InputLabel>
                         <Select
                             labelId="transactionLog"
@@ -439,7 +456,7 @@ export default function ReaderView() {
                                 name: formJson.name as string,
                                 code: formJson.code as string,
                                 serialNumber: formJson.serialNumber as string,
-                                installationDate: installationDate ? installationDate.format('YYYY-MM-DD') : '',
+                                installationDate: installationDate ? dayjs(installationDate).format('YYYY-MM-DD') : '',
                                 isAttendanceReader: isAttendanceReader,
                                 status: status,
                                 adminPIN: formJson.adminPIN as string,
@@ -513,8 +530,11 @@ export default function ReaderView() {
                         />
                         <DatePicker
                             label="Installation Date"
-                            value={installationDate}
-                            onChange={(newValue) => setInstallationDate(newValue)}
+                            value={installationDate ? dayjs(installationDate) : null}
+                            onChange={(newValue) => {
+                                const formattedDate = newValue ? dayjs(newValue).format('YYYY-MM-DD') : null;
+                                setInstallationDate(formattedDate);
+                            }}
                             format="YYYY-MM-DD"
                             sx={{ margin: 1 }}
                             defaultValue={dayjs(selectedRows[0]?.installationDate)}
@@ -538,27 +558,22 @@ export default function ReaderView() {
                             <FormControlLabel
                                 control={<Checkbox checked={status} onChange={(e) => setStatus(e.target.checked)} />}
                                 label="Status"
-                                defaultChecked={selectedRows[0]?.status || false}
                             />
                             <FormControlLabel
                                 control={<Checkbox checked={dateValidation} onChange={(e) => setDateValidation(e.target.checked)} />}
                                 label="Date Validation"
-                                defaultChecked={selectedRows[0]?.dateValidation || false}
                             />
                             <FormControlLabel
                                 control={<Checkbox checked={antiPassback} onChange={(e) => setAntiPassback(e.target.checked)} />}
                                 label="Anti Passback"
-                                defaultChecked={selectedRows[0]?.antiPassback || false}
                             />
                             <FormControlLabel
                                 control={<Checkbox checked={biometrics} onChange={(e) => setBiometrics(e.target.checked)} />}
                                 label="Biometrics"
-                                defaultChecked={selectedRows[0]?.biometrics || false}
                             />
                             <FormControlLabel
                                 control={<Checkbox checked={sidControl} onChange={(e) => setSidControl(e.target.checked)} />}
                                 label="SID Control"
-                                defaultChecked={selectedRows[0]?.sidControl || false}
                             />
                         </FormGroup>
                         <InputLabel id="doorMode">Door Mode</InputLabel>
@@ -621,35 +636,48 @@ export default function ReaderView() {
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimePicker
                                 label="Unlock Duration"
-                                value={unlockDuration}
-                                onChange={(newValue) => setUnlockDuration(newValue)}
+                                name="unlockDuration"
                                 ampm={false}
                                 views={['minutes', 'seconds']}
                                 format="mm:ss"
+                                defaultValue={
+                                    selectedRows[0]
+                                        ? getDurationDayjs(selectedRows[0].unlockDuration.substring(0, 2), selectedRows[0].unlockDuration.substring(3, 5))
+                                        : dayjs().minute(0).second(0)
+                                }
                                 sx={{ margin: 1 }}
-                                defaultValue={getDateDayjs(selectedRows[0]?.unlockDuration.split('.')[1], selectedRows[0]?.unlockDuration.split('.')[2])}
                             />
+
                             <TimePicker
                                 label="Door Open Duration"
-                                value={doorOpenDuration}
-                                onChange={(newValue) => setDoorOpenDuration(newValue)}
+                                name="doorOpenDuration"
                                 ampm={false}
                                 views={['minutes', 'seconds']}
                                 format="mm:ss"
+                                defaultValue={
+                                    selectedRows[0]
+                                        ? getDurationDayjs(selectedRows[0].doorOpenDuration.substring(0, 2), selectedRows[0].doorOpenDuration.substring(3, 5))
+                                        : dayjs().minute(0).second(0)
+                                }
                                 sx={{ margin: 1 }}
-                                defaultValue={getDateDayjs(selectedRows[0]?.doorOpenDuration.split('.')[1], selectedRows[0]?.doorOpenDuration.split('.')[2])}
                             />
+
                             <TimePicker
                                 label="Display Duration"
-                                value={displayDuration}
-                                onChange={(newValue) => setDisplayDuration(newValue)}
+                                name="displayDuration"
                                 ampm={false}
                                 views={['minutes', 'seconds']}
                                 format="mm:ss"
+                                defaultValue={
+                                    selectedRows[0]
+                                        ? getDurationDayjs(selectedRows[0].displayDuration.substring(0, 2), selectedRows[0].displayDuration.substring(3, 5))
+                                        : dayjs().minute(0).second(0)
+                                }
                                 sx={{ margin: 1 }}
-                                defaultValue={getDateDayjs(selectedRows[0]?.displayDuration.split('.')[1], selectedRows[0]?.displayDuration.split('.')[2])}
                             />
                         </LocalizationProvider>
+
+
                         <InputLabel id="transactionLog">Transaction Log</InputLabel>
                         <Select
                             labelId="transactionLog"
