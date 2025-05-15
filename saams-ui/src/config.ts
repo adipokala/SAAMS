@@ -20,5 +20,6 @@ export const API_ENDPOINTS = {
     shift: '/api/shift',
     user: '/api/user',
     area: '/api/area',
+    reader: '/api/reader',
     channel: '/api/channel',
 }
