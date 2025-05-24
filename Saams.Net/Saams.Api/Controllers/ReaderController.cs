@@ -144,7 +144,6 @@ namespace Saams.Api.Controllers
                 {
                     var reader = new Reader()
                     {
-                        Id = model.Id,
                         Name = model.Name,
                         Code = model.Code,
                         SerialNumber = model.SerialNumber,
