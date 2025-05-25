@@ -8,6 +8,8 @@ import { getShifts, createShift, updateShift, deleteShift, getShift } from './ap
 import { getCompanies, createCompany, updateCompany, deleteCompany, getCompany } from './api-request/company';
 import { getAreas, createArea, updateArea, deleteArea, getArea } from './api-request/area';
 import { loginUser } from './api-request/auth';
+import { createChannel, deleteChannel, getChannel, getChannels, updateChannel } from './api-request/channel';
+import { getRolePrivileges, createRolePrivilege, updateRolePrivilege, deleteRolePrivilege } from './api-request/role-privilege';
 import { getReader, createReader, deleteReader, updateReader, getReaders } from './api-request/reader';
 
 
@@ -103,6 +105,20 @@ ipcMain.handle('request:getArea', (event, id) => getArea(id));//changed
 ipcMain.handle('request:createArea', (event, area) => createArea(area));
 ipcMain.handle('request:updateArea', (event, area) => updateArea(area));
 ipcMain.handle('request:deleteArea', (event, id) => deleteArea(id));
+
+//roleprivilege
+ipcMain.handle('request:getRolePrivileges', () => getRolePrivileges());
+ipcMain.handle('request:createRolePrivilege', (event, rolePrivilege) => createRolePrivilege(rolePrivilege));
+ipcMain.handle('request:updateRolePrivilege', (event, rolePrivilege) => updateRolePrivilege(rolePrivilege));
+ipcMain.handle('request:deleteRolePrivilege', (event, id) => deleteRolePrivilege(id));
+
+//channel
+ipcMain.handle('request:getChannels', () => getChannels());
+ipcMain.handle('request:getChannel', (event, id) => getChannel(id));
+ipcMain.handle('request:createChannel', (event, channel) => createChannel(channel));
+ipcMain.handle('request:updateChannel', (event, channel) => updateChannel(channel));
+ipcMain.handle('request:deleteChannel', (event, id) => deleteChannel(id));
+
 
 // Reader
 ipcMain.handle('request:getReaders', () => getReaders());

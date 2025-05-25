@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Saams.EF.AccessManagement;
 using Saams.EF.UserManagement;
+using Saams.EF.LeaveManagement;
 
 namespace Saams.EF
 {
@@ -17,6 +18,9 @@ namespace Saams.EF
         public DbSet<Reader> Readers { get; set; }
         public DbSet<Area> Areas { get; set; }
         public DbSet<Channel> Channels { get; set; }
+        public DbSet<Leave> Leaves { get; set; }
+        public DbSet<LeaveCounter> LeaveCounters { get; set; }
+        public DbSet<UserLeave> UsersLeaves { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -33,6 +37,16 @@ namespace Saams.EF
             modelBuilder.Entity<User>()
                 .Property(u => u.Sex)
                 .HasConversion<string>();
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.UserLeaves)
+                .WithOne(u => u.User)
+                .HasForeignKey(u => u.UserId);
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.LeaveCounters)
+                .WithOne(u => u.User)
+                .HasForeignKey(u => u.UserId);
 
             modelBuilder.Entity<User>()
                 .Property(u => u.CreatedAt)
@@ -149,7 +163,7 @@ namespace Saams.EF
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Department>()
-                .Property(u => u.CreatedAt)
+                .Property(u => u.UpdatedAt)
                 .ValueGeneratedOnUpdate();
 
             // Shift
@@ -228,6 +242,21 @@ namespace Saams.EF
                 .HasMany(a => a.Readers)
                 .WithOne(a => a.Area)
                 .HasForeignKey(a => a.AreaId);
+
+            // Leave
+            modelBuilder.Entity<Leave>()
+                .HasIndex(l => l.Code)
+                .IsUnique();
+
+            modelBuilder.Entity<Leave>()
+                .HasMany(l => l.UserLeaves)
+                .WithOne(l => l.Leave)
+                .HasForeignKey(l => l.LeaveId);
+
+            modelBuilder.Entity<Leave>()
+                .HasMany(l => l.LeaveCounters)
+                .WithOne(l => l.Leave)
+                .HasForeignKey(l => l.LeaveId);
 
             base.OnModelCreating(modelBuilder);
         }

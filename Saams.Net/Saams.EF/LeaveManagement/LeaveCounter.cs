@@ -18,6 +18,9 @@ namespace Saams.EF.LeaveManagement
         public required int Counter {  get; set; }
 
         [Required]
+        public DateOnly Expiry {  get; set; }
+
+        [Required]
         public required int UserId { get; set; }
         public User User { get; set; } = null!;
 

@@ -25,6 +25,16 @@ namespace Saams.EF.LeaveManagement
         [Required]
         public required int Count { get; set; }
 
+        [Required]
+        public required bool AutoRenew { get; set; }
+
+        [Required]
+        public required TimeSpan Validity { get; set; }
+
+        public DateOnly RenewalDate { get; set; }
+
         public ICollection<UserLeave> UserLeaves { get; set; } = new List<UserLeave>();
+
+        public ICollection<LeaveCounter> LeaveCounters { get; set; } = new List<LeaveCounter>();
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Saams.Api.Models;
 using Saams.Api.Utils;
@@ -18,6 +19,7 @@ namespace Saams.Api.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public ActionResult<UserResponseModel> Post([FromBody] LoginModel model)
         {
             if (model == null)
