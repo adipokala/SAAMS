@@ -1,17 +1,14 @@
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import LoginView from './view/login-view';
+import { User } from './model/user'; // Importing User model
 import DashboardView from './view/Dashboard-view';
-import DepartmentView from './view/Department-view';
-import Button from '@mui/material/Button';
-import { Box } from '@mui/material';
-import DiscordLikeInterface from './view/DiscordLikeView';
+import LoginView from './view/login-view';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loginAttempted, setLoginAttempted] = useState(false); // Track if a login attempt has been made
     const [currentView, setCurrentView] = useState<'login' | 'dashboard' | 'department'>('login');
-    const [userNameForDashboard, setUserNameForDashboard] = useState<string>('');
+    const [user, setUser] = useState<User | null>(null); // Updated to hold the user object
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     const handleLogin = async (userName: string, password: string) => {
@@ -23,7 +20,7 @@ function App() {
             if (resp.status) {
                 setIsAuthenticated(true);
                 setCurrentView('dashboard');
-                setUserNameForDashboard(resp.user.firstName);
+                setUser(resp.user); 
                 setErrorMessage(null); // Clear any previous error messages
             } else {
                 setLoginAttempted(true);
@@ -32,29 +29,26 @@ function App() {
             }
         } catch (error) {
             console.error("Backend connection failed:", error);
+        
             setLoginAttempted(true);
             setIsAuthenticated(false);
             setErrorMessage('Unable to connect to the server. Please try again later.');
         }
     };
+    
 
     const handleLogout = () => {
         setIsAuthenticated(false);
         setCurrentView('login');
-        setUserNameForDashboard('');
-    };
-
+        setUser(null); // Clear the user object
+    }
     return (
         <>
             {isAuthenticated ? (
-                currentView === 'dashboard' ? (
                     <DashboardView
-                        userNameForDashboard={userNameForDashboard}
+                        user={user}
                         handleLogout={handleLogout}
-                    />
-                ) : (
-                    <DepartmentView />
-                )
+                    /> // Pass the user object
             ) : (
                 <LoginView
                     onLogin={handleLogin}

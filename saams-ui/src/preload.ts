@@ -2,18 +2,16 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 
 import { contextBridge, ipcRenderer } from "electron";
+import { Area } from "./model/area";
+import { Company } from "./model/company";
 import { Department } from "./model/department";
 import { Designation } from "./model/designation";
 import { Privilege } from "./model/privilege";
 import { Role } from "./model/role";
 import { Shift } from "./model/shift";
 import { User } from "./model/user";
-import { Company } from "./model/company";
-import { Area } from "./model/area";
-import { RolePrivilege } from "./model/role-privilege";
-import { Channel } from "./model/channel";
-contextBridge.exposeInMainWorld('electronAPI', {
 
+contextBridge.exposeInMainWorld('electronAPI', {
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
     // Department
     getDepartments: () => ipcRenderer.invoke('request:getDepartments'),
@@ -50,27 +48,18 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createUser: (user: User) => ipcRenderer.invoke('request:createUser', user),
     updateUser: (user: User) => ipcRenderer.invoke('request:updateUser', user),
     deleteUser: (id: number) => ipcRenderer.invoke('request:deleteUser', id),
+    changePassword: (userName: string, currentPassword: string, newPassword: string, confirmPassword: string) => ipcRenderer.invoke('request:changePassword', userName, currentPassword, newPassword, confirmPassword),
+
     // Company
     getCompanies: () => ipcRenderer.invoke('request:getCompanies'),
     getCompany: (id: number) => ipcRenderer.invoke('request:getCompany', id),
     createCompany: (company: Company) => ipcRenderer.invoke('request:createCompany', company),
     updateCompany: (company: Company) => ipcRenderer.invoke('request:updateCompany', company),
-    deleteCompany: (id: Company) => ipcRenderer.invoke('request:deleteCompany', id),
+    deleteCompany: (id: number) => ipcRenderer.invoke('request:deleteCompany', id),
     // Area
     getAreas: () => ipcRenderer.invoke('request:getAreas'),
     getArea: (id: number) => ipcRenderer.invoke('request:getArea', id),
     createArea: (area: Area) => ipcRenderer.invoke('request:createArea', area),
     updateArea: (area: Area) => ipcRenderer.invoke('request:updateArea', area),
     deleteArea: (id: number) => ipcRenderer.invoke('request:deleteArea', id),
-    // RolePrivilege
-    getRolePrivileges: () => ipcRenderer.invoke('request:getRolePrivileges'),
-    createRolePrivilege: (rolePrivilege: RolePrivilege) => ipcRenderer.invoke('request:createRolePrivilege', rolePrivilege),
-    modifyRolePrivilege: (rolePrivilege: RolePrivilege) => ipcRenderer.invoke('request:modifyRolePrivilege', rolePrivilege),
-    deleteRolePrivilege: (id: number) => ipcRenderer.invoke('request:deleteRolePrivilege', id),    // Channel 
-    getChannels: () => ipcRenderer.invoke('request:getChannels'),
-    getChannel: (id: number) => ipcRenderer.invoke('request:getChannel', id),
-    createChannel: (channel: Channel) => ipcRenderer.invoke('request:createChannel', channel),
-    updateChannel: (channel: Channel) => ipcRenderer.invoke('request:updateChannel', channel),
-    deleteChannel: (id: number) => ipcRenderer.invoke('request:deleteChannel', id),
-
 });
