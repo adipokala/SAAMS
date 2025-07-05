@@ -13,6 +13,8 @@ import { Area } from "./model/area";
 import { RolePrivilege } from "./model/role-privilege";
 import { Channel } from "./model/channel";
 import { Reader } from "./model/reader";
+import { Leave } from "./model/leave";
+import { LeaveCounter } from "./model/leave-counter";
 contextBridge.exposeInMainWorld('electronAPI', {
 
     loginUser: (json: string) => ipcRenderer.invoke('request:loginUser', json),
@@ -78,7 +80,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createReader: (reader: Reader) => ipcRenderer.invoke('request:createReader', reader),
     updateReader: (reader: Reader) => ipcRenderer.invoke('request:updateReader', reader),
     deleteReader: (id: number) => ipcRenderer.invoke('request:deleteReader', id),
-
-
+    //leave
+    getLeaves: () => ipcRenderer.invoke('request:getLeaves'),
+    getLeave: (id: number) => ipcRenderer.invoke('request:getLeave', id),
+    createLeave: (leave: Leave) => ipcRenderer.invoke('request:createLeave', leave),
+    updateLeave: (leave: Leave) => ipcRenderer.invoke('request:updateLeave', leave),
+    deleteLeave: (id: number) => ipcRenderer.invoke('request:deleteLeave', id),
+    //leaveCounter
+    getLeaveCounters: () => ipcRenderer.invoke('request:getLeaveCounters'),
+    getLeaveCounter: (id: number) => ipcRenderer.invoke('request:getLeaveCounter', id),
+    createLeaveCounter: (leaveCounter: LeaveCounter) => ipcRenderer.invoke('request:createLeaveCounter', leaveCounter),
+    updateLeaveCounter: (leaveCounter: any) => ipcRenderer.invoke('request:updateLeaveCounter', leaveCounter),
+    deleteLeaveCounter: (id: number) => ipcRenderer.invoke('request:deleteLeaveCounter', id),
 
 });

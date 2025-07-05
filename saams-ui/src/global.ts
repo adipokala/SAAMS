@@ -9,6 +9,8 @@ import { AreaResponse, Area } from "./model/area";
 import { RolePrivilegeResponse, RolePrivilege } from "./model/role-privilege";
 import { Channel, ChannelResponse } from "./model/channel";
 import { ReaderResponse, Reader } from "./model/reader";
+import { Leave, LeaveResponse } from "./model/leave";
+import { LeaveCounter, LeaveCounterResponse } from "./model/leave-counter";
 
 export { };
 
@@ -82,6 +84,20 @@ declare global {
             createReader: (reader: Reader) => ReaderResponse;
             updateReader: (reader: Reader) => ReaderResponse;
             deleteReader: (id: number) => ReaderResponse;
+            // Leave
+            getLeaves: () => LeaveResponse;
+            getLeave: (id: number) => LeaveResponse;
+            createLeave: (leave: Leave) => LeaveResponse;
+            updateLeave: (leave: Leave) => LeaveResponse;
+            deleteLeave: (id: number) => LeaveResponse;
+            // LeaveCounter
+            getLeaveCounters: () => LeaveCounterResponse;
+            getLeaveCounter: (id: number) => LeaveCounterResponse;
+            createLeaveCounter: (leave: LeaveCounter) => LeaveCounterResponse;
+            updateLeaveCounter: (leave: LeaveCounter) => LeaveCounterResponse;
+            deleteLeaveCounter: (id: number) => LeaveCounterResponse;
+
+
 
         }
     }

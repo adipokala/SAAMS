@@ -32,6 +32,7 @@ import PriviliegeView from "./priviliege-view"
 import ChannelView from "./channel-view";
 import ReaderView from "./reader-view";
 import LeaveView from "./leave-view";
+import LeaveCounterView from "./leave-counter-view";
 
 interface DashboardViewProps {
   handleLogout: any;
@@ -62,7 +63,7 @@ const darkTheme = createTheme({
 });
 
 const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Department', 'priviliege', 'Role', 'Shift', 'User'];
-const leaveManagementItems: string[] = ['Leave'];
+const leaveManagementItems: string[] = ['Leave', 'Leave Counter', 'User Leave'];
 const accessManagementItems: string[] = ['Area', 'Channel', 'Reader'];
 const reportManagementItems: string[] = ['User Report', 'Reader Report', 'Attendance Report'];
 
@@ -103,6 +104,10 @@ const switchView = (key: string): React.JSX.Element => {
       return <ReaderView />;
     case 'Leave':
       return <LeaveView />;
+    case 'Leave Counter':
+      return <LeaveCounterView />;
+    //case 'User Leave':
+    //   return <UserLeaveView />;
 
     default:
       return <HomeView />;

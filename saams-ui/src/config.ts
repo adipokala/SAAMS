@@ -22,4 +22,6 @@ export const API_ENDPOINTS = {
     area: '/api/area',
     channel: '/api/channel',
     reader: '/api/reader',
+    leave: '/api/leave',
+    leaveCounter: '/api/leave-counter',
 }
