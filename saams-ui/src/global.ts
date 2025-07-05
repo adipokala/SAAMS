@@ -8,12 +8,22 @@ import { CompanyResponse, Company } from "./model/company";
 import { AreaResponse, Area } from "./model/area";
 import { RolePrivilegeResponse, RolePrivilege } from "./model/role-privilege";
 import { Channel, ChannelResponse } from "./model/channel";
+export class GlobalAuthManager {
+    private static authString: string = '';
 
-export { };
+    public static setAuthString(auth: string) {
+        this.authString = auth;
+    }
 
+    public static getAuthString(): string {
+        return this.authString;
+    }
+}
 declare global {
     interface Window {
         electronAPI: {
+            setAuthString // Designation
+                (authString: string): unknown;
             loginUser: (json: string) => UserResponse;
             // Department
             getDepartments: () => DepartmentResponse;

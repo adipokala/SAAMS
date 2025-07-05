@@ -1,6 +1,8 @@
 import { net } from "electron";
-import { API_CONFIG, API_ENDPOINTS } from "../config";
+import { API_ENDPOINTS } from "../config";
 import { User, UserResponse } from "../model/user";
+import { GlobalAuthManager } from "../global";
+import { HTTP } from "../constants";
 
 export const getUsers = async () => {
     const future = await new Promise<UserResponse>((resolve, reject) => {
@@ -8,19 +10,22 @@ export const getUsers = async () => {
         const request = net.request({
             method: 'GET',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.user,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
-    
+
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -30,15 +35,15 @@ export const getUsers = async () => {
                 }
             });
         });
-    
+
         request.on('error', (error) => {
             reject(error); // Reject the promise if there's a request error
         });
-    
+
         request.end();
-        });
-    
-        return future;
+    });
+
+    return future;
 }
 
 export const createUser = async (user: User) => {
@@ -46,19 +51,22 @@ export const createUser = async (user: User) => {
         const request = net.request({
             method: 'POST',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.user,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -68,14 +76,14 @@ export const createUser = async (user: User) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
 
         request.write(JSON.stringify(user));
-    
+
         request.end();
     });
 
@@ -87,19 +95,22 @@ export const updateUser = async (user: User) => {
         const request = net.request({
             method: 'PUT',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.user,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -108,14 +119,14 @@ export const updateUser = async (user: User) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
 
         request.write(JSON.stringify(user));
-    
+
         request.end();
     });
 
@@ -127,18 +138,22 @@ export const deleteUser = async (id: number) => {
         const request = net.request({
             method: 'DELETE',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
-            path: API_ENDPOINTS.user + `/${id}`,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
+            path: `${API_ENDPOINTS.user}/${id}`,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -147,7 +162,7 @@ export const deleteUser = async (id: number) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });

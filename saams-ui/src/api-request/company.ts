@@ -1,6 +1,8 @@
 import { net } from "electron";
 import { Company, CompanyResponse } from "../model/company";
-import { API_CONFIG, API_ENDPOINTS } from "../config";
+import { API_ENDPOINTS } from "../config";
+import { GlobalAuthManager } from "../global";
+import { HTTP } from "../constants";
 
 // Fetch a single company by ID
 export const getCompany = async (id: number): Promise<CompanyResponse> => {
@@ -8,10 +10,13 @@ export const getCompany = async (id: number): Promise<CompanyResponse> => {
     const request = net.request({
       method: 'GET',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: `${API_ENDPOINTS.company}/${id}`,
-      headers: API_CONFIG.headers,
+      headers: {
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
+      },
     });
 
     request.on('response', (response) => {
@@ -23,7 +28,6 @@ export const getCompany = async (id: number): Promise<CompanyResponse> => {
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -44,15 +48,21 @@ export const getCompany = async (id: number): Promise<CompanyResponse> => {
 
 // Fetch all companies
 export const getCompanies = async (): Promise<CompanyResponse[]> => {
+  console.log("getcompanys")
+  console.log(GlobalAuthManager.getAuthString());
   return new Promise<CompanyResponse[]>((resolve, reject) => {
     const request = net.request({
       method: 'GET',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: API_ENDPOINTS.company,
-      headers: API_CONFIG.headers,
+      headers: {
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
+      },
     });
+
 
     request.on('response', (response) => {
       let responseData = '';
@@ -63,7 +73,6 @@ export const getCompanies = async (): Promise<CompanyResponse[]> => {
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -88,12 +97,12 @@ export const createCompany = async (company: Company): Promise<CompanyResponse> 
     const request = net.request({
       method: 'POST',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: API_ENDPOINTS.company,
       headers: {
-        ...API_CONFIG.headers,
-        'Content-Type': 'application/json',
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
       },
     });
 
@@ -106,7 +115,6 @@ export const createCompany = async (company: Company): Promise<CompanyResponse> 
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -132,12 +140,12 @@ export const updateCompany = async (company: Company): Promise<CompanyResponse> 
     const request = net.request({
       method: 'PUT',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: `${API_ENDPOINTS.company}/${company.id}`,
       headers: {
-        ...API_CONFIG.headers,
-        'Content-Type': 'application/json',
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
       },
     });
 
@@ -150,7 +158,6 @@ export const updateCompany = async (company: Company): Promise<CompanyResponse> 
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -176,10 +183,13 @@ export const deleteCompany = async (id: number): Promise<CompanyResponse> => {
     const request = net.request({
       method: 'DELETE',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: `${API_ENDPOINTS.company}/${id}`,
-      headers: API_CONFIG.headers,
+      headers: {
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
+      },
     });
 
     request.on('response', (response) => {
@@ -191,7 +201,6 @@ export const deleteCompany = async (id: number): Promise<CompanyResponse> => {
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {

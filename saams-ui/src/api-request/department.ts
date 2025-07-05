@@ -1,17 +1,21 @@
 import { net } from "electron";
 import { Department, DepartmentResponse } from "../model/department";
-import { API_CONFIG, API_ENDPOINTS } from "../config";
-
+import { API_ENDPOINTS } from "../config";
+import { GlobalAuthManager } from "../global";
+import { HTTP } from "../constants";
 
 export const getDepartments = async (): Promise<DepartmentResponse> => {
     const future = await new Promise<DepartmentResponse>((resolve, reject) => {
         const request = net.request({
             method: 'GET',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.department,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
@@ -46,10 +50,13 @@ export const getDepartment = async (id: number): Promise<DepartmentResponse> => 
         const request = net.request({
             method: 'GET',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: `${API_ENDPOINTS.department}/${id}`,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
@@ -84,12 +91,12 @@ export const createDepartment = async (department: Department): Promise<Departme
         const request = net.request({
             method: 'POST',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.department,
             headers: {
-                ...API_CONFIG.headers,
-                'Content-Type': 'application/json',
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
             },
         });
 
@@ -126,12 +133,12 @@ export const updateDepartment = async (department: Department): Promise<Departme
         const request = net.request({
             method: 'PUT',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.department,
             headers: {
-                ...API_CONFIG.headers,
-                'Content-Type': 'application/json',
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
             },
         });
 
@@ -168,9 +175,13 @@ export const deleteDepartment = async (id: number): Promise<DepartmentResponse> 
         const request = net.request({
             method: 'DELETE',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: `${API_ENDPOINTS.department}/${id}`,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
