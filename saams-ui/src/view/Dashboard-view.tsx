@@ -28,6 +28,8 @@ import UserView from "./user-view";
 import CompanyView from "./company-view";
 import AreaView from "./area-view";
 import UserReportView from "./user-report-view";
+import ReaderView from "./reader-view";
+import LeaveView from "./leave-view";
 import PriviliegeView from "./priviliege-view"
 import ChannelView from "./channel-view";
 
@@ -59,7 +61,8 @@ const darkTheme = createTheme({
   },
 });
 
-const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Department','priviliege', 'Role', 'Shift', 'User'];
+const userManagementItems: string[] = ['Home', 'Company', 'Designation', 'Department', 'priviliege', 'Role', 'Shift', 'User'];
+const leaveManagementItems: string[] = ['Leave'];
 const accessManagementItems: string[] = ['Area', 'Channel', 'Reader'];
 const reportManagementItems: string[] = ['User Report', 'Reader Report', 'Attendance Report'];
 
@@ -78,10 +81,10 @@ const switchView = (key: string): React.JSX.Element => {
 
     case 'Shift':
       return <ShiftView />;
-      
+
     case 'priviliege':
-      return <PriviliegeView/>;
-    
+      return <PriviliegeView />;
+
     case 'Role':
       return <RoleView />;
 
@@ -95,6 +98,10 @@ const switchView = (key: string): React.JSX.Element => {
       return <UserReportView />
     case 'Area':
       return <AreaView />;
+    case 'Reader':
+      return <ReaderView />;
+    case 'Leave':
+      return <LeaveView />;
     case 'Channel':
       return <ChannelView />;
     default:
@@ -117,6 +124,16 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
           primary={text}
           sx={{ color: darkTheme.palette.text.primary }}
           onClick={() => setItem(userManagementItems[index])} />
+      </ListItemButton>
+    ))}
+  </List>;
+  const leaveManagementList = <List>
+    {leaveManagementItems.map((text, index) => (
+      <ListItemButton>
+        <ListItemText
+          primary={text}
+          sx={{ color: darkTheme.palette.text.primary }}
+          onClick={() => setItem(leaveManagementItems[index])} />
       </ListItemButton>
     ))}
   </List>;
@@ -198,6 +215,11 @@ export default function DashboardView({ userNameForDashboard, handleLogout }: Da
               User Management
             </ListSubheader>
             {userManagementList}
+            <Divider />
+            <ListSubheader component="div" id="nested-list-subheader">
+              Leave Management
+            </ListSubheader>
+            {leaveManagementList}
             <Divider />
             <ListSubheader component="div" id="nested-list-subheader">
               Access Management

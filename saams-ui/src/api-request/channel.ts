@@ -23,7 +23,6 @@ export const getChannel = async (id: number): Promise<ChannelResponse> => {
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -63,7 +62,6 @@ export const getChannels = async (): Promise<ChannelResponse[]> => {
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -106,7 +104,6 @@ export const createChannel = async (channel: Channel): Promise<ChannelResponse> 
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -150,7 +147,6 @@ export const updateChannel = async (channel: Channel): Promise<ChannelResponse> 
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -191,7 +187,6 @@ export const deleteChannel = async (id: number): Promise<ChannelResponse> => {
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
