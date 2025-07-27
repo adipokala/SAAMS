@@ -1,16 +1,20 @@
 import { net } from "electron";
 import { Area, AreaResponse } from "../model/area";
-import { API_CONFIG, API_ENDPOINTS } from "../config";
-
+import {API_ENDPOINTS } from "../config";
+import { HTTP } from "../constants";
+import { GlobalAuthManager } from '../global'
 export const getArea = async (id: number): Promise<AreaResponse> => {
     return new Promise<AreaResponse>((resolve, reject) => {
         const request = net.request({
             method: 'GET',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: `${API_ENDPOINTS.area}/${id}`,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
@@ -40,7 +44,17 @@ export const getArea = async (id: number): Promise<AreaResponse> => {
 
 export const getAreas = async (): Promise<AreaResponse> => {
     return new Promise<AreaResponse>((resolve, reject) => {
-        const request = net.request('https://localhost:7192/api/Area');
+        const request = net.request({
+            method: 'POST',
+            protocol: 'https:',
+            hostname: HTTP.hostname,
+            port: HTTP.port,
+            path: API_ENDPOINTS.area,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
+        });
 
         request.on('response', (response) => {
             let responseData = '';
@@ -72,10 +86,13 @@ export const createArea = async (area: Area): Promise<AreaResponse> => {
         const request = net.request({
             method: 'POST',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.area,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
@@ -109,10 +126,13 @@ export const updateArea = async (area: Area): Promise<AreaResponse> => {
         const request = net.request({
             method: 'PUT',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.area,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
@@ -146,11 +166,15 @@ export const deleteArea = async (id: number): Promise<AreaResponse> => {
         const request = net.request({
             method: 'DELETE',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: `${API_ENDPOINTS.area}/${id}`,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
-
+        
         request.on('response', (response) => {
             let responseData = '';
 

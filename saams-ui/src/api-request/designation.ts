@@ -1,26 +1,30 @@
 import { net } from "electron";
 import { Designation, DesignationResponse } from "../model/designation";
-import { API_CONFIG, API_ENDPOINTS } from "../config";
-
+import {  API_ENDPOINTS } from "../config";
+import { GlobalAuthManager } from "../global";
+import { HTTP } from "../constants";
 export const getDesignations = async () => {
     const future = await new Promise<DesignationResponse>((resolve, reject) => {
         // Make sure the entry exists
         const request = net.request({
             method: 'GET',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.designation,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
-    
+
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -30,35 +34,38 @@ export const getDesignations = async () => {
                 }
             });
         });
-    
+
         request.on('error', (error) => {
             reject(error); // Reject the promise if there's a request error
         });
-    
+
         request.end();
-        });
-    
-        return future;
+    });
+
+    return future;
 }
-export const getDesignation = async (id:number) => {
+export const getDesignation = async (id: number) => {
     const future = await new Promise<DesignationResponse>((resolve, reject) => {
         // Make sure the entry exists
         const request = net.request({
             method: 'GET',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
-            path: API_ENDPOINTS.designation+`/${id}`,
-            headers: API_CONFIG.headers,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
+            path: API_ENDPOINTS.designation + `/${id}`,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
-    
+
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -68,15 +75,15 @@ export const getDesignation = async (id:number) => {
                 }
             });
         });
-    
+
         request.on('error', (error) => {
             reject(error); // Reject the promise if there's a request error
         });
-    
+
         request.end();
-        });
-    
-        return future;
+    });
+
+    return future;
 }
 
 
@@ -85,19 +92,22 @@ export const createDesignation = async (designation: Designation) => {
         const request = net.request({
             method: 'POST',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.designation,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -107,14 +117,14 @@ export const createDesignation = async (designation: Designation) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
 
         request.write(JSON.stringify(designation));
-    
+
         request.end();
     });
 
@@ -126,19 +136,22 @@ export const updateDesignation = async (designation: Designation) => {
         const request = net.request({
             method: 'PUT',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.designation,
-            headers: API_CONFIG.headers,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -147,14 +160,14 @@ export const updateDesignation = async (designation: Designation) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });
         });
 
         request.write(JSON.stringify(designation));
-    
+
         request.end();
     });
 
@@ -166,18 +179,22 @@ export const deleteDesignation = async (id: number) => {
         const request = net.request({
             method: 'DELETE',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: API_CONFIG.port,
-            path: API_ENDPOINTS.designation + `/${id}`,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
+            path: `${API_ENDPOINTS.designation }/${id}`,
+            headers: {
+                'Content-Type': HTTP.contentType,
+                'Authorization': GlobalAuthManager.getAuthString()
+            },
         });
 
         request.on('response', (response) => {
             let responseData = '';
-    
+
             response.on('data', (chunk) => {
-            responseData += chunk; // Collect all data chunks
+                responseData += chunk; // Collect all data chunks
             });
-    
+
             response.on('end', () => {
                 try {
                     const data = JSON.parse(responseData);
@@ -186,7 +203,7 @@ export const deleteDesignation = async (id: number) => {
                     reject(error); // Reject if parsing fails
                 }
             });
-    
+
             request.on('error', (error) => {
                 reject(error); // Reject the promise if there's a request error
             });

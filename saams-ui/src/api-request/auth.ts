@@ -1,6 +1,7 @@
 import { net } from "electron";
-import { API_CONFIG, API_ENDPOINTS } from "../config";
+import { API_ENDPOINTS } from "../config";
 import { UserLogin, UserResponse } from "../model/user";
+import { HTTP } from '../constants'
 
 export const loginUser = async (json: string) => {
     let user: UserLogin = JSON.parse(json);
@@ -9,16 +10,16 @@ export const loginUser = async (json: string) => {
         const request = net.request({
             method: 'POST',
             protocol: 'https:',
-            hostname: API_CONFIG.hostname,
-            port: 7192,
+            hostname: HTTP.hostname,
+            port: HTTP.port,
             path: API_ENDPOINTS.login,
             headers: {
                 'Content-Type': 'application/json'
             },
         });
-    
+
         let responseData = '';
-    
+
         request.on('response', (response) => {
             response.on('data', (chunk) => {
                 responseData += chunk;
@@ -37,11 +38,11 @@ export const loginUser = async (json: string) => {
         request.on("error", (error) => {
             reject(error);
         })
-    
+
         request.write(JSON.stringify(user));
-    
+
         request.end();
-    });    
+    });
 
     return future;
 }

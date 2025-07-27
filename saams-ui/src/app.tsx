@@ -3,9 +3,7 @@ import { createRoot } from 'react-dom/client';
 import LoginView from './view/login-view';
 import DashboardView from './view/Dashboard-view';
 import DepartmentView from './view/Department-view';
-import Button from '@mui/material/Button';
-import { Box } from '@mui/material';
-import DiscordLikeInterface from './view/DiscordLikeView';
+import { GlobalAuthManager } from './global';
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -25,6 +23,9 @@ function App() {
                 setCurrentView('dashboard');
                 setUserNameForDashboard(resp.user.firstName);
                 setErrorMessage(null); // Clear any previous error messages
+                const authString = `Basic ` + btoa(`${userName}:${password}`)
+                window.electronAPI.setAuthString(authString); // this will send data to main process 
+                console.log(GlobalAuthManager.getAuthString())
             } else {
                 setLoginAttempted(true);
                 setIsAuthenticated(false);
@@ -37,13 +38,11 @@ function App() {
             setErrorMessage('Unable to connect to the server. Please try again later.');
         }
     };
-
     const handleLogout = () => {
         setIsAuthenticated(false);
         setCurrentView('login');
         setUserNameForDashboard('');
     };
-
     return (
         <>
             {isAuthenticated ? (

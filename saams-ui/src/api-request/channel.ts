@@ -1,6 +1,8 @@
 import { net } from "electron";
 import { Channel, ChannelResponse } from "../model/channel";
-import { API_CONFIG, API_ENDPOINTS } from "../config";
+import { API_ENDPOINTS } from "../config";
+import { GlobalAuthManager } from "../global";
+import { HTTP } from "../constants";
 
 // Fetch a single channel by ID
 export const getChannel = async (id: number): Promise<ChannelResponse> => {
@@ -8,10 +10,13 @@ export const getChannel = async (id: number): Promise<ChannelResponse> => {
     const request = net.request({
       method: 'GET',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: `${API_ENDPOINTS.channel}/${id}`,
-      headers: API_CONFIG.headers,
+      headers: {
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
+      },
     });
 
     request.on('response', (response) => {
@@ -23,7 +28,6 @@ export const getChannel = async (id: number): Promise<ChannelResponse> => {
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -48,10 +52,13 @@ export const getChannels = async (): Promise<ChannelResponse[]> => {
     const request = net.request({
       method: 'GET',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: API_ENDPOINTS.channel,
-      headers: API_CONFIG.headers,
+      headers: {
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
+      },
     });
 
     request.on('response', (response) => {
@@ -63,7 +70,6 @@ export const getChannels = async (): Promise<ChannelResponse[]> => {
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -88,12 +94,12 @@ export const createChannel = async (channel: Channel): Promise<ChannelResponse> 
     const request = net.request({
       method: 'POST',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: API_ENDPOINTS.channel,
       headers: {
-        ...API_CONFIG.headers,
-        'Content-Type': 'application/json',
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
       },
     });
 
@@ -106,7 +112,6 @@ export const createChannel = async (channel: Channel): Promise<ChannelResponse> 
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -132,12 +137,12 @@ export const updateChannel = async (channel: Channel): Promise<ChannelResponse> 
     const request = net.request({
       method: 'PUT',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: `${API_ENDPOINTS.channel}/${channel.id}`,
       headers: {
-        ...API_CONFIG.headers,
-        'Content-Type': 'application/json',
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
       },
     });
 
@@ -150,7 +155,6 @@ export const updateChannel = async (channel: Channel): Promise<ChannelResponse> 
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {
@@ -176,10 +180,13 @@ export const deleteChannel = async (id: number): Promise<ChannelResponse> => {
     const request = net.request({
       method: 'DELETE',
       protocol: 'https:',
-      hostname: API_CONFIG.hostname,
-      port: API_CONFIG.port,
+      hostname: HTTP.hostname,
+      port: HTTP.port,
       path: `${API_ENDPOINTS.channel}/${id}`,
-      headers: API_CONFIG.headers,
+      headers: {
+        'Content-Type': HTTP.contentType,
+        'Authorization': GlobalAuthManager.getAuthString()
+      },
     });
 
     request.on('response', (response) => {
@@ -191,7 +198,6 @@ export const deleteChannel = async (id: number): Promise<ChannelResponse> => {
 
       response.on('end', () => {
         try {
-          console.log("Response data received:", responseData);  // Log raw response for debugging
           const data = JSON.parse(responseData);
           resolve(data);
         } catch (error) {

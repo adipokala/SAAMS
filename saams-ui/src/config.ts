@@ -1,12 +1,3 @@
-import { Password } from "@mui/icons-material"
-
-export const API_CONFIG = {
-    hostname: 'localhost',
-    port: 7192,
-    headers: {
-        'Content-Type': 'application/json'
-    },
-}
 
 export const API_ENDPOINTS = {
     login: '/api/auth/login',
